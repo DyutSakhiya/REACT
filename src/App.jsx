@@ -1,19 +1,24 @@
 import'./app.css';
 
-import React, { useState } from 'react';
-import Navbar from './components/Navbar';
-import  News  from './components/news';
+import Navbar1 from './components/Navbar1';
+import RedClub from './components/RedClub';
+
 import{BrowserRouter as Router,Routes,Route,}from "react-router-dom";
 import LoadingBar from "react-top-loading-bar";
 
 
 
+
+
+
+
+
 const App =()=>{
-  const pageSize = 6;
+//   const pageSize = 6;
 
   
 
-  const [progress, setProgress] = useState(0)
+//   const [progress, setProgress] = useState(0)
  
 
   // constructor() {
@@ -28,9 +33,9 @@ const App =()=>{
   
     return(
       <div>
-        <Router>
-        <Navbar/>
-        <LoadingBar
+        {/* <Router>
+         {/* <Navbar/> */}
+        {/* <LoadingBar
         height={3}
         color="#f11946"
         progress={progress}
@@ -45,10 +50,22 @@ const App =()=>{
           <Route exact path="/sports" element = {<News setProgress={setProgress}  key="Sports" pageSize={pageSize}country="us"category="Sports"/>}> </Route>
           <Route exact path="/technology" element = {<News setProgress={setProgress}  key="technology" pageSize={pageSize}country="us"category="technology"/>}> </Route>
         </Routes>
-        </Router>
+        </Router> */}
+        
+        <Router>
+      <Navbar1 />
+      <Routes>
+        <Route path="/t-shirt" element={<RedClub category="t-shirt" />} />
+        <Route path="/shirt" element={<RedClub category="shirt" />} />
+        <Route path="/forml" element={<RedClub category="forml" />} />
+        <Route path="/hudi" element={<RedClub category="hudi" />} />
+      </Routes>
+    </Router>
+        
         
       </div>
     );
+
   
 }
 
