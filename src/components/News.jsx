@@ -74,9 +74,8 @@ import InfiniteScroll from "react-infinite-scroll-component";
           console.error("Error fetching data:", error);
           setState({ loading: false });
         }
-      
-    
-  };
+  
+};
 
   
     return (
@@ -87,8 +86,8 @@ import InfiniteScroll from "react-infinite-scroll-component";
           dataLength={articles.length}
           next={fetchMoreData}
           hasMore={articles.length !== totalResults}
-          loader={<Spinner />}
-        >
+          loader={<Spinner />}
+>
         <div className="row flex justify-around  mt-4 flex-wrap ">
         {articles.map((Element)=>{
         return  <div className="col-md-4 mt-6" key={Element.url}>

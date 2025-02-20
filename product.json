@@ -1,0 +1,52 @@
+{
+  "categories": [
+    {
+      "title": "t-shirt",
+      "description": "Beautiful landscapes and natural sceneries.",
+      "images": [
+        "t-shirt1.jpg",
+        "t-shirt2.jpg",
+        "t-shirt3.jpg",
+        "t-shirt4.jpg",
+        "t-shirt5.jpg",
+        "t-shirt6.jpg"
+      ]
+    },
+    {
+      "title": "shirt",
+      "description": "Modern innovations and futuristic gadgets.",
+      "images": [
+        "shirt1.jpg",
+        "shirt2.jpg",
+        "shirt3.jpg",
+        "shirt4.jpg",
+        "shirt5.jpg",
+        "shirt6.jpg"
+      ]
+    },
+    {
+      "title": "forml",
+      "description": "Amazing buildings and urban designs.",
+      "images": [
+        "forml1.jpg",
+        "forml2.jpg",
+        "forml3.jpg",
+        "forml4.jpg",
+        "forml5.jpg",
+        "forml6.jpg"
+      ]
+    },
+    {
+      "title": "hudi",
+      "description": "Delicious meals and creative dishes.",
+      "images": [
+        "hudi1.jpg",
+        "hudi2.jpg",
+        "hudi3.jpg",
+        "hudi4.jpg",
+        "hudi5.jpg",
+        "hudi6.jpg"
+      ]
+    }
+  ]
+}
