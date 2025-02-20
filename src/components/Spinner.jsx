@@ -1,15 +1,15 @@
-import React from 'react'
-import loading from './loading.gif'
+// import React from 'react'
+// import loading from './loading.gif'
 
-const Spinner = ()=> {
+// const Spinner = ()=> {
 
 
-    return (
-      <div className="flex justify-center ">
-        <img src={loading} alt="loading" />
-      </div>
-    )
+//     return (
+//       <div className="flex justify-center ">
+//         <img src={loading} alt="loading" />
+//       </div>
+//     )
   
-}
+// }
 
 export default Spinner

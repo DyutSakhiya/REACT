@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "categories": [
     {
       "title": "t-shirt",
@@ -50,3 +51,59 @@
     }
   ]
 }
+=======
+    "categories": [
+      {
+        "title": "t-shirt",
+        "description": "Beautiful landscapes and natural sceneries.",
+        "images": [
+          "./public/t-shirt1.jpg",
+          "./public/t-shirt2.jpg",
+          "./public/t-shirt3.jpg",
+          "./public/t-shirt4.jpg",
+          "./public/t-shirt5.jpg",
+          "./public/t-shirt6.jpg"
+        ]
+      },
+      {
+        "title": "shirt",
+        "description": "Modern innovations and futuristic gadgets.",
+        "images": [
+          "./public/shirt1.jpg",
+          "./public/shirt2.jpg",
+          "./public/shirt3.jpg",
+          "./public/shirt4.jpg",
+          "./public/shirt5.jpg",
+          "./public/shirt6.jpg"
+        ]
+      },
+      {
+        "title": "forml",
+        "description": "Amazing buildings and urban designs.",
+        "images": [
+          "./public/forml1.jpg",
+          "./public/forml2.jpg",
+          "./public/forml3.jpg",
+          "./public/forml4.jpg",
+          "./public/forml5.jpg",
+          "./public/forml6.jpg"
+        ]
+      },
+      {
+        "title": "hudi",
+        "description": "Delicious meals and creative dishes.",
+        "images": [
+          "./public/hudi1.jpg",
+          "./public/hudi2.jpg",
+          "./public/hudi3.jpg",
+          "./public/hudi4.jpg",
+          "./public/hudi5.jpg",
+          "./public/hudi6.jpg"
+        ]
+      }
+    ]
+  }
+  
+
+  
+>>>>>>> 4db9f03 (Initial commit)

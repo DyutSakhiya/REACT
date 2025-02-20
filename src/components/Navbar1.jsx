@@ -5,15 +5,24 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
+<<<<<<< HEAD
     <nav className="bg-gray-100 shadow-md ">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center  ">
+=======
+    <nav className="bg-gray-100 shadow-md">
+      <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+>>>>>>> 4db9f03 (Initial commit)
         <img
           src={"./public/logo.png"}
           alt=""
           className="w-16 h-12 mx-4 object-cover"
         />
         <button
+<<<<<<< HEAD
           className="text-gray-600  md:hidden absolute top-2  right-3"
+=======
+          className="text-gray-600 md:hidden"
+>>>>>>> 4db9f03 (Initial commit)
           onClick={() => setIsOpen(!isOpen)}
         >
           ☰
@@ -21,10 +30,21 @@ export default function Navbar() {
         <div
           className={`${
             isOpen ? "block" : "hidden"
+<<<<<<< HEAD
           } md:flex md:items-center w-full md:w-auto `}
         >
           <ul className="md:flex space-y-2 md:space-y-0 md:space-x-4">
            
+=======
+          } md:flex md:items-center w-full md:w-auto`}
+        >
+          <ul className="md:flex space-y-2 md:space-y-0 md:space-x-4">
+            <li>
+              <Link className="text-gray-700 hover:text-gray-900" to="/home">
+                Home
+              </Link>
+            </li>
+>>>>>>> 4db9f03 (Initial commit)
             <li>
               <Link className="text-gray-700 hover:text-gray-900" to="/t-shirt">
                 t-shirt
@@ -45,12 +65,15 @@ export default function Navbar() {
                 hudi
               </Link>
             </li>
+<<<<<<< HEAD
             <li>
               <Link className="text-gray-700 hover:text-gray-900" to="/home">
                 ToduList
               </Link>
             </li>
             
+=======
+>>>>>>> 4db9f03 (Initial commit)
           </ul>
         </div>
         <form className="hidden md:flex space-x-2">
