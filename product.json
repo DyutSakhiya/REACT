@@ -1,109 +1,77 @@
 {
-<<<<<<< HEAD
+
   "categories": [
     {
-      "title": "t-shirt",
-      "description": "Beautiful landscapes and natural sceneries.",
+      "title": "India(Ladakh)",
+      "description": "Pangong Tso, Khardung La, Multi-day Tours, Motorcycle Tours. For personalised recommendations, try our AI trip-planning product.",
       "images": [
-        "t-shirt1.jpg",
-        "t-shirt2.jpg",
-        "t-shirt3.jpg",
-        "t-shirt4.jpg",
-        "t-shirt5.jpg",
-        "t-shirt6.jpg"
+        "india.jpg"
+        
       ]
     },
     {
-      "title": "shirt",
-      "description": "Modern innovations and futuristic gadgets.",
+      "title": "Switzerland(Saint Moritz)",
+      "description": "This landlocked European country boasts charming cities, top ski resorts, and idyllic mountain scenery with cuckoo-clock houses and bell-adorned cows. From my many visits, here are my all-time ",
       "images": [
-        "shirt1.jpg",
-        "shirt2.jpg",
-        "shirt3.jpg",
-        "shirt4.jpg",
-        "shirt5.jpg",
-        "shirt6.jpg"
+        "switzerland.jpg"
+        
       ]
     },
     {
-      "title": "forml",
-      "description": "Amazing buildings and urban designs.",
+      "title": "Paris(Eiffel Tower)",
+      "description": "The Eiffel Tower, or La Tour Eiffel in French, is a wrought-iron lattice tower located on the Champ de Mars near the Seine River in Paris. It was designed by engineer Gustave Eiffel and completed in 1889 for ",
       "images": [
-        "forml1.jpg",
-        "forml2.jpg",
-        "forml3.jpg",
-        "forml4.jpg",
-        "forml5.jpg",
-        "forml6.jpg"
+        "eiffel tower.jpg"
+        
       ]
     },
     {
-      "title": "hudi",
-      "description": "Delicious meals and creative dishes.",
+      "title": "Londan(Big ben)",
+      "description": "It may be the most unpopular day of the week, but we think you can make it one of your most adventurous. Keep on reading for our sightseeing suggestions in England's bustling capital.",
       "images": [
-        "hudi1.jpg",
-        "hudi2.jpg",
-        "hudi3.jpg",
-        "hudi4.jpg",
-        "hudi5.jpg",
-        "hudi6.jpg"
+        "londan.jpg"
+       
+      ]
+    },
+    {
+      "title": "Singapore(Merlion)",
+      "description": "numerous holidays in Singapore. That being said, there have been so many new attractions that were built over the years – we would love to return to experience it all with the family.",
+      "images": [
+        "singapore.jpg"
+       
+      ]
+    },
+    {
+      "title": "Bali(Tanah Lot)",
+      "description": "The lush interiors of Bali boast volcanoes and mountains in the north through to Ubud’s calm and peaceful rice paddies. The popular beaches along the southern tip of the island all have their own charm with a perfect resort for everyone.",
+      "images": [
+        "bali.jpg"
+       
+      ]
+    },
+    {
+      "title": "Egypt(Giza Necropolis)",
+      "description": "New evidence suggests the ancient Egyptians used water to wet the sand in front of sledges, reducing friction and aiding the transportation of massive stones for the Pyramids of Giza",
+      "images": [
+        "egypt.jpg"
+       
+      ]
+    },
+    {
+      "title": "Thailand (Wat Plai Laem)",
+      "description": "Travelling to Thailand in December is one of the popular choices when it comes to exploring the island and outdoor attractions in Thailand. The majority of the country is dry, and the cool, dry weather makes Thailand ",
+      "images": [
+        "thailand.jpg"
+       
       ]
     }
   ]
 }
-=======
-    "categories": [
-      {
-        "title": "t-shirt",
-        "description": "Beautiful landscapes and natural sceneries.",
-        "images": [
-          "./public/t-shirt1.jpg",
-          "./public/t-shirt2.jpg",
-          "./public/t-shirt3.jpg",
-          "./public/t-shirt4.jpg",
-          "./public/t-shirt5.jpg",
-          "./public/t-shirt6.jpg"
-        ]
-      },
-      {
-        "title": "shirt",
-        "description": "Modern innovations and futuristic gadgets.",
-        "images": [
-          "./public/shirt1.jpg",
-          "./public/shirt2.jpg",
-          "./public/shirt3.jpg",
-          "./public/shirt4.jpg",
-          "./public/shirt5.jpg",
-          "./public/shirt6.jpg"
-        ]
-      },
-      {
-        "title": "forml",
-        "description": "Amazing buildings and urban designs.",
-        "images": [
-          "./public/forml1.jpg",
-          "./public/forml2.jpg",
-          "./public/forml3.jpg",
-          "./public/forml4.jpg",
-          "./public/forml5.jpg",
-          "./public/forml6.jpg"
-        ]
-      },
-      {
-        "title": "hudi",
-        "description": "Delicious meals and creative dishes.",
-        "images": [
-          "./public/hudi1.jpg",
-          "./public/hudi2.jpg",
-          "./public/hudi3.jpg",
-          "./public/hudi4.jpg",
-          "./public/hudi5.jpg",
-          "./public/hudi6.jpg"
-        ]
-      }
-    ]
-  }
-  
+
+
+
+
+    
 
   
->>>>>>> 4db9f03 (Initial commit)
+

@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@lordicon/react": "^1.10.1",
+    "lucide-react": "^0.477.0",
     "moment-timezone": "^0.5.47",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

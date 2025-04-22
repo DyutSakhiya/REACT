@@ -1,6 +1,7 @@
 // newsapp//
 
-<<<<<<< HEAD
+// import { List, RefreshCcw } from "lucide-react";
+
 // import'./app.css';
 
 // import React, { useState } from 'react';
@@ -44,100 +45,41 @@
 
 
 
+
+
+
 //FASHION ADDA app//
-=======
-import Navbar1 from './components/Navbar1';
-import RedClub from './components/RedClub';
 
-import{BrowserRouter as Router,Routes,Route,}from "react-router-dom";
-import LoadingBar from "react-top-loading-bar";
-
-
-
+// import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+// import Navbar1 from "./components/Navbar1";
+// import RedClub from "./components/RedClub";
+// import TodoList from "./components/TodoList";
+// import ProductDetail from "./components/ProductDetail";
+// import Cart from "./components/New Cart"; 
 
 
+// const App = () => {
+//   return (
+//     <Router>
+//       <Navbar1 />
+//       <Routes>
+//         <Route path="/t-shirt" element={<RedClub category="t-shirt" />} />
+//         <Route path="/shirt" element={<RedClub category="shirt" />} />
+//         <Route path="/forml" element={<RedClub category="forml" />} />
+//         <Route path="/hudi" element={<RedClub category="hudi" />} />
+//         <Route path="/Home" element={<TodoList />} />
+//         <Route path="/product/:id/:index" element={<ProductDetail />} />
+//         <Route path="/cart" element={<Cart />} /> 
+//       </Routes>
+//     </Router>
+//   );
+// };
+
+// export default App;
 
 
 
-const App =()=>{
-//   const pageSize = 6;
->>>>>>> 4db9f03 (Initial commit)
 
-import "./app.css";
-import Navbar1 from "./components/Navbar1";
-import RedClub from "./components/RedClub";
-import TodoList from "./components/TodoList";
-import ProductDetail from "./components/ProductDetail";
-
-<<<<<<< HEAD
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-
-const App = () => {
-  return (
-    <Router>
-=======
-//   const [progress, setProgress] = useState(0)
- 
-
-  // constructor() {
-  //   super();
-  //   this.state = {
-  //     progress: 0,
-  //   };
-  // }
-
-  
-
-  
-    return(
-      <div>
-        {/* <Router>
-         {/* <Navbar/> */}
-        {/* <LoadingBar
-        height={3}
-        color="#f11946"
-        progress={progress}
-      />
-        <Routes>
-          <Route exact path="/home" element = {<News setProgress={setProgress}  key="general"  pageSize={pageSize}country="us"category="general"/>}> </Route>
-          <Route exact path="/business" element = {<News setProgress={setProgress}  key="business" pageSize={pageSize}country="us"category="business"/>}> </Route>
-          <Route exact path="/entertainment" element = { <News setProgress={setProgress}  key="entertainment" pageSize={pageSize}country="us"category="entertainment"/>}></Route>
-          <Route exact path="/general" element = {<News setProgress={setProgress}  key="general" pageSize={pageSize}country="us"category="general"/>}> </Route>
-          <Route exact path="/health" element = { <News setProgress={setProgress}  key="health" pageSize={pageSize}country="us"category="health"/>}></Route>
-          <Route exact path="/science" element = {<News setProgress={setProgress}  key="science" pageSize={pageSize}country="us"category="science"/>}> </Route>
-          <Route exact path="/sports" element = {<News setProgress={setProgress}  key="Sports" pageSize={pageSize}country="us"category="Sports"/>}> </Route>
-          <Route exact path="/technology" element = {<News setProgress={setProgress}  key="technology" pageSize={pageSize}country="us"category="technology"/>}> </Route>
-        </Routes>
-        </Router> */}
-        
-        <Router>
->>>>>>> 4db9f03 (Initial commit)
-      <Navbar1 />
-      <Routes>
-        <Route path="/t-shirt" element={<RedClub category="t-shirt" />} />
-        <Route path="/shirt" element={<RedClub category="shirt" />} />
-        <Route path="/forml" element={<RedClub category="forml" />} />
-        <Route path="/hudi" element={<RedClub category="hudi" />} />
-<<<<<<< HEAD
-        <Route path="/Home" element={<TodoList />} />
-        <Route path="/product/:id/:index" element={<ProductDetail />} />
-      </Routes>
-    </Router>
-  );
-};
-=======
-      </Routes>
-    </Router>
-        
-        
-      </div>
-    );
-
-  
-}
->>>>>>> 4db9f03 (Initial commit)
-
-export default App;
 
 // import './app.css';
 // import Navbar2 from './components/Navbar2';
@@ -156,3 +98,19 @@ export default App;
 // };
 
 // export default App;
+
+
+
+import './app.css';
+import Insta from './components/insta';
+
+
+function App() {
+  return (
+    <div>
+     <Insta  />
+    </div>
+  )
+}
+
+export default App;

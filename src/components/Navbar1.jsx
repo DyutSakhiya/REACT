@@ -1,28 +1,20 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { ShoppingCart } from "lucide-react"; 
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-<<<<<<< HEAD
-    <nav className="bg-gray-100 shadow-md ">
-      <div className="container mx-auto px-4 py-3 flex justify-between items-center  ">
-=======
     <nav className="bg-gray-100 shadow-md">
-      <div className="container mx-auto px-4 py-3 flex justify-between items-center">
->>>>>>> 4db9f03 (Initial commit)
+      <div className="container mx-auto px-4 py-3 flex justify-between items-center ">
         <img
           src={"./public/logo.png"}
           alt=""
           className="w-16 h-12 mx-4 object-cover"
         />
         <button
-<<<<<<< HEAD
-          className="text-gray-600  md:hidden absolute top-2  right-3"
-=======
-          className="text-gray-600 md:hidden"
->>>>>>> 4db9f03 (Initial commit)
+          className="text-gray-600 md:hidden flex justify-end items-end "
           onClick={() => setIsOpen(!isOpen)}
         >
           ☰
@@ -30,53 +22,38 @@ export default function Navbar() {
         <div
           className={`${
             isOpen ? "block" : "hidden"
-<<<<<<< HEAD
-          } md:flex md:items-center w-full md:w-auto `}
-        >
-          <ul className="md:flex space-y-2 md:space-y-0 md:space-x-4">
-           
-=======
           } md:flex md:items-center w-full md:w-auto`}
         >
-          <ul className="md:flex space-y-2 md:space-y-0 md:space-x-4">
+          <ul className="md:flex space-y-2 md:space-y-0 md:space-x-4 mr-48">
             <li>
               <Link className="text-gray-700 hover:text-gray-900" to="/home">
                 Home
               </Link>
             </li>
->>>>>>> 4db9f03 (Initial commit)
             <li>
               <Link className="text-gray-700 hover:text-gray-900" to="/t-shirt">
-                t-shirt
+                T-Shirt
               </Link>
             </li>
             <li className="relative group">
               <Link className="text-gray-700 hover:text-gray-900" to="/shirt">
-                shirt
+                Shirt
               </Link>
             </li>
             <li>
               <Link className="text-gray-700 hover:text-gray-900" to="/forml">
-                forml
+                Formal
               </Link>
             </li>
             <li>
               <Link className="text-gray-700 hover:text-gray-900" to="/hudi">
-                hudi
+                Hudi
               </Link>
             </li>
-<<<<<<< HEAD
-            <li>
-              <Link className="text-gray-700 hover:text-gray-900" to="/home">
-                ToduList
-              </Link>
-            </li>
-            
-=======
->>>>>>> 4db9f03 (Initial commit)
           </ul>
         </div>
-        <form className="hidden md:flex space-x-2">
+
+        <form className="hidden md:flex space-x-2  ml-[500px]">
           <input
             className="border rounded-lg px-3 py-1"
             type="search"
@@ -90,6 +67,13 @@ export default function Navbar() {
             Search
           </button>
         </form>
+
+        <Link to="/cart" className="relative mx-4">
+          <ShoppingCart className="w-6 h-6 text-gray-700 hover:text-gray-900" />
+          <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1 rounded-full">
+            
+          </span>
+        </Link>
       </div>
     </nav>
   );
