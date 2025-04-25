@@ -128,14 +128,9 @@ function LikeDislike() {
     <div>
       <div className="flex flex-wrap" style={{}}>
         {boxes.map((box, index) => (
-          <div
+          <div className="h-48 w-48 bg-purple-700 m-10"
             key={index}
-            style={{
-              width: "100px", 
-              height: "100px",
-              backgroundColor: "lightblue",
-              margin: "10px",
-            }}
+            style={{ }}
           ></div>
         ))}
       </div>
