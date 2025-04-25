@@ -101,16 +101,50 @@
 
 
 
-import './app.css';
-import Insta from './components/insta';
+// import { RefreshCcw } from 'lucide-react';
+// import './app.css';
+// import Insta from './components/insta';
 
+
+// function App() {
+//   return (
+//     <div>
+//      <Insta  />
+//     </div>
+//   )
+// }
+
+// export default App;
+
+
+
+// import React from 'react'
+// import SendEmailForm from './components/SendEmailForm'
+
+
+// function App() {
+//   return (
+//     <div>
+//         <SendEmailForm/>
+        
+//     </div>
+//   )
+// }
+
+// export default App
+
+
+import React from 'react'
+import LikeDislike from './components/LikeDislike'
 
 function App() {
   return (
     <div>
-     <Insta  />
+
+      <LikeDislike/>
     </div>
   )
 }
 
-export default App;
+export default App
+
