@@ -135,13 +135,15 @@
 
 
 import React from 'react'
-import LikeDislike from './components/LikeDislike'
+import TodoApp from './components/TodoList'
+// import LikeDislike from './components/LikeDislike'
 
 function App() {
   return (
     <div>
 
-      <LikeDislike/>
+      {/* <LikeDislike/> */}
+      <TodoApp/>
     </div>
   )
 }
