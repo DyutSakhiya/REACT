@@ -1,6 +1,7 @@
 import React from 'react'
 
 function SendEmailForm() {
+  
 
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100 pb-52"> 
@@ -12,6 +13,7 @@ function SendEmailForm() {
             className="border border-gray-300 rounded p-2 mb-4 w-80"
             />
             <textarea
+            
             placeholder="Enter your message"
             className="border border-gray-300 rounded p-2 mb-4 w-80 h-32"
             ></textarea>
