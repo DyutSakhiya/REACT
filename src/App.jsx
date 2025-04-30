@@ -134,19 +134,42 @@
 // export default App
 
 
-import React from 'react'
-import TodoApp from './components/TodoList'
+// import React from 'react'
+// import TodoApp from './components/TodoList'
 // import LikeDislike from './components/LikeDislike'
 
+// function App() {
+//   return (
+//     <div>
+
+//       <LikeDislike/>
+//       <TodoApp/>
+//     </div>
+//   )
+// }
+
+// export default App
+
+
+
+import React,{useState} from 'react';
+import Login from './components/login'
+import Register from './components/Register'
+
+
 function App() {
+  const [page, setPage] = useState('register');
+
+
   return (
     <div>
-
-      {/* <LikeDislike/> */}
-      <TodoApp/>
+      {page === 'register' ? (
+        <Register goToLogin={() => setPage('login')} />
+      ) : (
+        <Login goToRegister={() => setPage('register')} />
+      )}
     </div>
-  )
+  );
 }
 
-export default App
-
+export default App;
