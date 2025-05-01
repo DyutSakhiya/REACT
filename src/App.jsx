@@ -159,9 +159,17 @@ import Register from './components/Register'
 
 function App() {
   const [page, setPage] = useState('register');
+  const [form, setForm] = useState({
+    firstName: "",
+    lastName: "",
+    address: "",
+    mobile: "",
+  });
 
+  
 
   return (
+    
     <div>
       {page === 'register' ? (
         <Register goToLogin={() => setPage('login')} />
