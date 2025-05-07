@@ -152,29 +152,39 @@
 
 
 
-import React,{useState} from 'react';
-import Login from './components/login'
-import Register from './components/Register'
-
+import React, { useState } from 'react';
+import Login from './components/login';
+import Register from './components/Register';
 
 function App() {
   const [page, setPage] = useState('register');
-  const [form, setForm] = useState({
-    firstName: "",
-    lastName: "",
-    address: "",
-    mobile: "",
-  });
 
-  
+  const [Data, setData] = useState({
+  firstName: '',
+  lastName: '',
+  address: '',
+  mobile: '',
+  username: '',
+  email: '',
+  password: ''
+});
 
   return (
-    
     <div>
       {page === 'register' ? (
-        <Register goToLogin={() => setPage('login')} />
+        <Register
+
+        
+          Data={Data}
+          setData={setData}
+          goToLogin={() => setPage('login')}
+        />
       ) : (
-        <Login goToRegister={() => setPage('register')} />
+        <Login
+          Data={Data}
+          setData={setData}
+          goToRegister={() => setPage('register')}
+        />
       )}
     </div>
   );
