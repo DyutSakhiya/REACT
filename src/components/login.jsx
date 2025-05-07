@@ -6,7 +6,7 @@ function Login({ Data, setData }) {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
+      e.preventDefault();
   };
 
   return (
@@ -65,7 +65,7 @@ function Login({ Data, setData }) {
         </div>
 
         <div className="bg-gray-300 p-6 rounded-xl shadow-inner mt-8">
-          <h3 className="text-lg font-bold text-gray-700 mb-4 text-center">
+          <h3 className="text-lg font-bold text-gray-600 mb-4 text-center">
             User Details
           </h3>
           <div className="grid grid-cols-2 gap-3 text-sm text-gray-700">
