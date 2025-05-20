@@ -152,42 +152,62 @@
 
 
 
-import React, { useState } from 'react';
-import Login from './components/login';
-import Register from './components/Register';
+// import React, { useState } from 'react';
+// import Login from './components/login';
+// import Register from './components/Register';
 
-function App() {
-  const [page, setPage] = useState('register');
+// function App() {
+//   const [page, setPage] = useState('register');
 
-  const [Data, setData] = useState({
-  firstName: '',
-  lastName: '',
-  address: '',
-  mobile: '',
-  username: '',
-  email: '',
-  password: ''
-});
+//   const [Data, setData] = useState({
+//   firstName: '',
+//   lastName: '',
+//   address: '',
+//   mobile: '',
+//   username: '',
+//   email: '',
+//   password: ''
+// });
 
-  return (
-    <div>
-      {page === 'register' ? (
-        <Register
+//   return (
+//     <div>
+//       {page === 'register' ? (
+//         <Register
 
         
-          Data={Data}
-          setData={setData}
-          goToLogin={() => setPage('login')}
-        />
-      ) : (
-        <Login
-          Data={Data}
-          setData={setData}
-          goToRegister={() => setPage('register')}
-        />
-      )}
+//           Data={Data}
+//           setData={setData}
+//           goToLogin={() => setPage('login')}
+//         />
+//       ) : (
+//         <Login
+//           Data={Data}
+//           setData={setData}
+//           goToRegister={() => setPage('register')}
+//         />
+//       )}
+//     </div>
+//   );
+// }
+
+// export default App;
+
+
+
+
+
+
+
+
+import React from 'react'
+import Quiz from './components/Quiz'
+
+function App() {
+  return (
+    <div>
+      <Quiz/>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
