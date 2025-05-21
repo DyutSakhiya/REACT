@@ -200,12 +200,13 @@
 
 
 import React from 'react'
-import Quiz from './components/Quiz'
-
+// import Quiz from './components/Quiz'
+import My from'./components/My'
 function App() {
   return (
     <div>
-      <Quiz/>
+      {/* <Quiz/> */}
+      <My/>
     </div>
   )
 }

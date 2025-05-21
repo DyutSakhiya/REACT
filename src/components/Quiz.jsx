@@ -1,130 +1,97 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 const questions = [
   {
     question: "Who won the ICC Cricket World Cup in 2011?",
     options: ["Australia", "India", "England", "Pakistan"],
-    answer: "India",
   },
   {
-    question: "What is the capital of France?",
-    options: ["Madrid", "Berlin", "Paris", "Lisbon"],
-    answer: "Paris",
+    question: "Which country hosted the 2019 Cricket World Cup?",
+    options: ["India", "England", "Australia", "New Zealand"],
   },
   {
-    question: "Which planet is known as the Red Planet?",
-    options: ["Earth", "Mars", "Jupiter", "Saturn"],
-    answer: "Mars",
+    question: "Who is known as the 'Master Blaster' in cricket?",
+    options: ["Virat Kohli", "Ricky Ponting", "Sachin Tendulkar", "MS Dhoni"],
   },
   {
-    question: "Which language is used to style web pages?",
-    options: ["HTML", "Python", "CSS", "Java"],
-    answer: "CSS",
+    question: "Which bowler has taken the most wickets in Test cricket?",
+    options: ["Shane Warne", "Muttiah Muralitharan", "Anil Kumble", "James Anderson"],
   },
   {
-    question: "What does CPU stand for?",
-    options: ["Central Processing Unit", "Computer Processing Unit", "Central Power Unit", "Core Programming Unit"],
-    answer: "Central Processing Unit",
+    question: "Which format is known as the shortest in professional cricket?",
+    options: ["Test", "ODI", "T20", "The Hundred"],
   },
 ];
 
 function Quiz() {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [score, setScore] = useState(0);
-  const [selected, setSelected] = useState(null);
-  const [isCompleted, setIsCompleted] = useState(false);
-
-  const currentQuestion = questions[currentIndex];
-
-  useEffect(() => {
-    setSelected(null);
-  }, [currentIndex]);
-
-  const handleOptionClick = (option) => {
-    setSelected(option);
-    if (option === currentQuestion.answer) {
-      setScore(score + 1);
-    }
-  };
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [selectedOption, setSelectedOption] = useState(null);
 
   const handleNext = () => {
-    if (currentIndex + 1 < questions.length) {
-      setCurrentIndex(currentIndex + 1);
-    } else {
-      setIsCompleted(true);
+    if (currentQuestion < questions.length - 1) {
+      setCurrentQuestion(currentQuestion + 1);
+      setSelectedOption(null);
     }
   };
 
   const handlePrevious = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-      if (selected === currentQuestion.answer) {
-        setScore(score - 1);
-      }
+    if (currentQuestion > 0) {
+      setCurrentQuestion(currentQuestion - 1);
+      setSelectedOption(null);
     }
   };
 
-  const restartQuiz = () => {
-    setCurrentIndex(0);
-    setScore(0);
-    setSelected(null);
-    setIsCompleted(false);
+  const handleOptionClick = (option) => {
+    setSelectedOption(option);
   };
+
+  const question = questions[currentQuestion];
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-blue-100 p-4">
-      <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
-        {!isCompleted ? (
-          <>
-            <p className="text-sm text-gray-500">Question {currentIndex + 1} of {questions.length}</p>
-            <h2 className="text-lg font-semibold mb-4">{currentQuestion.question}</h2>
+      <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-md text-center space-y-6">
+        <div className="text-gray-600 text-sm">
+          Question {currentQuestion + 1} of {questions.length}
+        </div>
 
-            {currentQuestion.options.map((option, i) => (
-              <button
-                key={i}
-                className={`mb-2 py-2 px-4 w-full rounded ${selected
-                  ? option === currentQuestion.answer
-                    ? "bg-green-500 text-white"
-                    : option === selected
-                      ? "bg-red-500 text-white"
-                      : "bg-blue-300 text-white"
-                  : "bg-blue-500 text-white hover:bg-blue-600"
-                }`}
-                onClick={() => handleOptionClick(option)}
-                disabled={selected !== null}
-              >
-                {option}
-              </button>
-            ))}
+        <h1 className="text-xl font-semibold text-gray-800">{question.question}</h1>
 
-            <div className="flex justify-between mt-4">
-              <button
-                onClick={handlePrevious}
-                disabled={currentIndex === 0}
-                className="bg-gray-600 text-white px-4 py-2 rounded disabled:opacity-50"
-              >
-                Previous
-              </button>
-              <button
-                onClick={handleNext}
-                disabled={selected === null}
-                className="bg-green-600 text-white px-4 py-2 rounded"
-              >
-                {currentIndex + 1 === questions.answer ? "Finish" : "Next"}
-              </button>
-            </div>
-          </>
-        ) : (
-          <div className="text-center">
-            <h2 className="text-xl font-bold text-green-700 mb-2">Quiz Completed!</h2>
-            <p className="text-gray-700 mb-4">Your Score: {score} / {questions.length}</p>
-            <button onClick={restartQuiz} className="bg-green-600 text-white px-4 py-2 rounded">
-              Restart Quiz
+        <div className="flex flex-col gap-3">
+          {question.options.map((option, index) => (
+            <button
+              key={index}
+              onClick={() => handleOptionClick(option)}
+              className={`py-2 px-4 rounded transition ${
+                selectedOption === option
+                  ? "bg-blue-700 text-white"
+                  : "bg-blue-500 hover:bg-blue-600 text-white"
+              }`}
+            >
+              {option}
             </button>
-          </div>
-        )}
+          ))}
+        </div>
+
+        <div className="flex justify-between pt-4">
+          <button
+            onClick={handlePrevious}
+            className="py-2 px-4 rounded bg-gray-700 hover:bg-gray-600" 
+            disabled={currentQuestion === 0}
+          >
+            Previous
+          </button>
+
+          <button
+            onClick={handleNext}
+            className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded"
+            disabled={currentQuestion === questions.length - 1}
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   );
 }
+
 export default Quiz;

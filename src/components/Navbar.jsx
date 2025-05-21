@@ -12,7 +12,6 @@ const Navbar = () => {
     <div>
       <nav className="bg-gray-500 border-b border-gray-950 h-16">
         <div className="container mx-auto flex items-center justify-between">
-          {/* Logo Section */}
           <div className="flex items-center mt-3 space-x-6">
             <img
               src={'./public/TV9_india.jpg'}
@@ -92,7 +91,6 @@ const Navbar = () => {
             </ul>
           </div>
 
-          {/* Search and Submit Section */}
           <div className="flex space-x-3 items-center mr-5 mt-3">
             <input
               type="text"
