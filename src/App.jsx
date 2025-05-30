@@ -201,12 +201,15 @@
 
 import React from 'react'
 // import Quiz from './components/Quiz'
-import My from'./components/My'
+// import My from'./components/My'
+  
+import UseRef from './components/useref'
 function App() {
   return (
     <div>
       {/* <Quiz/> */}
-      <My/>
+      {/* <My/> */}
+      <UseRef/>
     </div>
   )
 }

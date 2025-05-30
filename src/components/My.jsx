@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 
 const Todos = () => {
   const [todos, setTodos] = useState([]);
 
-  
-useEffect(() => {
+  useEffect(() => {
     const fetchTodos = async () => {
       try {
-        const response = await fetch("https://jsonplaceholder.typicode.com/todos");
+        const response = await fetch(
+          "https://jsonplaceholder.typicode.com/todos"
+        );
         const data = await response.json();
         setTodos(data);
         console.log("Fetched Todos:", data);
@@ -19,13 +20,18 @@ useEffect(() => {
     fetchTodos();
   }, []);
 
+  // const completedTodos = todos.filter((todo) => todo.completed === true);
+
+  const completedTodos =  useMemo(() => todos.filter((todo) => todo.completed === true), [todos])
 
   return (
     <div>
-      <h1>All Todos</h1>
+      <h1>Completed Todos</h1>
       <ul>
-        {todos.map((todo) => (
-          <li key={todo.id}>{todo.userId} | {todo.id} | {todo.title}</li>
+        {completedTodos.map((todo) => (
+          <li key={todo.id}>
+            {todo.userId} | {todo.id} | {todo.title}
+          </li>
         ))}
       </ul>
     </div>
