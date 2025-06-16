@@ -15,7 +15,6 @@
 
 //   const [progress, setProgress] = useState(0)
 
-
 //     return(
 //       <div>
 //         <Router>
@@ -43,11 +42,6 @@
 
 // export default App;
 
-
-
-
-
-
 //FASHION ADDA app//
 
 // import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
@@ -55,8 +49,7 @@
 // import RedClub from "./components/RedClub";
 // import TodoList from "./components/TodoList";
 // import ProductDetail from "./components/ProductDetail";
-// import Cart from "./components/New Cart"; 
-
+// import Cart from "./components/New Cart";
 
 // const App = () => {
 //   return (
@@ -69,7 +62,7 @@
 //         <Route path="/hudi" element={<RedClub category="hudi" />} />
 //         <Route path="/Home" element={<TodoList />} />
 //         <Route path="/product/:id/:index" element={<ProductDetail />} />
-//         <Route path="/cart" element={<Cart />} /> 
+//         <Route path="/cart" element={<Cart />} />
 //       </Routes>
 //     </Router>
 //   );
@@ -77,17 +70,13 @@
 
 // export default App;
 
-
-
-
-
 // import './app.css';
 // import Navbar2 from './components/Navbar2';
 // import Clock from './components/Clock';
 // import { useState } from 'react';
 
 // const App = () => {
-//   const [country, setCountry] = useState("India"); 
+//   const [country, setCountry] = useState("India");
 
 //   return (
 //     <div>
@@ -99,12 +88,9 @@
 
 // export default App;
 
-
-
 // import { RefreshCcw } from 'lucide-react';
 // import './app.css';
 // import Insta from './components/insta';
-
 
 // function App() {
 //   return (
@@ -116,23 +102,19 @@
 
 // export default App;
 
-
-
 // import React from 'react'
 // import SendEmailForm from './components/SendEmailForm'
-
 
 // function App() {
 //   return (
 //     <div>
 //         <SendEmailForm/>
-        
+
 //     </div>
 //   )
 // }
 
 // export default App
-
 
 // import React from 'react'
 // import TodoApp from './components/TodoList'
@@ -149,8 +131,6 @@
 // }
 
 // export default App
-
-
 
 // import React, { useState } from 'react';
 // import Login from './components/login';
@@ -174,7 +154,6 @@
 //       {page === 'register' ? (
 //         <Register
 
-        
 //           Data={Data}
 //           setData={setData}
 //           goToLogin={() => setPage('login')}
@@ -192,26 +171,26 @@
 
 // export default App;
 
-
-
-
-
-
-
-
-import React from 'react'
+import React from "react";
 // import Quiz from './components/Quiz'
 // import My from'./components/My'
-  
-import UseRef from './components/useref'
+
+import UseRef from "./components/useref";
+import UseContex from "./components/usecontex";
+import { ColorProvider } from "./components/usecontex";
+
 function App() {
   return (
     <div>
       {/* <Quiz/> */}
       {/* <My/> */}
-      <UseRef/>
+      <UseRef />
+
+      <ColorProvider>
+        <UseContex />
+      </ColorProvider>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

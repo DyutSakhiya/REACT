@@ -14,10 +14,10 @@ function Counter() {
   };
 
   return (
-    <div className="div">
-      <div className=" flex justify-center mt-5  ">
+    <div className=" ">
+      <div className=" flex justify-center items-center py-6  ">
         <button
-          className=" h-10 rounded bg-gray-600 hover:bg-gray-600"
+          className=" h-10 w-20 rounded bg-gray-300 hover:bg-gray-600"
           onClick={handleIncrement}
         >
           Increment
@@ -35,7 +35,6 @@ function Counter() {
           onClick={handleClick}
           className="  w-16 ml-3   border border-gray-600  rounded-md hover:bg-green-600"
         >
-          {" "}
           input
         </button>
       </div>
