@@ -171,26 +171,49 @@
 
 // export default App;
 
+// import React from "react";
+// // import Quiz from './components/Quiz'
+// // import My from'./components/My'
+
+// import UseRef from "./components/useref";
+// import UseContex from "./components/usecontex";
+// import { ColorProvider } from "./components/usecontex";
+
+// function App() {
+//   return (
+//     <div>
+//       {/* <Quiz/> */}
+//       {/* <My/> */}
+//       <UseRef />
+
+//       <ColorProvider>
+//         <UseContex />
+//       </ColorProvider>
+//     </div>
+//   );
+// }
+
+// export default App;
+
 import React from "react";
-// import Quiz from './components/Quiz'
-// import My from'./components/My'
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-import UseRef from "./components/useref";
-import UseContex from "./components/usecontex";
-import { ColorProvider } from "./components/usecontex";
+import MovieNav from "./components/MovieNav";
+import Movie from "./components/movie";
 
-function App() {
+const App = () => {
   return (
-    <div>
-      {/* <Quiz/> */}
-      {/* <My/> */}
-      <UseRef />
-
-      <ColorProvider>
-        <UseContex />
-      </ColorProvider>
-    </div>
+    <Router>
+      <MovieNav />
+      <Routes>
+        <Route path="/Home" element={<Movie category="Home"/>} />
+        <Route path="/Bollywood" element={<Movie category="Bollywood" />} />
+        <Route path="/Hollywood" element={<Movie category="Hollywood" />} />
+        <Route path="/Gujarati" element={<Movie category="Gujarati" />} />
+        <Route path="/Web Series" element={<Movie category="Web Series" />} />
+      </Routes>
+    </Router>
   );
-}
+};
 
 export default App;
