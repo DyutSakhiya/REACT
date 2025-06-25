@@ -1,26 +1,26 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import moviesData from "../../movie.json";
 
 const MovieDetail = () => {
-  const { id } = useParams();
+  const { id, category } = useParams(); 
   const [movie, setMovie] = useState(null);
-  const [category, setCategory] = useState("");
+  const [currentCategory, setCurrentCategory] = useState("");
 
   useEffect(() => {
+    const selectedCategory = moviesData.categories.find(
+      cat => cat.title.toLowerCase() === category.toLowerCase()
+    );
 
-    for (const cat of moviesData.categories) {
-      if (id < cat.images.length) {
-        setMovie({
-          image: cat.images[id],
-          title: `${cat.title} Movie ${parseInt(id) + 1}`,
-          category: cat.title
-        });
-        setCategory(cat.title);
-        break;
-      }
+    if (selectedCategory && id < selectedCategory.images.length) {
+      setMovie({
+        image: selectedCategory.images[id],
+        title: `${selectedCategory.title} Movie ${parseInt(id) + 1}`,
+        category: selectedCategory.title
+      });
+      setCurrentCategory(selectedCategory.title);
     }
-  }, [id]);
+  }, [id, category]);
 
   if (!movie) {
     return <div className="text-center py-10">Loading movie details...</div>;
@@ -40,7 +40,7 @@ const MovieDetail = () => {
         <div className="md:w-2/3">
           <div className="mb-6">
             <span className="bg-yellow-500 text-black px-3 py-1 rounded-full text-sm font-semibold">
-              {category}
+              {currentCategory}
             </span>
             <h1 className="text-3xl font-bold mt-2 text-gray-800">{movie.title}</h1>
             <div className="flex items-center mt-4 space-x-4">
@@ -85,22 +85,22 @@ const MovieDetail = () => {
       </div>
       
       <div className="mt-12">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">More from {category}</h2>
+        <h2 className="text-2xl font-bold mb-6 text-gray-800">More from {currentCategory}</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {moviesData.categories
-            .find(cat => cat.title === category)
+            .find(cat => cat.title === currentCategory)
             ?.images.filter((_, i) => i !== parseInt(id))
             .slice(0, 5)
             .map((image, index) => (
               <Link 
-                to={`/movie/${index}`} 
+                to={`/movie/${category}/${index}`} 
                 key={index}
                 className="group"
               >
                 <div className="bg-white rounded-lg overflow-hidden shadow hover:shadow-md transition-shadow duration-300">
                   <img
                     src={image}
-                    alt={`${category} Movie ${index + 1}`}
+                    alt={`${currentCategory} Movie ${index + 1}`}
                     className="h-96 object-cover rounded-md mb-4"
                   />
                 </div>

@@ -53,14 +53,14 @@
       "title": "Web Series",
       "description": "",
       "images": [
-        "Web Series/Breaking Bad.jpg",
-        "Web Series/Game of Thrones.jpg",
-        "Web Series/Staranger Things.jpg",
-        "Web Series/All of Us Are Dead.jpg",
-        "Web Series/Alice in Borderland.jpg",
-        "Web Series/Monyey Heist.jpg",
-        "Web Series/Mirzapur.jpg",
-        "Web Series/Asur.jpg"
+        "/Web Series/Breaking Bad.jpg",
+        "/Web Series/Game of Thrones.jpg",
+        "/Web Series/Staranger Things.jpg",
+        "/Web Series/All of Us Are Dead.jpg",
+        "/Web Series/Alice in Borderland.jpg",
+        "/Web Series/Monyey Heist.jpg",
+        "/Web Series/Mirzapur.jpg",
+        "/Web Series/Asur.jpg"
       ]
       }    
     ]

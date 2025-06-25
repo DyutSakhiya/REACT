@@ -24,7 +24,14 @@ const Movie = ({ category }) => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {categoryData.images.map((image, index) => (
-          <Link to={`/movie/${index}`} key={index} className="group">
+          <Link
+            to={`/movie/${categoryData.title
+              .toLowerCase()
+              .replace(" ", "-")}/${index}`}
+            key={index}
+            className="group"
+          >
+            {" "}
             <div className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
               <div className="relative overflow-hidden  flex justify-center items-center my-5">
                 <img

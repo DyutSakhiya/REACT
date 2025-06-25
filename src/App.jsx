@@ -213,8 +213,8 @@ const App = () => {
             <Route path="/bollywood" element={<Movie category="Bollywood" />} />
             <Route path="/hollywood" element={<Movie category="Hollywood" />} />
             <Route path="/gujarati" element={<Movie category="Gujarati" />} />
-            <Route path="/web-series" element={<Movie category="Web Series" />} />
-            <Route path="/movie/:id" element={<MovieDetail />} />
+            <Route path="/web series" element={<Movie category="Web Series" />} />
+            <Route path="/movie/:category/:id" element={<MovieDetail />} />{" "}
           </Routes>
         </main>
         <footer className="bg-gray-800 text-white py-6">
