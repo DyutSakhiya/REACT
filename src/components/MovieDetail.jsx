@@ -11,8 +11,10 @@ const MovieDetail = () => {
     const selectedCategory = moviesData.categories.find(
       cat => cat.title.toLowerCase() === category.toLowerCase()
     );
+  
 
     if (selectedCategory && id < selectedCategory.images.length) {
+     
       setMovie({
         image: selectedCategory.images[id],
         title: `${selectedCategory.title} Movie ${parseInt(id) + 1}`,

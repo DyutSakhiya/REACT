@@ -61,7 +61,7 @@ function MovieNav() {
             </Link>
 
             <Link
-              to="/web series"
+              to="/web-series"
               className="hover:text-yellow-400 transition duration-300"
             >
               Web Series

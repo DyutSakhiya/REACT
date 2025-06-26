@@ -29,7 +29,7 @@
         "/Hollywood/Captain America.jpeg",
         "/Hollywood/Venom The Last Dance.jpg",
         "/Hollywood/Jurassic World.jpg",
-        "/Hollywood/End Game/jpg",
+        "/Hollywood/End Game.jpg",
         "/Hollywood/A Working Man.jpg"
 
       ]
@@ -49,8 +49,9 @@
 
       ]
     },
+  
     {
-      "title": "Web Series",
+      "title": "Web-Series",
       "description": "",
       "images": [
         "/Web Series/Breaking Bad.jpg",
