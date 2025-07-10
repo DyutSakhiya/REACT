@@ -204,6 +204,8 @@ import MovieNav from "./components/MovieNav";
 import Movie from "./components/movie";
 import Home from "./components/Home";
 import MovieDetail from "./components/MovieDetail";
+import Cart from "./components/cart";
+
 
 const App = () => {
   return (
@@ -218,6 +220,7 @@ const App = () => {
               <Route path="/hollywood" element={<Movie category="Hollywood" />} />
               <Route path="/gujarati" element={<Movie category="Gujarati" />} />
               <Route path="/web-series" element={<Movie category="Web-Series" />} />
+              <Route path="/cart" element={<Cart />} />
               <Route path="/movie/:category/:id" element={<MovieDetail />} />
             </Routes>
           </main>

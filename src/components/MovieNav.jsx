@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { Search } from "lucide-react";
 
 function MovieNav() {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+  const cartItems = useSelector((state) => state.cart);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -88,6 +90,16 @@ function MovieNav() {
                 <Search size={20} />
               </button>
             </form>
+            <Link
+              to="/cart"
+              className="hover:text-yellow-400 transition duration-300"
+            >
+              <img
+                src={"./public/Cart.jpg"}
+                alt=""
+                className="h-11 w-11   object-cover"
+              />
+            </Link>
           </div>
         </div>
       </div>
