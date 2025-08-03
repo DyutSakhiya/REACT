@@ -6,7 +6,7 @@ import { setCategory } from "../redux/slices/CategorySlice";
 const CategoryMenu = () => {
   const [categories, setCategories] = useState([]);
   const [showPunjabiSubmenu, setShowPunjabiSubmenu] = useState(false);
-  const [showPunjabiSubmenu, setShowPunjabiSubmenu] = useState(false);
+  
 
   const listUniqueCategories = () => {
     const uniqueCategories = [
