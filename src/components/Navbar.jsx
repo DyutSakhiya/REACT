@@ -13,7 +13,6 @@ const Navbar = () => {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   const totalQty = cartItems.reduce((total, item) => total + item.qty, 0);
 
-  console.log(`her`)
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4">
