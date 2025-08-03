@@ -3,9 +3,88 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
-  font-family: "Poppins", sans-serif;
+
+.auth-container {
+  max-width: 28rem;
+  width: 100%;
 }
-body {
-  background: rgb(244, 244, 244);
+
+.auth-form {
+  width: 100%;
+}
+
+.auth-input {
+  transition: all 0.3s;
+}
+
+.auth-input:focus {
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.2);
+}
+
+.auth-button {
+  transition: all 0.3s;
+}
+
+.auth-button:hover {
+  transform: translateY(-1px);
+}
+
+.auth-link {
+  transition: all 0.3s;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}
+.food-detail-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.food-detail-image {
+  max-height: 500px;
+  object-fit: contain;
+}
+
+@media (max-width: 768px) {
+  .food-detail-container {
+    flex-direction: column;
+  }
+  
+  .food-detail-image {
+    max-height: 300px;
+  }
+}
+
+
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+.food-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.food-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+
+
+.hover-scale-105 {
+  transition: transform 0.3s ease;
+}
+
+.hover-scale-105:hover {
+  transform: scale(1.05);
+}
+
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

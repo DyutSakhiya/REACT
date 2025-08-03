@@ -1,23 +1,42 @@
-import React from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Home from "./pages/Home";
-import Success from "./pages/Success";
-import Error from "./pages/Error";
-import ProtectedRoute from "./components/ProtectedRoute";
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import Success from './pages/Success';
+import TableOrder from './pages/TableOrder';
+import Error from './pages/Error';
+import Login from "./components/admin/pages/Login";
+import Register from "./components/admin/pages/Register";
+import AdminPanel from "./components/admin/pages/AdminPanel";
+import Products from "./components/admin/pages/Products";
+import { AuthProvider } from "./components/admin/context/AuthContext";
 
-const App = () => {
+import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedAdminRoute from './components/ProtectedAdminRoute';
+
+function App() {
   return (
-    <BrowserRouter>
+    <AuthProvider>
+    <Router>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route
-          path="/success"
-          element={<ProtectedRoute element={<Success />} />}
-        />
-        <Route path="/*" element={<Error />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/success" element={<Success />} />
+        <Route path="/table/:tableNumber" element={<TableOrder />} />
+        <Route path="/" element={<Login />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/admin/products" element={<Products />} />
+        
+        
+        <Route path="*" element={<Error />} />
+        
       </Routes>
-    </BrowserRouter>
+    </Router>
+    </AuthProvider>
+    
   );
-};
+}
 
 export default App;
