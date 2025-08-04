@@ -14,7 +14,6 @@ const Products = () => {
     name: "",
     price: "",
     category: "",
-    stock: "",
   });
   const [isEditing, setIsEditing] = useState(false);
 
@@ -104,14 +103,7 @@ const Products = () => {
               placeholder="Category"
               className="w-full px-4 py-3 rounded-lg border border-gray-300 text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-orange-400"
             />
-            <input
-              name="stock"
-              type="number"
-              value={formData.stock}
-              onChange={handleChange}
-              placeholder="Stock"
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-orange-400"
-            />
+            
           </div>
           <div className="flex gap-4">
             <button
@@ -148,7 +140,6 @@ const Products = () => {
                   <th className="p-4">Name</th>
                   <th className="p-4">Price (₹)</th>
                   <th className="p-4">Category</th>
-                  <th className="p-4">Stock</th>
                   <th className="p-4">Actions</th>
                 </tr>
               </thead>
@@ -158,7 +149,6 @@ const Products = () => {
                     <td className="p-4">{product.name}</td>
                     <td className="p-4">{product.price}</td>
                     <td className="p-4">{product.category}</td>
-                    <td className="p-4">{product.stock}</td>
                     <td className="p-4 flex gap-2">
                       <button
                         onClick={() => handleEdit(product)}

@@ -9,9 +9,7 @@ const Sidebar = () => {
     { icon: Home, label: "Dashboard", path: "/admin" },
     { icon: ShoppingCart, label: "Orders", path: "/admin/orders" },
     { icon: Package, label: "Products", path: "/admin/products" },
-    { icon: Users, label: "Users", path: "/admin/users" },
-    { icon: BarChart2, label: "Analytics", path: "/admin/analytics" },
-    { icon: Settings, label: "Settings", path: "/admin/settings" },
+    
   ];
 
   return (
