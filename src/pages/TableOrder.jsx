@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { addToCart } from "../redux/slices/CartSlice";
 import FoodItems from "../components/FoodItems";
-import Cart from "../components/Cart";
+import Cart from "../components/cart";
 import { FaQrcode, FaPrint } from "react-icons/fa";
 import jsPDF from "jspdf";
 
