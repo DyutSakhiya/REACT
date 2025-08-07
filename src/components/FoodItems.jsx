@@ -21,11 +21,22 @@ const FoodItems = () => {
 
  return (
   <>
-    <Toaster position="top-center" reverseOrder={false} />
-    <div className="mx-6 my-10">
-    
+  <Toaster position="top-center" reverseOrder={false} />
+  <div className="mx-6 my-10">
+
+    {Object.entries(
+      list.reduce((acc, item) => {
+        const category = item.category || "Uncategorized";
+        if (!acc[category]) acc[category] = [];
+        acc[category].push(item);
+        return acc;
+      }, {})
+    ).map(([categoryName, items]) => (
+      <div key={categoryName} className="mb-12">
+        <h2 className="text-2xl font-bold mb-4 capitalize">{categoryName}</h2>
+
         <div className="flex flex-wrap gap-10 justify-center lg:justify-start">
-          {list.map((food) => (
+          {items.map((food) => (
             <FoodCard
               key={food._id || food.id}
               id={food._id || food.id}
@@ -38,9 +49,12 @@ const FoodItems = () => {
             />
           ))}
         </div>
-    
-    </div>
-  </>
+      </div>
+    ))}
+
+  </div>
+</>
+
 );
 
 };
