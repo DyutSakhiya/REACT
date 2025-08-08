@@ -1,22 +1,39 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { toast } from "react-hot-toast";
 
 export default function Register() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({
+    username: "",
+    password: "",
+    confirmPassword: ""
+  });
+  const [isLoading, setIsLoading] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  const handleRegister = () => {
-    if (!username || !password) {
-      toast.error("Please fill all fields");
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleRegister = async () => {
+    if (!formData.username || !formData.password || !formData.confirmPassword) {
+      alert("Please fill all fields");
       return;
     }
-    register(username, password);
-    toast.success("Account created!");
-    navigate("/login");
+
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords don't match");
+      return;
+    }
+
+    setIsLoading(true);
+    const success = await register(formData.username, formData.password);
+    setIsLoading(false);
+    
+    if (success) {
+      navigate("/login");
+    }
   };
 
   return (
@@ -37,24 +54,35 @@ export default function Register() {
 
           <div className="space-y-4">
             <input
+              name="username"
               className="w-full px-4 py-3 rounded-lg border border-gray-300 text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-orange-400"
               placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={formData.username}
+              onChange={handleChange}
             />
             <input
+              name="password"
               type="password"
               className="w-full px-4 py-3 rounded-lg border border-gray-300 text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-orange-400"
               placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={formData.password}
+              onChange={handleChange}
+            />
+            <input
+              name="confirmPassword"
+              type="password"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-orange-400"
+              placeholder="Confirm Password"
+              value={formData.confirmPassword}
+              onChange={handleChange}
             />
 
             <button
-              className="w-full py-3 mt-2 rounded-full text-white font-semibold text-md bg-orange-500 hover:bg-orange-600 shadow-lg"
               onClick={handleRegister}
+              disabled={isLoading}
+              className={`w-full py-3 mt-2 rounded-full text-white font-semibold text-md bg-orange-500 hover:bg-orange-600 shadow-lg ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
             >
-              Register
+              {isLoading ? 'Creating account...' : 'Register'}
             </button>
           </div>
 

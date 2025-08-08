@@ -1,27 +1,27 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 
 const AdminLogin = () => {
   const [formData, setFormData] = useState({ username: '', password: '' });
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth(); 
+  const { login } = useAuth();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     const { username, password } = formData;
 
-    if (username === 'admin' && password === 'admin123') {
-      login(username, password); 
-      toast.success('Admin logged in!');
-      navigate('/admin'); 
-    } else {
-      toast.error('Invalid admin credentials');
+    const success = await login(username, password);
+    setIsLoading(false);
+    
+    if (success) {
+      navigate('/admin');
     }
   };
 
@@ -55,25 +55,20 @@ const AdminLogin = () => {
               className="w-full px-4 py-3 rounded-lg border border-gray-300 text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-orange-400"
             />
 
-            <div className="flex justify-between text-sm">
-              <label className="flex items-center gap-2">
-                <input type="checkbox" className="h-4 w-4 text-orange-600 rounded" />
-                Remember me
-              </label>
-              <a href="/forgot-password" className="text-orange-600 hover:underline">Forgot password?</a>
-            </div>
-
             <button
               type="submit"
-              className="w-full py-3 mt-2 rounded-full text-white font-semibold text-md bg-orange-500 hover:bg-orange-600 shadow-lg"
+              disabled={isLoading}
+              className={`w-full py-3 mt-2 rounded-full text-white font-semibold text-md bg-orange-500 hover:bg-orange-600 shadow-lg ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
             >
-              Sign in as Admin
+              {isLoading ? 'Signing in...' : 'Sign in as Admin'}
             </button>
           </form>
 
           <p className="text-center text-sm mt-4">
             Not an admin?{' '}
-            <a href="/login" className="text-orange-600 hover:underline mx-2">Go to User Login</a>
+            <a href="/login" className="text-orange-600 hover:underline mx-2">
+              Go to User Login
+            </a>
           </p>
 
           <p className="text-center text-xs text-white mt-6">
