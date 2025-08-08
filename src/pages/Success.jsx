@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { PropagateLoader } from "react-spinners";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import jsPDF from "jspdf";
+import { clearCart } from "../redux/slices/CartSlice";
 
 const Success = () => {
   const [loading, setLoading] = useState(true);
   const cartItems = useSelector((state) => state.cart.cart);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [orderId] = useState(`ORD-${Date.now()}`);
   const [orderTime] = useState(new Date().toLocaleString());
 
@@ -63,6 +65,11 @@ const Success = () => {
     window.open(pdfUrl, "_blank");
   };
 
+  const handleBackToMenu = () => {
+    dispatch(clearCart()); 
+    navigate("/");
+  };
+
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-50">
       {loading ? (
@@ -93,7 +100,7 @@ const Success = () => {
             </div>
           </div>
           <button
-            onClick={() => navigate("/")}
+            onClick={handleBackToMenu}
             className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600"
           >
             Back to Menu
