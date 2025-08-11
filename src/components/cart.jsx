@@ -19,7 +19,7 @@ const Cart = () => {
       cart: cartItems,
     })
       .then(() => {
-        alert("Your order has been placed successfully!");
+        // alert("Your order has been placed successfully!");
         navigate("/success");
       })
       .catch((err) => {
