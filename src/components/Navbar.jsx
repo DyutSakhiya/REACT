@@ -90,12 +90,7 @@ const Navbar = () => {
               className="text-gray-700 mr-4 relative"
               onClick={() => navigate("/cart")}
             >
-              <FiShoppingCart size={20} />
-              {totalQty > 0 && (
-                <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                  {totalQty}
-                </span>
-              )}
+              
             </button>
             <button 
               className="text-gray-700"
