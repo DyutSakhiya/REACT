@@ -13,6 +13,7 @@ import { AuthProvider } from "./components/admin/context/AuthContext";
 
 import ProtectedRoute from './components/ProtectedRoute';
 import ProtectedAdminRoute from './components/ProtectedAdminRoute';
+import QRCodeGenerator from "./pages/QRCodeGenerator";
 
 function App() {
  
@@ -31,6 +32,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/admin/products" element={<Products />} />
+          <Route path="/QRCodeGenerator" element={<QRCodeGenerator/>} />
         
         
         <Route path="*" element={<Error />} />

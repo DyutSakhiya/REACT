@@ -1,136 +1,263 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { addToCart } from "../redux/slices/CartSlice";
-import FoodItems from "../components/FoodItems";
-import Cart from "../components/cart";
-import { FaQrcode, FaPrint } from "react-icons/fa";
-import jsPDF from "jspdf";
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Loader, Plus, Minus, Check, X, ShoppingCart } from 'lucide-react';
 
-const TableOrder = () => {
+const TableOrderPage = () => {
   const { tableNumber } = useParams();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const cartItems = useSelector((state) => state.cart.cart);
-  
-  const [orderId, setOrderId] = useState("");
-  const [orderTime, setOrderTime] = useState("");
-  const [showQR, setShowQR] = useState(true);
+  const [menuItems, setMenuItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [cart, setCart] = useState([]);
+  const [customerName, setCustomerName] = useState('');
+  const [specialInstructions, setSpecialInstructions] = useState('');
+  const [orderSubmitted, setOrderSubmitted] = useState(false);
+  const [orderNumber, setOrderNumber] = useState('');
 
   useEffect(() => {
-    
-    setOrderId(`ORD-${Date.now()}`);
-    setOrderTime(new Date().toLocaleString());
-  }, []);
+    const fetchMenu = async () => {
+      try {
+        const response = await fetch(`/api/table/${tableNumber}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          setMenuItems(data.menu);
+        } else {
+          setError("Failed to load menu");
+        }
+      } catch (err) {
+        setError("Network error. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const generateBill = () => {
-    const doc = new jsPDF();
-    
-    
-    doc.setFontSize(20);
-    doc.text("Flavoro Foods", 105, 15, null, null, "center");
-    doc.setFontSize(12);
-    doc.text("123 Food Street, Rajkot", 105, 22, null, null, "center");
-    doc.text("Gujarat, India - 360005", 105, 28, null, null, "center");
-    doc.text(`Phone: +91 9876543210`, 105, 34, null, null, "center");
-    
-    
-    doc.setFontSize(14);
-    doc.text(`Order #: ${orderId}`, 14, 45);
-    doc.text(`Table #: ${tableNumber}`, 14, 52);
-    doc.text(`Date: ${orderTime}`, 14, 59);
-    
-    
-    doc.line(10, 65, 200, 65);
-    
-    
-    doc.setFontSize(12);
-    doc.text("Item", 14, 75);
-    doc.text("Qty", 100, 75);
-    doc.text("Price", 150, 75, null, null, "right");
-    
-    let yPos = 85;
-    const total = cartItems.reduce((sum, item) => sum + (item.price * item.qty));
-    
-    cartItems.forEach(item => {
-      doc.text(item.name, 14, yPos);
-      doc.text(item.qty.toString(), 100, yPos);
-      doc.text(`₹${item.price * item.qty}`, 150, yPos, null, null, "right");
-      yPos += 8;
+    fetchMenu();
+  }, [tableNumber]);
+
+  const addToCart = (item) => {
+    setCart(prevCart => {
+      const existingItem = prevCart.find(cartItem => cartItem.foodId === item._id);
+      
+      if (existingItem) {
+        return prevCart.map(cartItem =>
+          cartItem.foodId === item._id
+            ? { ...cartItem, quantity: cartItem.quantity + 1 }
+            : cartItem
+        );
+      } else {
+        return [...prevCart, {
+          foodId: item._id,
+          name: item.name,
+          price: item.price,
+          quantity: 1
+        }];
+      }
     });
-    
-    
-    doc.line(10, yPos + 5, 200, yPos + 5);
-    doc.setFontSize(14);
-    doc.text(`Total: ₹${total}`, 150, yPos + 15, null, null, "right");
-    
-    doc.setFontSize(10);
-    doc.text("Thank you for dining with us!", 105, 280, null, null, "center");
-    
-    doc.save(`Flavoro-Bill-${orderId}.pdf`);
   };
 
+  const removeFromCart = (itemId) => {
+    setCart(prevCart => {
+      const existingItem = prevCart.find(item => item.foodId === itemId);
+      
+      if (existingItem && existingItem.quantity > 1) {
+        return prevCart.map(item =>
+          item.foodId === itemId
+            ? { ...item, quantity: item.quantity - 1 }
+            : item
+        );
+      } else {
+        return prevCart.filter(item => item.foodId !== itemId);
+      }
+    });
+  };
+
+  const getTotal = () => {
+    return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+  };
+
+  const submitOrder = async () => {
+    if (cart.length === 0) {
+      alert("Your cart is empty");
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/table/${tableNumber}/order`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          items: cart,
+          customerName,
+          specialInstructions
+        })
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        setOrderNumber(data.orderNumber);
+        setOrderSubmitted(true);
+        setCart([]);
+      } else {
+        alert("Failed to submit order. Please try again.");
+      }
+    } catch (err) {
+      alert("Network error. Please try again.");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader className="animate-spin text-blue-500" size={48} />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center p-6 bg-red-50 rounded-lg">
+          <X className="mx-auto text-red-500" size={48} />
+          <h2 className="text-xl font-bold text-red-700 mt-4">Error</h2>
+          <p className="text-red-600 mt-2">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (orderSubmitted) {
+    return (
+      <div className="max-w-md mx-auto p-6">
+        <div className="text-center bg-green-50 p-6 rounded-lg">
+          <Check className="mx-auto text-green-500" size={48} />
+          <h2 className="text-2xl font-bold text-green-700 mt-4">Order Submitted!</h2>
+          <p className="text-gray-600 mt-2">Your order has been received by the kitchen.</p>
+          
+          <div className="mt-6 bg-white p-4 rounded border">
+            <p className="font-semibold">Table: {tableNumber}</p>
+            <p className="font-semibold">Order #: {orderNumber}</p>
+          </div>
+          
+          <button
+            onClick={() => setOrderSubmitted(false)}
+            className="mt-6 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Place Another Order
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800">
-              Table {tableNumber} Order
-            </h1>
-            <p className="text-gray-600">Order ID: {orderId}</p>
-          </div>
-          <div className="flex gap-4">
-            <button 
-              onClick={() => setShowQR(!showQR)}
-              className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-            >
-              <FaQrcode /> Show QR
-            </button>
-            <button 
-              onClick={generateBill}
-              className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
-            >
-              <FaPrint /> Print Bill
-            </button>
-          </div>
+    <div className="max-w-md mx-auto bg-white min-h-screen">
+      <header className="bg-blue-600 text-white p-4">
+        <h1 className="text-xl font-bold">Table {tableNumber} Order</h1>
+      </header>
+
+      <div className="p-4">
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Your Name (Optional)</label>
+          <input
+            type="text"
+            value={customerName}
+            onChange={(e) => setCustomerName(e.target.value)}
+            placeholder="John Doe"
+            className="w-full p-2 border border-gray-300 rounded"
+          />
         </div>
 
-{showQR && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div className="bg-white p-6 rounded-lg max-w-md w-full">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">Table {tableNumber} QR Code</h2>
-        <button 
-          onClick={() => setShowQR(false)}
-          className="text-gray-500 hover:text-gray-700"
-        >
-          ✕
-        </button>
-      </div>
-      <QRCodeGenerator tableNumber={tableNumber} showDownload={true} />
-      <div className="mt-4 bg-blue-50 p-3 rounded-lg">
-        <h3 className="font-semibold text-blue-800 mb-1">Instructions:</h3>
-        <ul className="list-disc list-inside text-sm text-blue-700 space-y-1">
-          <li>Download and print this QR code</li>
-          <li>Place it visibly on the table</li>
-          <li>Customers can scan to order</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-)}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
-            <FoodItems />
+        <h2 className="text-lg font-semibold mb-3">Menu</h2>
+        <div className="space-y-3 mb-8">
+          {menuItems.map(item => (
+            <div key={item._id} className="flex justify-between items-center p-3 border rounded">
+              <div>
+                <h3 className="font-medium">{item.name}</h3>
+                <p className="text-sm text-gray-600">${item.price.toFixed(2)}</p>
+              </div>
+              <button
+                onClick={() => addToCart(item)}
+                className="p-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                <Plus size={18} />
+              </button>
+            </div>
+          ))}
+        </div>
+
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t p-4 shadow-lg">
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="font-semibold flex items-center">
+              <ShoppingCart className="mr-2" size={18} />
+              Your Order ({cart.reduce((total, item) => total + item.quantity, 0)} items)
+            </h3>
+            <span className="font-bold">${getTotal().toFixed(2)}</span>
           </div>
-          <div>
-            <Cart />
+
+          {cart.length > 0 && (
+            <div className="mb-4 max-h-40 overflow-y-auto">
+              {cart.map(item => (
+                <div key={item.foodId} className="flex justify-between items-center py-2 border-b">
+                  <div>
+                    <p className="font-medium">{item.name}</p>
+                    <p className="text-sm text-gray-600">${item.price.toFixed(2)} × {item.quantity}</p>
+                  </div>
+                  <div className="flex items-center">
+                    <button
+                      onClick={() => removeFromCart(item.foodId)}
+                      className="p-1 text-red-500 hover:text-red-700"
+                    >
+                      <Minus size={18} />
+                    </button>
+                    <span className="mx-2">{item.quantity}</span>
+                    <button
+                      onClick={() => addToCart({
+                        _id: item.foodId,
+                        name: item.name,
+                        price: item.price
+                      })}
+                      className="p-1 text-green-500 hover:text-green-700"
+                    >
+                      <Plus size={18} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="mb-3">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Special Instructions</label>
+            <textarea
+              value={specialInstructions}
+              onChange={(e) => setSpecialInstructions(e.target.value)}
+              placeholder="Allergies, preferences, etc."
+              className="w-full p-2 border border-gray-300 rounded"
+              rows={2}
+            />
           </div>
+
+          <button
+            onClick={submitOrder}
+            disabled={cart.length === 0}
+            className={`w-full py-2 rounded font-medium ${cart.length === 0 ? 'bg-gray-300 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600 text-white'}`}
+          >
+            Submit Order
+          </button>
         </div>
       </div>
     </div>
   );
 };
 
-export default TableOrder;
+export default TableOrderPage;

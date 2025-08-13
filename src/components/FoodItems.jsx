@@ -44,7 +44,7 @@ const FoodItems = () => {
               price={food.price || "0"}
               desc={food.desc || "No description available."}
               rating={food.rating || 0}
-              img={food.img || ""}
+              img={food.imageUrl || ""}
               handleToast={handleToast}
             />
           ))}
