@@ -32,6 +32,10 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/admin/products" element={<Products />} />
+                    <Route path="/ProtectedRoute" element={<ProtectedRoute/>} />
+                                        <Route path="/ProtectedAdminRoute" element={<ProtectedAdminRoute/>} />
+
+
           <Route path="/QRCodeGenerator" element={<QRCodeGenerator/>} />
         
         

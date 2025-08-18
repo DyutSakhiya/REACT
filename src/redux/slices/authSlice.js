@@ -31,7 +31,7 @@ const authSlice = createSlice({
     loginSuccess: (state, action) => {
       state.user = action.payload;
       state.isAuthenticated = true;
-      state.isAdmin = action.payload.email.includes('@flavoro.admin'); 
+      state.isAdmin = action.payload.email?.includes('@flavoro.admin') || action.payload.isAdmin || false;
       state.loading = false;
       localStorage.setItem('flavoroAdminAuth', JSON.stringify(state));
     },
@@ -46,7 +46,7 @@ const authSlice = createSlice({
     registerSuccess: (state, action) => {
       state.user = action.payload;
       state.isAuthenticated = true;
-      state.isAdmin = false; 
+      state.isAdmin = action.payload.isAdmin || false;
       state.loading = false;
       localStorage.setItem('flavoroAdminAuth', JSON.stringify(state));
     },
@@ -68,6 +68,12 @@ const authSlice = createSlice({
         state.isAuthenticated = parsedAuth.isAuthenticated;
         state.isAdmin = parsedAuth.isAdmin;
       }
+    },
+    setHotelId: (state, action) => {
+      if (state.user) {
+        state.user.hotel_id = action.payload;
+        localStorage.setItem('flavoroAdminAuth', JSON.stringify(state));
+      }
     }
   }
 });
@@ -80,7 +86,8 @@ export const {
   registerSuccess,
   registerFailure,
   logout,
-  loadAuth
+  loadAuth,
+  setHotelId
 } = authSlice.actions;
 
 export default authSlice.reducer;

@@ -9,13 +9,18 @@ import Axios from "axios";
 const Cart = () => {
   const [activeCart, setActiveCart] = useState(false);
   const cartItems = useSelector((state) => state.cart.cart);
+  const { user } = useSelector((state) => state.auth);
   const totalQty = cartItems.reduce((totalQty, item) => totalQty + item.qty, 0);
   const totalPrice = cartItems.reduce((total, item) => total + item.qty * item.price, 0);
   const navigate = useNavigate();
 
   const handleCheckout = () => {
+    // Get hotel_id from user data or set a default
+    const hotel_id = user?.hotel_id || "hotel_001";
+
     Axios.post("http://localhost:4000/api/save_cart", {
-      userId: "guest", 
+      userId: user?.username || "guest",
+      hotel_id: hotel_id,
       cart: cartItems,
     })
       .then(() => {
