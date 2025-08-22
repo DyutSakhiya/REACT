@@ -9,9 +9,9 @@ const Sidebar = () => {
     { icon: Home, label: "Dashboard", path: "/admin" },
     { icon: ShoppingCart, label: "Orders", path: "/admin/orders" },
     { icon: Package, label: "Products", path: "/admin/products" },
-    
+    { icon: Users, label: "Users", path: "/admin/users" }, // ✅ new link
   ];
-
+  
   return (
     <div className="w-64 bg-white border-r p-4 h-screen sticky top-0">
       <h2 className="text-2xl font-bold text-orange-600 mb-8 px-4">Flavaro Admin</h2>

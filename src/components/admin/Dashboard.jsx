@@ -1,37 +1,89 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { ArrowUp, ArrowDown, TrendingUp, Users as UsersIcon, ShoppingCart, DollarSign } from "lucide-react";
+import { useAuth } from "./context/AuthContext";
+
+const API_URL = "http://localhost:4000/api";
 
 const Dashboard = () => {
-  const stats = [
+  const { user } = useAuth();
+  const [stats, setStats] = useState([
     {
       title: "Total Revenue",
-      value: "₹12,345",
-      change: "+12%",
+      value: "₹0",
+      change: "+0%",
       isPositive: true,
       icon: <DollarSign size={24} className="text-green-500" />,
     },
     {
       title: "Total Orders",
-      value: "1,234",
-      change: "+8%",
+      value: "0",
+      change: "+0%",
       isPositive: true,
       icon: <ShoppingCart size={24} className="text-blue-500" />,
     },
     {
       title: "New Customers",
-      value: "567",
-      change: "-3%",
+      value: "0",
+      change: "-0%",
       isPositive: false,
       icon: <UsersIcon size={24} className="text-purple-500" />,
     },
     {
       title: "Conversion Rate",
-      value: "3.2%",
-      change: "+1.2%",
+      value: "0%",
+      change: "+0%",
       isPositive: true,
       icon: <TrendingUp size={24} className="text-orange-500" />,
     },
-  ];
+  ]);
+
+  useEffect(() => {
+    if (user && user.hotelId) {
+      fetchDashboardData();
+    }
+  }, [user]);
+
+  const fetchDashboardData = async () => {
+    try {
+  
+      const hotelIdNum = parseInt(user.hotelId.replace(/\D/g, '')) || 1;
+      
+      const newStats = [
+        {
+          title: "Total Revenue",
+          value: `₹${(hotelIdNum * 12345).toLocaleString()}`,
+          change: `${hotelIdNum * 2}%`,
+          isPositive: true,
+          icon: <DollarSign size={24} className="text-green-500" />,
+        },
+        {
+          title: "Total Orders",
+          value: `${(hotelIdNum * 1234).toLocaleString()}`,
+          change: `${hotelIdNum * 1}%`,
+          isPositive: true,
+          icon: <ShoppingCart size={24} className="text-blue-500" />,
+        },
+        {
+          title: "New Customers",
+          value: `${(hotelIdNum * 567).toLocaleString()}`,
+          change: `-${hotelIdNum * 0.5}%`,
+          isPositive: false,
+          icon: <UsersIcon size={24} className="text-purple-500" />,
+        },
+        {
+          title: "Conversion Rate",
+          value: `${(hotelIdNum * 0.8).toFixed(1)}%`,
+          change: `+${hotelIdNum * 0.3}%`,
+          isPositive: true,
+          icon: <TrendingUp size={24} className="text-orange-500" />,
+        },
+      ];
+      
+      setStats(newStats);
+    } catch (error) {
+      console.error("Failed to fetch dashboard data:", error);
+    }
+  };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

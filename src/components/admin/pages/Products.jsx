@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Edit, Trash2, Upload, X } from "lucide-react";
 import { toast } from "react-hot-toast";
+import { useAuth } from "../context/AuthContext";
 
 const API_URL = "http://localhost:4000/api";
 
 const Products = () => {
+  const { user } = useAuth();
   const [products, setProducts] = useState([]);
   const [formData, setFormData] = useState({
     id: null,
@@ -20,15 +22,22 @@ const Products = () => {
   const [uploading, setUploading] = useState(false);
 
   const fetchProducts = () => {
-    fetch(`${API_URL}/get_food_items`)
+    if (!user || !user.hotelId) {
+      toast.error("Hotel ID not found");
+      return;
+    }
+
+    fetch(`${API_URL}/get_food_items?hotelId=${user.hotelId}`)
       .then((res) => res.json())
       .then((data) => setProducts(data))
       .catch(() => toast.error("Failed to load products"));
   };
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    if (user && user.hotelId) {
+      fetchProducts();
+    }
+  }, [user]);
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -60,6 +69,11 @@ const Products = () => {
       return;
     }
 
+    if (!user || !user.hotelId) {
+      toast.error("Hotel ID not found");
+      return;
+    }
+
     setUploading(true);
 
     try {
@@ -67,6 +81,7 @@ const Products = () => {
       formDataToSend.append("name", name);
       formDataToSend.append("price", price);
       formDataToSend.append("category", category);
+      formDataToSend.append("adminUsername", user.username);
 
       if (selectedImage) {
         formDataToSend.append("image", selectedImage);
@@ -152,7 +167,7 @@ const Products = () => {
   return (
     <div className="max-w-6xl mx-auto">
       <h2 className="text-2xl font-bold text-gray-800 mb-4">
-        Product Management
+        Product Management - {user?.hotelId}
       </h2>
 
       <div className="bg-white p-4 rounded-lg shadow mb-8">
