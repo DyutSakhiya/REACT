@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { toast } from "react-hot-toast";
+import { UserPlus, Users as UsersIcon } from "lucide-react";
 
 const API_URL = "http://localhost:4000/api";
 
@@ -13,7 +14,7 @@ const Users = () => {
     try {
       const res = await fetch(`${API_URL}/admin/users`);
       const data = await res.json();
-      setUsers(data.filter(u => u.hotelId === user.hotelId)); // show only same hotel
+      setUsers(data.filter((u) => u.hotelId === user.hotelId));
     } catch (err) {
       console.error("Failed to fetch users:", err);
     }
@@ -40,7 +41,7 @@ const Users = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          hotelId: user.hotelId // ✅ same hotel
+          hotelId: user.hotelId,
         }),
       });
 
@@ -58,20 +59,28 @@ const Users = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">
-        User Management - {user.hotelId}
-      </h2>
+    <div className="max-w-7xl mx-auto p-6">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
+          <UsersIcon className="w-7 h-7 text-orange-500" /> 
+          User Management
+        </h2>
+        <span className="text-sm px-3 py-1 rounded-full bg-orange-100 text-orange-700 font-medium">
+          Hotel ID: {user.hotelId}
+        </span>
+      </div>
 
-      {/* Add User Form */}
-      <div className="bg-white p-4 rounded-lg shadow mb-6">
-        <form onSubmit={handleAddUser} className="flex gap-3">
+      <div className="bg-white p-6 rounded-2xl shadow-lg mb-8 border border-gray-100">
+        <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
+          <UserPlus className="w-5 h-5 text-orange-500" /> Add New User
+        </h3>
+        <form onSubmit={handleAddUser} className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <input
             name="username"
             value={formData.username}
             onChange={handleChange}
             placeholder="Username"
-            className="px-3 py-2 rounded border w-1/3"
+            className="px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-orange-400 outline-none"
           />
           <input
             name="password"
@@ -79,49 +88,63 @@ const Users = () => {
             value={formData.password}
             onChange={handleChange}
             placeholder="Password"
-            className="px-3 py-2 rounded border w-1/3"
+            className="px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-orange-400 outline-none"
           />
           <select
             name="role"
             value={formData.role}
             onChange={handleChange}
-            className="px-3 py-2 rounded border"
+            className="px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-orange-400 outline-none"
           >
             <option value="staff">Staff</option>
             <option value="manager">Manager</option>
           </select>
           <button
             type="submit"
-            className="px-4 py-2 rounded text-white bg-orange-500 hover:bg-orange-600"
+            className="px-4 py-2 rounded-xl text-white bg-orange-500 hover:bg-orange-600 shadow-md transition"
           >
             Add User
           </button>
         </form>
       </div>
 
-      {/* Users List */}
-      <div className="bg-white p-4 rounded-lg shadow">
+      <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
         {users.length === 0 ? (
-          <p className="text-gray-500">No users found.</p>
+          <p className="text-gray-500 text-center py-6">No users found.</p>
         ) : (
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="text-gray-600 border-b">
-                <th className="p-3">Username</th>
-                <th className="p-3">Hotel ID</th>
-                <th className="p-3">Role</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((u) => (
-                <tr key={u._id} className="border-b hover:bg-gray-50">
-                  <td className="p-3">{u.username}</td>
-                  <td className="p-3">{u.hotelId}</td>
-                  <td className="p-3">{u.role || "staff"}</td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="bg-gray-100 text-gray-700">
+                  <th className="p-3 font-medium">Username</th>
+                  <th className="p-3 font-medium">Hotel ID</th>
+                  <th className="p-3 font-medium">Role</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {users.map((u) => (
+                  <tr
+                    key={u._id}
+                    className="border-b hover:bg-gray-50 transition"
+                  >
+                    <td className="p-3 font-medium">{u.username}</td>
+                    <td className="p-3">{u.hotelId}</td>
+                    <td className="p-3">
+                      <span
+                        className={`px-2 py-1 text-xs rounded-full ${
+                          u.role === "manager"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-blue-100 text-blue-700"
+                        }`}
+                      >
+                        {u.role || "staff"}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>
