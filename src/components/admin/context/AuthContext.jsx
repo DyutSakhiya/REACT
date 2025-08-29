@@ -1,114 +1,80 @@
-import { createContext, useState, useContext } from 'react';
-import axios from 'axios';
-import { toast } from 'react-hot-toast';
+import React, { createContext, useContext, useState } from "react";
 
 const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
+export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem('adminUser');
-    return storedUser ? JSON.parse(storedUser) : null;
+    const token = localStorage.getItem("token");
+    const userData = localStorage.getItem("user");
+    return token && userData ? JSON.parse(userData) : null;
   });
 
   const login = async (username, password) => {
     try {
-      const response = await axios.post('http://localhost:4000/api/admin/login', {
-        username,
-        password
+      const res = await fetch("http://localhost:4000/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
       });
-      
-      if (response.data.success) {
-        const userData = { 
-          username: response.data.user.username, 
-          hotelId: response.data.user.hotelId,
-          role: response.data.user.role || 'admin'
-        };
-        setUser(userData);
-        localStorage.setItem('adminUser', JSON.stringify(userData));
-        toast.success(`Welcome back! Hotel ID: ${response.data.user.hotelId}`);
+
+      const data = await res.json();
+      if (data.success && data.token) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        setUser(data.user);
         return true;
+      } else {
+        alert(data.message || "Login failed");
+        return false;
       }
-      toast.error('Invalid credentials');
-      return false;
-    } catch (error) {
-      console.error('Login error:', error);
-      const errorMessage = error.response?.data?.message || 'Login failed';
-      toast.error(errorMessage);
+    } catch (err) {
+      console.error("Login error:", err);
       return false;
     }
   };
 
   const register = async (username, password) => {
     try {
-      const response = await axios.post('http://localhost:4000/api/admin/register', {
-        username,
-        password
+      const res = await fetch("http://localhost:4000/api/admin/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
       });
-      
-      if (response.data.success) {
-        toast.success(`Registration successful! Your Hotel ID: ${response.data.hotelId}`);
-        
-       
-        return {
-          success: true,
-          username: response.data.username,
-          hotelId: response.data.hotelId,
-          message: response.data.message
-        };
+
+      const data = await res.json();
+      if (data.success) {
+        return true;
+      } else {
+        alert(data.message || "Registration failed");
+        return false;
       }
-      return { success: false };
-    } catch (error) {
-      console.error('Registration error:', error);
-      const errorMessage = error.response?.data?.message || 'Registration failed';
-      toast.error(errorMessage);
-      return { success: false, message: errorMessage };
-    }
-  };
-
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('adminUser');
-    toast.success('Logged out successfully');
-  };
-
- 
-  const validateSession = async () => {
-    if (!user) return false;
-    
-    try {
-      const response = await axios.get('http://localhost:4000/api/validate-hotel', {
-        params: {
-          username: user.username,
-          hotelId: user.hotelId
-        }
-      });
-      
-      return response.data.success;
-    } catch (error) {
-      console.error('Session validation error:', error);
-     
-      logout();
+    } catch (err) {
+      console.error("Register error:", err);
       return false;
     }
   };
 
+  
+  const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setUser(null);
+  };
+
+  const authFetch = async (url, options = {}) => {
+    const token = localStorage.getItem("token");
+    const headers = {
+      ...options.headers,
+      Authorization: `Bearer ${token}`,
+    };
+    return fetch(url, { ...options, headers });
+  };
+
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      login, 
-      logout, 
-      register, 
-      validateSession 
-    }}>
+    <AuthContext.Provider value={{ user, login, register, logout, authFetch }}>
       {children}
     </AuthContext.Provider>
   );
-};
+}
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+export const useAuth = () => useContext(AuthContext);

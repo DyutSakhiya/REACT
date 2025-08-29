@@ -1,3 +1,4 @@
+// Login.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -5,16 +6,20 @@ import { useAuth } from '../context/AuthContext';
 const AdminLogin = () => {
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
   const { login } = useAuth();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setError(''); // Clear error when user starts typing
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
+    
     const { username, password } = formData;
 
     const success = await login(username, password);
@@ -22,6 +27,8 @@ const AdminLogin = () => {
     
     if (success) {
       navigate('/admin');
+    } else {
+      setError('Invalid credentials. Please try again.');
     }
   };
 
@@ -34,6 +41,12 @@ const AdminLogin = () => {
             <h2 className="text-3xl font-bold text-orange-700 mt-4">Admin Login - Flavaro</h2>
             <p className="text-sm text-orange-600 mt-1">Sign in to manage the dashboard 🛠️</p>
           </div>
+
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <input
