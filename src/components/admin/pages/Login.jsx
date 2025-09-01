@@ -1,10 +1,9 @@
-// Login.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const AdminLogin = () => {
-  const [formData, setFormData] = useState({ username: '', password: '' });
+  const [formData, setFormData] = useState({ mobile: '', password: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -12,19 +11,18 @@ const AdminLogin = () => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError(''); 
+    setError('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
-    
-    const { username, password } = formData;
 
-    const success = await login(username, password);
+    const { mobile, password } = formData;
+    const success = await login(mobile, password);
     setIsLoading(false);
-    
+
     if (success) {
       navigate('/admin');
     } else {
@@ -50,12 +48,12 @@ const AdminLogin = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <input
-              name="username"
+              name="mobile"
               type="text"
-              value={formData.username}
+              value={formData.mobile}
               onChange={handleChange}
               required
-              placeholder="Admin username"
+              placeholder="Mobile number"
               className="w-full px-4 py-3 rounded-lg border border-gray-300 text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-orange-400"
             />
             <input
@@ -73,7 +71,7 @@ const AdminLogin = () => {
               disabled={isLoading}
               className={`w-full py-3 mt-2 rounded-full text-white font-semibold text-md bg-orange-500 hover:bg-orange-600 shadow-lg ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
             >
-              {isLoading ? 'Signing in...' : 'Sign in as Admin'}
+              {isLoading ? 'Signing in...' : 'Sign in with Mobile'}
             </button>
           </form>
 

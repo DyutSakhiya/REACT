@@ -18,9 +18,9 @@ const Header = () => {
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white font-medium">
-            {user?.username?.charAt(0).toUpperCase()}
+            {user?.name?.charAt(0).toUpperCase()}
           </div>
-          <span className="text-gray-700 font-medium">{user?.username}</span>
+          <span className="text-gray-700 font-medium">{user?.name}</span>
         </div>
         <button
           onClick={handleLogout}

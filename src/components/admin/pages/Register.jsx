@@ -4,7 +4,8 @@ import { useAuth } from "../context/AuthContext";
 
 export default function Register() {
   const [formData, setFormData] = useState({
-    username: "",
+    name: "",
+    mobile: "",
     password: "",
     confirmPassword: ""
   });
@@ -17,7 +18,7 @@ export default function Register() {
   };
 
   const handleRegister = async () => {
-    if (!formData.username || !formData.password || !formData.confirmPassword) {
+    if (!formData.name || !formData.mobile || !formData.password || !formData.confirmPassword) {
       alert("Please fill all fields");
       return;
     }
@@ -28,9 +29,9 @@ export default function Register() {
     }
 
     setIsLoading(true);
-    const success = await register(formData.username, formData.password);
+    const success = await register(formData.name, formData.mobile, formData.password);
     setIsLoading(false);
-    
+
     if (success) {
       navigate("/login");
     }
@@ -54,10 +55,19 @@ export default function Register() {
 
           <div className="space-y-4">
             <input
-              name="username"
+              name="name"
+              type="text"
               className="w-full px-4 py-3 rounded-lg border border-gray-300 text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-orange-400"
-              placeholder="Username"
-              value={formData.username}
+              placeholder="Full Name"
+              value={formData.name}
+              onChange={handleChange}
+            />
+            <input
+              name="mobile"
+              type="text"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-orange-400"
+              placeholder="Mobile number"
+              value={formData.mobile}
               onChange={handleChange}
             />
             <input
