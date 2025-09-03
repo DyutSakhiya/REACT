@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { IoMdClose } from "react-icons/io";
 import { FaShoppingCart } from "react-icons/fa";
 import ItemCard from "./ItemCard";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Axios from "axios";
 
@@ -11,26 +11,54 @@ const Cart = () => {
   const cartItems = useSelector((state) => state.cart.cart);
   const { user } = useSelector((state) => state.auth);
   const totalQty = cartItems.reduce((totalQty, item) => totalQty + item.qty, 0);
-  const totalPrice = cartItems.reduce((total, item) => total + item.qty * item.price, 0);
+  const totalPrice = cartItems.reduce(
+    (total, item) => total + item.qty * item.price,
+    0
+  );
   const navigate = useNavigate();
 
-  const handleCheckout = () => {
-    // Get hotel_id from user data or set a default
+  const handleCheckout = async () => {
     const hotel_id = user?.hotel_id || "hotel_001";
+    const username = user?.username || "guest";
 
-    Axios.post("http://localhost:4000/api/save_cart", {
-      userId: user?.username || "guest",
-      hotel_id: hotel_id,
-      cart: cartItems,
-    })
-      .then(() => {
-        // alert("Your order has been placed successfully!");
-        navigate("/success");
-      })
-      .catch((err) => {
-        console.error("Failed to save cart", err);
-        alert("Something went wrong while placing your order.");
-      });
+    try {
+      // ✅ Check if user already has a pending order
+      const res = await Axios.get(
+        `http://localhost:4000/api/orders/pending/${username}`
+      );
+
+      let orderId;
+      if (res.data.success && res.data.order) {
+        // ✅ Pending order exists → reuse orderId
+        orderId = res.data.order.orderId;
+
+        await Axios.put(
+          `http://localhost:4000/api/orders/${res.data.order._id}/add-items`,
+          {
+            cartItems,
+            total: totalPrice,
+          }
+        );
+      } else {
+        // ✅ No pending order → create new orderId
+        orderId = `ORD-${Date.now()}`;
+
+        await Axios.post("http://localhost:4000/api/orders", {
+          orderId,
+          userId: username,
+          hotelId: hotel_id,
+          cartItems,
+          total: totalPrice,
+          timestamp: new Date(),
+          status: "pending",
+        });
+      }
+
+      navigate("/success", { state: { orderId } });
+    } catch (err) {
+      console.error("Failed to save order", err);
+      alert("Something went wrong while placing your order.");
+    }
   };
 
   return (

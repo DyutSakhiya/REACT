@@ -1,39 +1,26 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { PropagateLoader } from "react-spinners";
 import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { clearCart } from "../redux/slices/CartSlice";
-import Axios from "axios";
 
 const Success = () => {
   const [loading, setLoading] = useState(true);
   const cartItems = useSelector((state) => state.cart.cart);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [orderId] = useState(`ORD-${Date.now()}`); // ✅ custom orderId
-  const [orderTime] = useState(new Date().toLocaleString());
+  const location = useLocation();
+
+  // ✅ use the same orderId from cart.jsx
+  const orderId = location.state?.orderId;
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
-      saveOrder();
     }, 3000);
 
     return () => clearTimeout(timer);
   }, []);
-
-  const saveOrder = async () => {
-    try {
-      await Axios.post("http://localhost:4000/api/orders", {
-        orderId, // ✅ send this to backend
-        cartItems,
-        total: cartItems.reduce((t, item) => t + item.price * item.qty, 0),
-        timestamp: new Date(),
-      });
-    } catch (error) {
-      console.error("❌ Failed to save order:", error);
-    }
-  };
 
   const handleBackToMenu = () => {
     dispatch(clearCart());
