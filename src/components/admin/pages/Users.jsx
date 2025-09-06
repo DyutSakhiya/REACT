@@ -6,13 +6,21 @@ import { UserPlus, Users as UsersIcon } from "lucide-react";
 const API_URL = "http://localhost:4000/api";
 
 const Users = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [users, setUsers] = useState([]);
-  const [formData, setFormData] = useState({ username: "", password: "", role: "staff" });
+  const [formData, setFormData] = useState({
+    name: "",
+    mobile: "",
+    password: "",
+    role: "staff",
+  });
 
   const fetchUsers = async () => {
+    if (!user) return;
     try {
-      const res = await fetch(`${API_URL}/admin/users`);
+      const res = await fetch(`${API_URL}/admin/users`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
       const data = await res.json();
       setUsers(data.filter((u) => u.hotelId === user.hotelId));
     } catch (err) {
@@ -22,15 +30,14 @@ const Users = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [user]);
 
-  const handleChange = (e) => {
+  const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
   const handleAddUser = async (e) => {
     e.preventDefault();
-    if (!formData.username || !formData.password) {
+    if (!formData.name || !formData.mobile || !formData.password) {
       toast.error("Fill all fields");
       return;
     }
@@ -48,7 +55,7 @@ const Users = () => {
       const data = await res.json();
       if (data.success) {
         toast.success("User added");
-        setFormData({ username: "", password: "", role: "staff" });
+        setFormData({ name: "", mobile: "", password: "", role: "staff" });
         fetchUsers();
       } else {
         toast.error(data.message || "Failed");
@@ -58,11 +65,23 @@ const Users = () => {
     }
   };
 
+  if (loading) {
+    return <p className="text-center py-10">Loading...</p>;
+  }
+
+  if (!user) {
+    return (
+      <p className="text-center py-10 text-red-500">
+        You must be logged in to see this page.
+      </p>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto p-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
-          <UsersIcon className="w-7 h-7 text-orange-500" /> 
+          <UsersIcon className="w-7 h-7 text-orange-500" />
           User Management
         </h2>
         <span className="text-sm px-3 py-1 rounded-full bg-orange-100 text-orange-700 font-medium">
@@ -74,12 +93,22 @@ const Users = () => {
         <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
           <UserPlus className="w-5 h-5 text-orange-500" /> Add New User
         </h3>
-        <form onSubmit={handleAddUser} className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <form
+          onSubmit={handleAddUser}
+          className="grid grid-cols-1 md:grid-cols-5 gap-4"
+        >
           <input
-            name="username"
-            value={formData.username}
+            name="name"
+            value={formData.name}
             onChange={handleChange}
-            placeholder="Username"
+            placeholder="Name"
+            className="px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-orange-400 outline-none"
+          />
+          <input
+            name="mobile"
+            value={formData.mobile}
+            onChange={handleChange}
+            placeholder="Mobile Number"
             className="px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-orange-400 outline-none"
           />
           <input
@@ -116,7 +145,8 @@ const Users = () => {
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="bg-gray-100 text-gray-700">
-                  <th className="p-3 font-medium">Username</th>
+                  <th className="p-3 font-medium">Name</th>
+                  <th className="p-3 font-medium">Mobile</th>
                   <th className="p-3 font-medium">Hotel ID</th>
                   <th className="p-3 font-medium">Role</th>
                 </tr>
@@ -127,7 +157,8 @@ const Users = () => {
                     key={u._id}
                     className="border-b hover:bg-gray-50 transition"
                   >
-                    <td className="p-3 font-medium">{u.username}</td>
+                    <td className="p-3 font-medium">{u.name}</td>
+                    <td className="p-3">{u.mobile}</td>
                     <td className="p-3">{u.hotelId}</td>
                     <td className="p-3">
                       <span

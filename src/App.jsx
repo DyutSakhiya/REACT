@@ -11,7 +11,7 @@ import AdminPanel from "./components/admin/pages/AdminPanel";
 import Products from "./components/admin/pages/Products";
 import { AuthProvider } from "./components/admin/context/AuthContext";
 import Users from "./components/admin/pages/Users";
-import Orders from "./components/admin/pages/Orders"; // adjust path if needed
+import Orders from "./components/admin/pages/Orders"; 
 import ProtectedRoute from "./components/ProtectedRoute";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
 import QRCodeGenerator from "./pages/QRCodeGenerator";
@@ -36,7 +36,7 @@ function App() {
             path="/ProtectedAdminRoute"
             element={<ProtectedAdminRoute />}
           />
-          <Route path="/admin/users" element={<Users />} /> {/* ✅ new route */}
+          <Route path="/admin/users" element={<Users />} /> 
           <Route path="/admin/orders" element={<Orders />} />
           <Route path="/QRCodeGenerator" element={<QRCodeGenerator />} />
           <Route path="*" element={<Error />} />

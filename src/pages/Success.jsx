@@ -11,7 +11,6 @@ const Success = () => {
   const dispatch = useDispatch();
   const location = useLocation();
 
-  // ✅ use the same orderId from cart.jsx
   const orderId = location.state?.orderId;
 
   useEffect(() => {

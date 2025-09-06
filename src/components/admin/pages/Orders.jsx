@@ -57,7 +57,6 @@ const Orders = () => {
 
     doc.save(`Order_${order.orderId}.pdf`);
 
-    // ✅ mark order as completed
     try {
       await Axios.put(`http://localhost:4000/api/orders/${order._id}/complete`);
       fetchOrders();
@@ -125,7 +124,6 @@ const Orders = () => {
     <div className="p-5">
       <h1 className="text-2xl font-bold mb-5">Orders Management</h1>
 
-      {/* ✅ Tab Switcher */}
       <div className="flex gap-4 mb-5">
         <button
           onClick={() => setActiveTab("pending")}

@@ -22,14 +22,12 @@ const Cart = () => {
     const username = user?.username || "guest";
 
     try {
-      // ✅ Check if user already has a pending order
       const res = await Axios.get(
         `http://localhost:4000/api/orders/pending/${username}`
       );
 
       let orderId;
       if (res.data.success && res.data.order) {
-        // ✅ Pending order exists → reuse orderId
         orderId = res.data.order.orderId;
 
         await Axios.put(
@@ -40,7 +38,6 @@ const Cart = () => {
           }
         );
       } else {
-        // ✅ No pending order → create new orderId
         orderId = `ORD-${Date.now()}`;
 
         await Axios.post("http://localhost:4000/api/orders", {

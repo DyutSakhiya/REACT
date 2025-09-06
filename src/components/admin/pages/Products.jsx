@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext";
 const API_URL = "http://localhost:4000/api";
 
 const Products = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [products, setProducts] = useState([]);
   const [formData, setFormData] = useState({
     id: null,
@@ -27,8 +27,17 @@ const Products = () => {
       return;
     }
 
-    fetch(`${API_URL}/get_food_items?hotelId=${user.hotelId}`)
-      .then((res) => res.json())
+    fetch(`${API_URL}/get_food_items?hotelId=${user.hotelId}`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error('Failed to fetch products');
+        }
+        return res.json();
+      })
       .then((data) => setProducts(data))
       .catch(() => toast.error("Failed to load products"));
   };
@@ -87,6 +96,8 @@ const Products = () => {
         formDataToSend.append("image", selectedImage);
       }
 
+      const token = localStorage.getItem('token');
+      
       if (isEditing) {
         if (formData.imagePublicId && selectedImage) {
           formDataToSend.append("oldImagePublicId", formData.imagePublicId);
@@ -94,6 +105,9 @@ const Products = () => {
 
         const response = await fetch(`${API_URL}/products/${formData.id}`, {
           method: "PUT",
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
           body: formDataToSend,
         });
 
@@ -107,6 +121,9 @@ const Products = () => {
       } else {
         const response = await fetch(`${API_URL}/products`, {
           method: "POST",
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
           body: formDataToSend,
         });
 
@@ -141,8 +158,21 @@ const Products = () => {
 
   const handleDelete = (id) => {
     if (!window.confirm("Delete this product?")) return;
-    fetch(`${API_URL}/products/${id}`, { method: "DELETE" })
-      .then((res) => res.json())
+    
+    const token = localStorage.getItem('token');
+    
+    fetch(`${API_URL}/products/${id}`, {
+      method: "DELETE",
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error('Delete failed');
+        }
+        return res.json();
+      })
       .then(() => {
         toast.success("Product deleted!");
         fetchProducts();
@@ -163,6 +193,20 @@ const Products = () => {
     setSelectedImage(null);
     setImagePreview("");
   };
+
+  if (loading) {
+    return <div className="max-w-6xl mx-auto p-4">Loading...</div>;
+  }
+
+  if (!user) {
+    return (
+      <div className="max-w-6xl mx-auto p-4">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">
+          Please log in to access product management
+        </h2>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto">

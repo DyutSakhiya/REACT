@@ -12,7 +12,6 @@ const QRCodeGenerator = ({ tableNumber = null, showDownload = false, customUrl =
     return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodedUrl}&format=png&margin=10`;
   };
 
-  // Build the URL based on table number or custom URL
   const getQRUrl = () => {
     if (customUrl) {
       return customUrl;
@@ -23,7 +22,6 @@ const QRCodeGenerator = ({ tableNumber = null, showDownload = false, customUrl =
     return websiteUrl;
   };
 
-  // Download QR code function
   const downloadQRCode = async () => {
     try {
       const qrUrl = generateQRCodeUrl(getQRUrl(), qrSize);
@@ -44,7 +42,6 @@ const QRCodeGenerator = ({ tableNumber = null, showDownload = false, customUrl =
     }
   };
 
-  // Copy URL to clipboard
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(getQRUrl());
@@ -67,7 +64,6 @@ const QRCodeGenerator = ({ tableNumber = null, showDownload = false, customUrl =
         )}
       </div>
 
-      {/* URL Input - only show if not table-specific and not custom URL */}
       {!tableNumber && !customUrl && (
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -83,7 +79,6 @@ const QRCodeGenerator = ({ tableNumber = null, showDownload = false, customUrl =
         </div>
       )}
 
-      {/* QR Size Control */}
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">
           QR Code Size: {qrSize}px
@@ -98,7 +93,6 @@ const QRCodeGenerator = ({ tableNumber = null, showDownload = false, customUrl =
         />
       </div>
 
-      {/* QR Code Display */}
       <div className="text-center mb-6">
         <div className="inline-block p-4 bg-gray-100 rounded-lg">
           <img
@@ -110,7 +104,6 @@ const QRCodeGenerator = ({ tableNumber = null, showDownload = false, customUrl =
         </div>
       </div>
 
-      {/* URL Display */}
       <div className="mb-6 p-3 bg-gray-50 rounded-lg">
         <p className="text-sm text-gray-600 mb-1">QR Code URL:</p>
         <div className="flex items-center justify-between">
@@ -127,7 +120,6 @@ const QRCodeGenerator = ({ tableNumber = null, showDownload = false, customUrl =
         </div>
       </div>
 
-      {/* Action Buttons */}
       <div className="flex gap-3">
         <button
           onClick={downloadQRCode}
@@ -144,7 +136,6 @@ const QRCodeGenerator = ({ tableNumber = null, showDownload = false, customUrl =
         </button>
       </div>
 
-      {/* Instructions */}
       <div className="mt-6 p-4 bg-blue-50 rounded-lg">
         <h3 className="font-semibold text-blue-800 mb-2">How to use:</h3>
         <ul className="list-disc list-inside text-sm text-blue-700 space-y-1">
@@ -155,7 +146,6 @@ const QRCodeGenerator = ({ tableNumber = null, showDownload = false, customUrl =
         </ul>
       </div>
 
-      {/* Technical Info */}
       <div className="mt-4 p-3 bg-gray-50 rounded-lg">
         <details>
           <summary className="text-sm font-medium text-gray-700 cursor-pointer">

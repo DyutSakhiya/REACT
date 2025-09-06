@@ -13,7 +13,6 @@ const FoodItems = () => {
   const [list, setList] = useState([]);
 
   useEffect(() => {
-    // Get hotel_id from user data or use default
     const hotel_id = user?.hotel_id || "hotel_001";
     
     Axios.get(`http://localhost:4000/api/get_food_items?category=${category}&search=${search}&hotel_id=${hotel_id}`)
