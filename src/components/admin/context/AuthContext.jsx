@@ -3,25 +3,26 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);    
+  const [loading, setLoading] = useState(true); 
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const userData = localStorage.getItem("user");
+    const token = sessionStorage.getItem("token");
+    const userData = sessionStorage.getItem("user");
 
     if (token && userData) {
       try {
         setUser(JSON.parse(userData));
       } catch (error) {
         console.error("Error parsing user data:", error);
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("user");
       }
     }
     setLoading(false);
   }, []);
 
+  
   const register = async (name, mobile, password) => {
     try {
       const response = await fetch("http://localhost:4000/api/admin/register", {
@@ -31,8 +32,9 @@ export const AuthProvider = ({ children }) => {
       });
 
       const data = await response.json();
-      if (data.success) return true;
-      else {
+      if (data.success) {
+        return true;
+      } else {
         alert(data.message || "Registration failed");
         return false;
       }
@@ -52,8 +54,8 @@ export const AuthProvider = ({ children }) => {
 
       const data = await response.json();
       if (data.success) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
+        sessionStorage.setItem("token", data.token);
+        sessionStorage.setItem("user", JSON.stringify(data.user));
         setUser(data.user);
         return true;
       } else {
@@ -67,8 +69,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
     setUser(null);
   };
 
