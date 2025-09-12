@@ -90,7 +90,7 @@ const Products = () => {
       formDataToSend.append("name", name);
       formDataToSend.append("price", price);
       formDataToSend.append("category", category);
-      formDataToSend.append("adminUsername", user.username);
+      formDataToSend.append("adminUsername", user.name); 
 
       if (selectedImage) {
         formDataToSend.append("image", selectedImage);
