@@ -27,7 +27,9 @@ const Products = () => {
       return;
     }
 
-    fetch(`${API_URL}/get_food_items?hotelId=${user.hotelId}`, {
+    console.log({user})
+
+    fetch(`${API_URL}/get_food_items?hotel_id=${user.hotelId}`, {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }

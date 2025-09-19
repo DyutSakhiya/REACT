@@ -3,22 +3,27 @@ import FoodCard from "./FoodCard";
 import toast, { Toaster } from "react-hot-toast";
 import { useSelector } from "react-redux";
 import Axios from "axios";
+import { useParams, useSearchParams } from "react-router-dom";
 
 const FoodItems = () => {
   const category = useSelector((state) => state.category.category);
   const search = useSelector((state) => state.search.search);
-  const { user } = useSelector((state) => state.auth);
+  const [searchParams]= useSearchParams();
+
+ const hotel_id = searchParams.get("hotel_id")
+ 
   const handleToast = (name) => toast.success(`Added ${name}`);
 
   const [list, setList] = useState([]);
 
   useEffect(() => {
-    const hotel_id = user?.hotel_id || "hotel_001";
+
+    
     
     Axios.get(`http://localhost:4000/api/get_food_items?category=${category}&search=${search}&hotel_id=${hotel_id}`)
       .then((res) => setList(res.data))
       .catch((err) => console.error("Error fetching data:", err));
-  }, [category, search, user?.hotel_id]);
+  }, [category, search]);
 
   return (
     <>
