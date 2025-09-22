@@ -7,6 +7,7 @@ import { clearCart } from "../redux/slices/CartSlice";
 const Success = () => {
   const [loading, setLoading] = useState(true);
   const cartItems = useSelector((state) => state.cart.cart);
+  const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
@@ -23,7 +24,12 @@ const Success = () => {
 
   const handleBackToMenu = () => {
     dispatch(clearCart());
-    navigate("/");
+    
+    // Get hotel_id from user data or use default
+    const hotel_id = user?.hotel_id || "hotel_001";
+    
+    // Navigate to home with hotel_id parameter
+    navigate(`/?hotel_id=${hotel_id}`);
   };
 
   return (

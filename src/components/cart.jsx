@@ -3,13 +3,15 @@ import { IoMdClose } from "react-icons/io";
 import { FaShoppingCart } from "react-icons/fa";
 import ItemCard from "./ItemCard";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Axios from "axios";
 
 const Cart = () => {
   const [activeCart, setActiveCart] = useState(false);
   const cartItems = useSelector((state) => state.cart.cart);
   const { user } = useSelector((state) => state.auth);
+  const [searchParams] = useSearchParams();
+  const hotel_id = searchParams.get("hotel_id") || user?.hotel_id || "hotel_001";
   const totalQty = cartItems.reduce((totalQty, item) => totalQty + item.qty, 0);
   const totalPrice = cartItems.reduce(
     (total, item) => total + item.qty * item.price,
@@ -18,7 +20,6 @@ const Cart = () => {
   const navigate = useNavigate();
 
   const handleCheckout = async () => {
-    const hotel_id = user?.hotel_id || "hotel_001";
     const username = user?.username || "guest";
 
     try {

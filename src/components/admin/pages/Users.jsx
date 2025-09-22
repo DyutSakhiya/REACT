@@ -15,16 +15,25 @@ const Users = () => {
     role: "staff",
   });
 
+  // ✅ Fetch Users
   const fetchUsers = async () => {
     if (!user) return;
     try {
       const res = await fetch(`${API_URL}/admin/users`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` },
       });
       const data = await res.json();
-      setUsers(data.filter((u) => u.hotelId === user.hotelId));
+
+      if (Array.isArray(data)) {
+        // filter users by same hotelId
+        setUsers(data.filter((u) => u.hotelId === user.hotelId));
+      } else {
+        setUsers([]);
+        console.error("Invalid response:", data);
+      }
     } catch (err) {
       console.error("Failed to fetch users:", err);
+      setUsers([]);
     }
   };
 
@@ -32,9 +41,11 @@ const Users = () => {
     fetchUsers();
   }, [user]);
 
+  // ✅ Handle Input Change
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
+  // ✅ Handle Add User
   const handleAddUser = async (e) => {
     e.preventDefault();
     if (!formData.name || !formData.mobile || !formData.password) {
@@ -45,7 +56,10 @@ const Users = () => {
     try {
       const res = await fetch(`${API_URL}/admin/add-user`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+        },
         body: JSON.stringify({
           ...formData,
           hotelId: user.hotelId,
@@ -79,6 +93,7 @@ const Users = () => {
 
   return (
     <div className="max-w-7xl mx-auto p-6">
+      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
           <UsersIcon className="w-7 h-7 text-orange-500" />
@@ -89,6 +104,7 @@ const Users = () => {
         </span>
       </div>
 
+      {/* Add User Form */}
       <div className="bg-white p-6 rounded-2xl shadow-lg mb-8 border border-gray-100">
         <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
           <UserPlus className="w-5 h-5 text-orange-500" /> Add New User
@@ -137,8 +153,9 @@ const Users = () => {
         </form>
       </div>
 
+      {/* Users Table */}
       <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-        {users.length === 0 ? (
+        {!Array.isArray(users) || users.length === 0 ? (
           <p className="text-gray-500 text-center py-6">No users found.</p>
         ) : (
           <div className="overflow-x-auto">
