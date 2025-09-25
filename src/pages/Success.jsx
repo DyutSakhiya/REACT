@@ -12,24 +12,22 @@ const Success = () => {
   const dispatch = useDispatch();
   const location = useLocation();
 
+  // Order ID comes from cart.jsx navigate
   const orderId = location.state?.orderId;
+  const hotelId = location.state?.hotelId || user?.hotelId || "hotel_001";
 
+  // Simulate processing effect
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
     }, 3000);
-
     return () => clearTimeout(timer);
   }, []);
 
+  // Go back to menu & clear redux cart
   const handleBackToMenu = () => {
     dispatch(clearCart());
-    
-    // Get hotel_id from user data or use default
-    const hotel_id = user?.hotel_id || "hotel_001";
-    
-    // Navigate to home with hotel_id parameter
-    navigate(`/?hotel_id=${hotel_id}`);
+    navigate(`/?hotel_id=${hotelId}`);
   };
 
   return (
@@ -46,16 +44,24 @@ const Success = () => {
           <p className="text-gray-600 mb-6">
             Your order <strong>#{orderId}</strong> has been placed successfully.
           </p>
+
+          {/* Order Summary */}
           <div className="mb-6 p-4 bg-gray-100 rounded">
             <p className="font-medium">Order Summary</p>
-            {cartItems.map((item) => (
-              <div key={item.id} className="flex justify-between mt-2">
-                <span>
-                  {item.name} × {item.qty}
-                </span>
-                <span>₹{item.price * item.qty}</span>
-              </div>
-            ))}
+            {cartItems.length > 0 ? (
+              cartItems.map((item) => (
+                <div key={item.id} className="flex justify-between mt-2">
+                  <span>
+                    {item.name} × {item.qty}
+                  </span>
+                  <span>₹{item.price * item.qty}</span>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-500 text-sm mt-2">
+                (Items were already merged into your pending order)
+              </p>
+            )}
             <div className="flex justify-between mt-4 pt-2 border-t border-gray-300 font-bold">
               <span>Total</span>
               <span>
@@ -67,6 +73,7 @@ const Success = () => {
               </span>
             </div>
           </div>
+
           <button
             onClick={handleBackToMenu}
             className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600"

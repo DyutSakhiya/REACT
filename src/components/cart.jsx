@@ -11,7 +11,8 @@ const Cart = () => {
   const cartItems = useSelector((state) => state.cart.cart);
   const { user } = useSelector((state) => state.auth);
   const [searchParams] = useSearchParams();
-  const hotel_id = searchParams.get("hotel_id") || user?.hotel_id || "hotel_001";
+
+  const hotel_id = searchParams.get("hotel_id") || user?.hotelId || "hotel_001";
   const totalQty = cartItems.reduce((totalQty, item) => totalQty + item.qty, 0);
   const totalPrice = cartItems.reduce(
     (total, item) => total + item.qty * item.price,
@@ -19,45 +20,49 @@ const Cart = () => {
   );
   const navigate = useNavigate();
 
-  const handleCheckout = async () => {
-    const username = user?.username || "guest";
+const handleCheckout = async () => {
+  const username = user?.username || "guest";
 
-    try {
-      const res = await Axios.get(
-        `http://localhost:4000/api/orders/pending/${username}`
-      );
+  try {
+    // 1. Check if user has pending order
+    const pendingRes = await Axios.get(
+      `http://localhost:4000/api/orders/pending/${username}`
+    );
 
-      let orderId;
-      if (res.data.success && res.data.order) {
-        orderId = res.data.order.orderId;
+    if (pendingRes.data.success && pendingRes.data.order) {
+      // 2. Pending order exists → update it
+      const pendingOrder = pendingRes.data.order;
 
-        await Axios.put(
-          `http://localhost:4000/api/orders/${res.data.order._id}/add-items`,
-          {
-            cartItems,
-            total: totalPrice,
-          }
-        );
-      } else {
-        orderId = `ORD-${Date.now()}`;
-
-        await Axios.post("http://localhost:4000/api/orders", {
-          orderId,
-          userId: username,
-          hotelId: hotel_id,
+      await Axios.put(
+        `http://localhost:4000/api/orders/${pendingOrder._id}/add-items`,
+        {
           cartItems,
           total: totalPrice,
-          timestamp: new Date(),
-          status: "pending",
-        });
-      }
+        }
+      );
 
-      navigate("/success", { state: { orderId } });
-    } catch (err) {
-      console.error("Failed to save order", err);
-      alert("Something went wrong while placing your order.");
+      navigate("/success", {
+        state: { orderId: pendingOrder.orderId, hotelId: hotel_id },
+      });
+    } else {
+      // 3. No pending order → create a new one
+      const orderId = `ORD-${Date.now()}`;
+
+      await Axios.post("http://localhost:4000/api/orders", {
+        orderId,
+        userId: username,
+        hotelId: hotel_id,
+        cartItems,
+        total: totalPrice,
+      });
+
+      navigate("/success", { state: { orderId, hotelId: hotel_id } });
     }
-  };
+  } catch (err) {
+    console.error("Failed to save order", err);
+    alert("Something went wrong while placing your order.");
+  }
+};
 
   return (
     <>

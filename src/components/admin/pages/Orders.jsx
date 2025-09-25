@@ -11,7 +11,9 @@ const Orders = () => {
   }, []);
 
   const fetchOrders = () => {
-    Axios.get("http://localhost:4000/api/admin/orders")
+    const userData = localStorage.getItem("user");
+   const user = JSON.parse(userData)
+    Axios.get(`http://localhost:4000/api/admin/orders?hotelId=${user.hotelId}`)
       .then((res) => {
         if (res.data.success) {
           setOrders(res.data.orders);
@@ -26,7 +28,6 @@ const Orders = () => {
 
   const handleDownload = async (order) => {
     const doc = new jsPDF();
-
     doc.setFontSize(18);
     doc.text("Order Receipt", 20, 20);
 
@@ -49,11 +50,7 @@ const Orders = () => {
       y += 10;
     });
 
-    doc.text(
-      `Total: ₹${calculateTotal(order.cartItems || [])}`,
-      20,
-      y + 10
-    );
+    doc.text(`Total: ₹${calculateTotal(order.cartItems || [])}`, 20, y + 10);
 
     doc.save(`Order_${order.orderId}.pdf`);
 
