@@ -12,7 +12,13 @@ const Orders = () => {
 
   const fetchOrders = () => {
     const userData = localStorage.getItem("user");
-   const user = JSON.parse(userData)
+    const user = JSON.parse(userData);
+    
+    if (!user || !user.hotelId) {
+      console.error("User data or hotelId not found");
+      return;
+    }
+
     Axios.get(`http://localhost:4000/api/admin/orders?hotelId=${user.hotelId}`)
       .then((res) => {
         if (res.data.success) {
@@ -27,13 +33,14 @@ const Orders = () => {
   };
 
   const handleDownload = async (order) => {
+    
     const doc = new jsPDF();
     doc.setFontSize(18);
     doc.text("Order Receipt", 20, 20);
 
     doc.setFontSize(12);
     doc.text(`Order ID: ${order.orderId}`, 20, 40);
-    doc.text(`User: ${order.userId || "Guest"}`, 20, 50);
+    doc.text(`Customer: ${order.customerName || order.userId || "Guest"}`, 20, 50);
     doc.text(`Hotel ID: ${order.hotelId || "N/A"}`, 20, 60);
     doc.text(
       `Date: ${
@@ -55,7 +62,9 @@ const Orders = () => {
     doc.save(`Order_${order.orderId}.pdf`);
 
     try {
+     
       await Axios.put(`http://localhost:4000/api/orders/${order._id}/complete`);
+      
       fetchOrders();
     } catch (err) {
       console.error("Failed to update order status", err);
@@ -73,19 +82,21 @@ const Orders = () => {
         <thead>
           <tr className="bg-gray-200">
             <th className="px-4 py-2 border">Order ID</th>
-            <th className="px-4 py-2 border">User</th>
+            <th className="px-4 py-2 border">Customer</th>
             <th className="px-4 py-2 border">Hotel ID</th>
             <th className="px-4 py-2 border">Items</th>
             <th className="px-4 py-2 border">Total (₹)</th>
             <th className="px-4 py-2 border">Status</th>
-            {isPending && <th className="px-4 py-2 border">Download</th>}
+            {isPending && <th className="px-4 py-2 border">Action</th>}
           </tr>
         </thead>
         <tbody>
           {list.map((order) => (
             <tr key={order._id}>
               <td className="px-4 py-2 border">{order.orderId}</td>
-              <td className="px-4 py-2 border">{order.userId || "Guest"}</td>
+              <td className="px-4 py-2 border font-medium">
+                {order.customerName || order.userId || "Guest"}
+              </td>
               <td className="px-4 py-2 border">{order.hotelId || "N/A"}</td>
               <td className="px-4 py-2 border">
                 <ul className="list-disc ml-5">
@@ -99,14 +110,22 @@ const Orders = () => {
               <td className="px-4 py-2 border font-bold text-green-600">
                 ₹{calculateTotal(order.cartItems || [])}
               </td>
-              <td className="px-4 py-2 border">{order.status}</td>
+              <td className="px-4 py-2 border">
+                <span className={`px-2 py-1 rounded ${
+                  order.status === "pending" 
+                    ? "bg-yellow-100 text-yellow-800" 
+                    : "bg-green-100 text-green-800"
+                }`}>
+                  {order.status}
+                </span>
+              </td>
               {isPending && (
                 <td className="px-4 py-2 border text-center">
                   <button
                     onClick={() => handleDownload(order)}
                     className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600"
                   >
-                    Download
+                    Download & Complete
                   </button>
                 </td>
               )}
@@ -144,9 +163,17 @@ const Orders = () => {
         </button>
       </div>
 
-      {activeTab === "pending"
-        ? renderTable(pendingOrders, true)
-        : renderTable(completedOrders, false)}
+      {activeTab === "pending" ? (
+        pendingOrders.length > 0 ? (
+          renderTable(pendingOrders, true)
+        ) : (
+          <p className="text-gray-500">No pending orders</p>
+        )
+      ) : completedOrders.length > 0 ? (
+        renderTable(completedOrders, false)
+      ) : (
+        <p className="text-gray-500">No completed orders</p>
+      )}
     </div>
   );
 };

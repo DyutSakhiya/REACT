@@ -20,49 +20,52 @@ const Cart = () => {
   );
   const navigate = useNavigate();
 
-const handleCheckout = async () => {
-  const username = user?.username || "guest";
+  const handleCheckout = async () => {
+    const username = user?.username || "guest";
 
-  try {
-    // 1. Check if user has pending order
-    const pendingRes = await Axios.get(
-      `http://localhost:4000/api/orders/pending/${username}`
-    );
-
-    if (pendingRes.data.success && pendingRes.data.order) {
-      // 2. Pending order exists → update it
-      const pendingOrder = pendingRes.data.order;
-
-      await Axios.put(
-        `http://localhost:4000/api/orders/${pendingOrder._id}/add-items`,
-        {
-          cartItems,
-          total: totalPrice,
-        }
+    try {
+      const pendingResponse = await Axios.get(
+        `http://localhost:4000/api/orders/pending/${username}/${hotel_id}`
       );
 
-      navigate("/success", {
-        state: { orderId: pendingOrder.orderId, hotelId: hotel_id },
-      });
-    } else {
-      // 3. No pending order → create a new one
-      const orderId = `ORD-${Date.now()}`;
+      if (pendingResponse.data.success && pendingResponse.data.order) {
+        await Axios.put(
+          `http://localhost:4000/api/orders/${pendingResponse.data.order._id}/add-items`,
+          {
+            cartItems,
+            total: totalPrice,
+          }
+        );
+        
+        navigate("/success", { 
+          state: { 
+            orderId: pendingResponse.data.order.orderId, 
+            hotelId: hotel_id,
+            merged: true 
+          } 
+        });
+      } else {
+       
+        const response = await Axios.post("http://localhost:4000/api/orders", {
+          userId: username,
+          hotelId: hotel_id,
+          cartItems,
+          total: totalPrice,
+        });
 
-      await Axios.post("http://localhost:4000/api/orders", {
-        orderId,
-        userId: username,
-        hotelId: hotel_id,
-        cartItems,
-        total: totalPrice,
-      });
-
-      navigate("/success", { state: { orderId, hotelId: hotel_id } });
+        navigate("/success", { 
+          state: { 
+            orderId: response.data.orderId, 
+            hotelId: hotel_id,
+            merged: false 
+          } 
+        });
+      }
+    } catch (err) {
+      console.error("Failed to save order", err);
+      alert("Something went wrong while placing your order.");
     }
-  } catch (err) {
-    console.error("Failed to save order", err);
-    alert("Something went wrong while placing your order.");
-  }
-};
+  };
 
   return (
     <>
