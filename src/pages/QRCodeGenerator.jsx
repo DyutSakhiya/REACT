@@ -6,7 +6,7 @@ const QRCodeGenerator = ({ tableNumber = null, showDownload = false, customUrl =
   const [qrSize, setQrSize] = useState(200);
   const canvasRef = useRef(null);
 
-  // Generate QR code URL using a free QR code API
+  
   const generateQRCodeUrl = (url, size = 200) => {
     const encodedUrl = encodeURIComponent(url);
     return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodedUrl}&format=png&margin=10`;

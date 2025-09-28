@@ -1,28 +1,52 @@
 import React, { useEffect, useState } from "react";
-import FoodData from "../data/FoodData";
 import { useDispatch, useSelector } from "react-redux";
 import { setCategory } from "../redux/slices/CategorySlice";
+import Axios from "axios";
+import { useSearchParams } from "react-router-dom";
 
 const CategoryMenu = () => {
   const [categories, setCategories] = useState([]);
   const [showPunjabiSubmenu, setShowPunjabiSubmenu] = useState(false);
-  
+  const [searchParams] = useSearchParams();
+  const { user } = useSelector((state) => state.auth);
 
-  const listUniqueCategories = () => {
-    const uniqueCategories = [
-      ...new Set(FoodData.map((food) => {
-        if (food.category.includes("Punjabi")) {
-          return "Punjabi";
+  const hotel_id = searchParams.get("hotel_id") || user?.hotelId || "hotel_001";
+
+  const fetchCategories = async () => {
+    try {
+      const response = await Axios.get(
+        `http://localhost:4000/api/categories/${hotel_id}`
+      );
+      if (response.data.success) {
+        const processedCategories = processCategories(response.data.categories);
+        setCategories(processedCategories);
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      setCategories(["All"]);
+    }
+  };
+
+  const processCategories = (categories) => {
+    const uniqueCategories = ["All"];
+    const hasPunjabi = categories.some((cat) => cat.includes("Punjabi"));
+
+    categories.forEach((category) => {
+      if (category.includes("Punjabi")) {
+        if (!uniqueCategories.includes("Punjabi")) {
+          uniqueCategories.push("Punjabi");
         }
-        return food.category;
-      })),
-    ];
-    setCategories(uniqueCategories);
+      } else if (category && !uniqueCategories.includes(category)) {
+        uniqueCategories.push(category);
+      }
+    });
+
+    return uniqueCategories;
   };
 
   useEffect(() => {
-    listUniqueCategories();
-  }, []);
+    fetchCategories();
+  }, [hotel_id]);
 
   const dispatch = useDispatch();
   const selectedCategory = useSelector((state) => state.category.category);
@@ -33,27 +57,27 @@ const CategoryMenu = () => {
       setShowPunjabiSubmenu(true);
     } else {
       dispatch(setCategory(category));
-      setShowPunjabiSubmenu(category.includes("Punjabi"));
+      setShowPunjabiSubmenu(false);
     }
   };
 
-  const isPunjabiSubcategory = selectedCategory.includes("Punjabi") && selectedCategory !== "Punjabi";
+  const handleSubcategoryClick = (subcategory) => {
+    dispatch(setCategory(subcategory));
+  };
+
+  const isPunjabiSubcategory =
+    selectedCategory.includes("Punjabi") && selectedCategory !== "Punjabi";
+  const isPunjabiMainSelected = selectedCategory === "Punjabi";
 
   return (
     <div className="ml-6">
       <h3 className="text-xl font-semibold">Find the best food</h3>
       <div className="my-5 flex gap-3 overflow-x-scroll scroll-smooth lg:overflow-x-hidden">
-        <button
-          onClick={() => handleCategoryClick("All")}
-          className={`px-3 py-2 bg-gray-200 font-bold rounded-lg hover:bg-green-500 hover:text-white ${
-            selectedCategory === "All" && "bg-green-500 text-white"
-          }`}
-        >
-          All
-        </button>
         {categories.map((category, index) => {
-          const isActive = selectedCategory === category || (category === "Punjabi" && isPunjabiSubcategory);
-          
+          const isActive =
+            selectedCategory === category ||
+            (category === "Punjabi" && isPunjabiSubcategory);
+
           return (
             <button
               onClick={() => handleCategoryClick(category)}
@@ -68,10 +92,10 @@ const CategoryMenu = () => {
         })}
       </div>
 
-      {(showPunjabiSubmenu || isPunjabiSubcategory) && (
+      {(showPunjabiSubmenu || isPunjabiMainSelected) && (
         <div className="my-7 flex gap-3 overflow-x-scroll scroll-smooth lg:overflow-x-hidden">
           <button
-            onClick={() => handleCategoryClick("Punjabi Paneer")}
+            onClick={() => handleSubcategoryClick("Punjabi Paneer")}
             className={`px-3 py-2 bg-gray-200 font-bold rounded-lg hover:bg-green-400 hover:text-white ${
               selectedCategory === "Punjabi Paneer" && "bg-green-400 text-white"
             }`}
@@ -79,7 +103,7 @@ const CategoryMenu = () => {
             Paneer Dishes
           </button>
           <button
-            onClick={() => handleCategoryClick("Punjabi Veg")}
+            onClick={() => handleSubcategoryClick("Punjabi Veg")}
             className={`px-3 py-2 bg-gray-200 font-bold rounded-lg hover:bg-green-400 hover:text-white ${
               selectedCategory === "Punjabi Veg" && "bg-green-400 text-white"
             }`}
