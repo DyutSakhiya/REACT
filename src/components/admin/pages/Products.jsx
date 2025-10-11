@@ -8,6 +8,7 @@ const API_URL = "http://localhost:4000/api";
 const Products = () => {
   const { user, loading } = useAuth();
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
     id: null,
     name: "",
@@ -20,6 +21,8 @@ const Products = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [newCategory, setNewCategory] = useState("");
+  const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
 
   const fetchProducts = () => {
     if (!user || !user.hotelId) {
@@ -44,14 +47,49 @@ const Products = () => {
       .catch(() => toast.error("Failed to load products"));
   };
 
+  const fetchCategories = () => {
+    if (!user || !user.hotelId) return;
+
+    fetch(`${API_URL}/categories/${user.hotelId}`)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error('Failed to fetch categories');
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (data.success) {
+          setCategories(data.categories || []);
+        }
+      })
+      .catch(() => toast.error("Failed to load categories"));
+  };
+
   useEffect(() => {
     if (user && user.hotelId) {
       fetchProducts();
+      fetchCategories();
     }
   }, [user]);
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const handleCategoryChange = (e) => {
+    const value = e.target.value;
+    if (value === "add_new") {
+      setShowNewCategoryInput(true);
+      setFormData({ ...formData, category: "" });
+    } else {
+      setFormData({ ...formData, category: value });
+      setShowNewCategoryInput(false);
+    }
+  };
+
+  const handleNewCategoryChange = (e) => {
+    setNewCategory(e.target.value);
+    setFormData({ ...formData, category: e.target.value });
+  };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -132,6 +170,7 @@ const Products = () => {
         if (response.ok) {
           toast.success("Product added!");
           fetchProducts();
+          fetchCategories(); // Refresh categories after adding new product
           resetForm();
         } else {
           throw new Error("Add failed");
@@ -156,6 +195,7 @@ const Products = () => {
     });
     setIsEditing(true);
     setImagePreview(product.imageUrl || "");
+    setShowNewCategoryInput(false);
   };
 
   const handleDelete = (id) => {
@@ -194,6 +234,8 @@ const Products = () => {
     setIsEditing(false);
     setSelectedImage(null);
     setImagePreview("");
+    setShowNewCategoryInput(false);
+    setNewCategory("");
   };
 
   if (loading) {
@@ -238,14 +280,48 @@ const Products = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-            <input
-              name="category"
-              type="text"
-              value={formData.category}
-              onChange={handleChange}
-              placeholder="Category"
-              className="w-full px-3 py-2 rounded border"
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Category
+              </label>
+              {!showNewCategoryInput ? (
+                <select
+                  name="category"
+                  value={formData.category}
+                  onChange={handleCategoryChange}
+                  className="w-full px-3 py-2 rounded border"
+                >
+                  <option value="">Select Category</option>
+                  {categories.map((category, index) => (
+                    <option key={index} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                  <option value="add_new">+ Add New Category</option>
+                </select>
+              ) : (
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newCategory}
+                    onChange={handleNewCategoryChange}
+                    placeholder="Enter new category"
+                    className="flex-1 px-3 py-2 rounded border"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowNewCategoryInput(false);
+                      setFormData({ ...formData, category: "" });
+                      setNewCategory("");
+                    }}
+                    className="px-3 py-2 rounded text-gray-600 bg-gray-200 hover:bg-gray-300"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+            </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -346,7 +422,11 @@ const Products = () => {
                     </td>
                     <td className="p-3">{product.name}</td>
                     <td className="p-3">{product.price}</td>
-                    <td className="p-3">{product.category}</td>
+                    <td className="p-3">
+                      <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                        {product.category}
+                      </span>
+                    </td>
                     <td className="p-3 flex gap-2">
                       <button
                         onClick={() => handleEdit(product)}
