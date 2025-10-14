@@ -1,25 +1,37 @@
 import React, { useEffect, useState } from "react";
 import Axios from "axios";
 import jsPDF from "jspdf";
+import { CalendarDays } from "lucide-react"; // calendar icon
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [activeTab, setActiveTab] = useState("pending");
+  const [dateFilter, setDateFilter] = useState("all");
+  const [selectedDate, setSelectedDate] = useState("");
 
   useEffect(() => {
     fetchOrders();
-  }, []);
+  }, [dateFilter, selectedDate]);
 
   const fetchOrders = () => {
     const userData = localStorage.getItem("user");
     const user = JSON.parse(userData);
-    
+
     if (!user || !user.hotelId) {
       console.error("User data or hotelId not found");
       return;
     }
 
-    Axios.get(`http://localhost:4000/api/admin/orders?hotelId=${user.hotelId}`)
+    const params = new URLSearchParams({ hotelId: user.hotelId });
+
+    if (dateFilter !== "all") {
+      params.append("period", dateFilter);
+      if (dateFilter === "custom" && selectedDate) {
+        params.append("date", selectedDate);
+      }
+    }
+
+    Axios.get(`http://localhost:4000/api/admin/orders?${params.toString()}`)
       .then((res) => {
         if (res.data.success) {
           setOrders(res.data.orders);
@@ -33,14 +45,17 @@ const Orders = () => {
   };
 
   const handleDownload = async (order) => {
-    
     const doc = new jsPDF();
     doc.setFontSize(18);
     doc.text("Order Receipt", 20, 20);
 
     doc.setFontSize(12);
     doc.text(`Order ID: ${order.orderId}`, 20, 40);
-    doc.text(`Customer: ${order.customerName || order.userId || "Guest"}`, 20, 50);
+    doc.text(
+      `Customer: ${order.customerName || order.userId || "Guest"}`,
+      20,
+      50
+    );
     doc.text(`Hotel ID: ${order.hotelId || "N/A"}`, 20, 60);
     doc.text(
       `Date: ${
@@ -62,9 +77,7 @@ const Orders = () => {
     doc.save(`Order_${order.orderId}.pdf`);
 
     try {
-     
       await Axios.put(`http://localhost:4000/api/orders/${order._id}/complete`);
-      
       fetchOrders();
     } catch (err) {
       console.error("Failed to update order status", err);
@@ -72,9 +85,7 @@ const Orders = () => {
   };
 
   const pendingOrders = orders.filter((order) => order.status === "pending");
-  const completedOrders = orders.filter(
-    (order) => order.status === "completed"
-  );
+  const completedOrders = orders.filter((order) => order.status === "completed");
 
   const renderTable = (list, isPending) => (
     <div className="overflow-x-auto mt-4">
@@ -84,6 +95,7 @@ const Orders = () => {
             <th className="px-4 py-2 border">Order ID</th>
             <th className="px-4 py-2 border">Customer</th>
             <th className="px-4 py-2 border">Hotel ID</th>
+            <th className="px-4 py-2 border">Date & Time</th>
             <th className="px-4 py-2 border">Items</th>
             <th className="px-4 py-2 border">Total (₹)</th>
             <th className="px-4 py-2 border">Status</th>
@@ -99,6 +111,11 @@ const Orders = () => {
               </td>
               <td className="px-4 py-2 border">{order.hotelId || "N/A"}</td>
               <td className="px-4 py-2 border">
+                {order.timestamp
+                  ? new Date(order.timestamp).toLocaleString()
+                  : "N/A"}
+              </td>
+              <td className="px-4 py-2 border">
                 <ul className="list-disc ml-5">
                   {order.cartItems?.map((item, idx) => (
                     <li key={idx}>
@@ -111,11 +128,13 @@ const Orders = () => {
                 ₹{calculateTotal(order.cartItems || [])}
               </td>
               <td className="px-4 py-2 border">
-                <span className={`px-2 py-1 rounded ${
-                  order.status === "pending" 
-                    ? "bg-yellow-100 text-yellow-800" 
-                    : "bg-green-100 text-green-800"
-                }`}>
+                <span
+                  className={`px-2 py-1 rounded ${
+                    order.status === "pending"
+                      ? "bg-yellow-100 text-yellow-800"
+                      : "bg-green-100 text-green-800"
+                  }`}
+                >
                   {order.status}
                 </span>
               </td>
@@ -140,6 +159,38 @@ const Orders = () => {
     <div className="p-5">
       <h1 className="text-2xl font-bold mb-5">Orders Management</h1>
 
+      <div className="mb-5 p-4 bg-gray-50 rounded-lg">
+        <div className="flex flex-wrap gap-4 items-center">
+          <label className="font-medium">Filter by Date:</label>
+
+          <div className="flex items-center gap-2">
+            <select
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">All Dates</option>
+              <option value="today">Today</option>
+              <option value="tomorrow">Tomorrow</option>
+              <option value="month">This Month</option>
+              <option value="year">This Year</option>
+              <option value="custom">Custom Date</option>
+            </select>
+
+            <CalendarDays className="text-gray-500 w-5 h-5" />
+          </div>
+
+          {dateFilter === "custom" && (
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          )}
+        </div>
+      </div>
+
       <div className="flex gap-4 mb-5">
         <button
           onClick={() => setActiveTab("pending")}
@@ -163,17 +214,13 @@ const Orders = () => {
         </button>
       </div>
 
-      {activeTab === "pending" ? (
-        pendingOrders.length > 0 ? (
-          renderTable(pendingOrders, true)
-        ) : (
-          <p className="text-gray-500">No pending orders</p>
-        )
-      ) : completedOrders.length > 0 ? (
-        renderTable(completedOrders, false)
-      ) : (
-        <p className="text-gray-500">No completed orders</p>
-      )}
+      {activeTab === "pending"
+        ? pendingOrders.length > 0
+          ? renderTable(pendingOrders, true)
+          : <p className="text-gray-500">No pending orders for selected date</p>
+        : completedOrders.length > 0
+          ? renderTable(completedOrders, false)
+          : <p className="text-gray-500">No completed orders for selected date</p>}
     </div>
   );
 };
