@@ -3,7 +3,7 @@ import { ArrowUp, ArrowDown, TrendingUp, Users as UsersIcon, ShoppingCart, India
 import { useAuth } from "./context/AuthContext";
 import Axios from "axios";
 
-const API_URL = "http://localhost:4000/api";
+const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
 
 const Dashboard = () => {
   const { user } = useAuth();

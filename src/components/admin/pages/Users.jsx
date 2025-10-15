@@ -3,7 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import { toast } from "react-hot-toast";
 import { UserPlus, Users as UsersIcon, RefreshCw } from "lucide-react";
 
-const API_URL = "http://localhost:4000/api";
+const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
 
 const Users = () => {
   const { user, loading } = useAuth();
