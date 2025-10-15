@@ -134,6 +134,8 @@ const Dashboard = () => {
     return labels[timePeriod] || "Yesterday";
   };
 
+  console.log(`met`)
+
   return (
     <div className="space-y-6">
       {/* Header Section */}
