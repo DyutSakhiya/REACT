@@ -3,7 +3,7 @@ import { Edit, Trash2, Upload, X } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
 
-const API_URL = "http://localhost:4000/api";
+const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
 
 const Products = () => {
   const { user, loading } = useAuth();
