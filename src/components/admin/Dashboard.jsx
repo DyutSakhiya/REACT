@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ArrowUp, ArrowDown, TrendingUp, Users as UsersIcon, ShoppingCart, DollarSign, Calendar } from "lucide-react";
+import { ArrowUp, ArrowDown, TrendingUp, Users as UsersIcon, ShoppingCart, IndianRupee, Calendar } from "lucide-react";
 import { useAuth } from "./context/AuthContext";
 import Axios from "axios";
 
@@ -14,7 +14,7 @@ const Dashboard = () => {
       value: "₹0",
       change: "+0%",
       isPositive: true,
-      icon: <DollarSign size={24} className="text-green-500" />,
+      icon: <IndianRupee size={24} className="text-green-500" />,
     },
     {
       title: "Total Orders",
@@ -83,7 +83,7 @@ const Dashboard = () => {
             value: `₹${revenueData.currentPeriod.toLocaleString()}`,
             change: `${revenueData.percentageChange >= 0 ? '+' : ''}${revenueData.percentageChange.toFixed(1)}%`,
             isPositive: revenueData.percentageChange >= 0,
-            icon: <DollarSign size={24} className="text-green-500" />,
+            icon: <IndianRupee size={24} className="text-green-500" />,
           },
           {
             title: "Total Orders",
