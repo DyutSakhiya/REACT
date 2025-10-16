@@ -138,19 +138,7 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header Section */}
-      <div className="bg-white p-6 rounded-xl shadow border border-gray-100">
-        <h1 className="text-2xl font-bold text-gray-800">Admin Dashboard</h1>
-        <div className="mt-2 border-t border-gray-200 pt-4">
-          <h2 className="text-lg font-semibold text-gray-700">
-            Welcome back,
-          </h2>
-          <p className="text-gray-600">
-            Hotel ID: {user?.hotelId || "hotel_001"} - Here's what's happening with your store {getPeriodLabel().toLowerCase()}.
-          </p>
-        </div>
-      </div>
-
+        
       {/* Time Period Selector */}
       <div className="bg-white p-4 rounded-xl shadow border border-gray-100">
         <div className="flex items-center justify-between">
