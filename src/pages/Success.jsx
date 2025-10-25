@@ -5,6 +5,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { clearCart } from "../redux/slices/CartSlice";
 import Axios from "axios";
 
+const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
+
 const Success = () => {
   const [loading, setLoading] = useState(true);
   const [customerName, setCustomerName] = useState("");
@@ -33,7 +35,7 @@ const Success = () => {
       
       try {
         const response = await Axios.get(
-          `http://localhost:4000/api/orders/customer-name/${orderId}`
+          `${API_URL}/orders/customer-name/${orderId}`
         );
         if (response.data.success && response.data.customerName) {
           setCustomerName(response.data.customerName);
@@ -54,7 +56,7 @@ const Success = () => {
 
     setSavingName(true);
     try {
-      await Axios.put(`http://localhost:4000/api/orders/${orderId}/customer-name`, {
+      await Axios.put(`${API_URL}/orders/${orderId}/customer-name`, {
         customerName: customerName.trim()
       });
       setNameSubmitted(true);

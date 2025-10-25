@@ -4,6 +4,8 @@ import { setCategory } from "../redux/slices/CategorySlice";
 import Axios from "axios";
 import { useSearchParams } from "react-router-dom";
 
+const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
+
 const CategoryMenu = () => {
   const [categories, setCategories] = useState([]);
   const [showPunjabiSubmenu, setShowPunjabiSubmenu] = useState(false);
@@ -15,7 +17,7 @@ const CategoryMenu = () => {
   const fetchCategories = async () => {
     try {
       const response = await Axios.get(
-        `http://localhost:4000/api/categories/${hotel_id}`
+        `${API_URL}/categories/${hotel_id}`
       );
       if (response.data.success) {
         const processedCategories = processCategories(response.data.categories);

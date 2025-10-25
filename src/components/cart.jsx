@@ -6,6 +6,9 @@ import { useSelector } from "react-redux";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Axios from "axios";
 
+
+const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
+
 const Cart = () => {
   const [activeCart, setActiveCart] = useState(false);
   const cartItems = useSelector((state) => state.cart.cart);
@@ -25,12 +28,12 @@ const Cart = () => {
 
     try {
       const pendingResponse = await Axios.get(
-        `http://localhost:4000/api/orders/pending/${username}/${hotel_id}`
+        `${API_URL}/orders/pending/${username}/${hotel_id}`
       );
 
       if (pendingResponse.data.success && pendingResponse.data.order) {
         await Axios.put(
-          `http://localhost:4000/api/orders/${pendingResponse.data.order._id}/add-items`,
+          `${API_URL}/orders/${pendingResponse.data.order._id}/add-items`,
           {
             cartItems,
             total: totalPrice,
@@ -46,7 +49,7 @@ const Cart = () => {
         });
       } else {
        
-        const response = await Axios.post("http://localhost:4000/api/orders", {
+        const response = await Axios.post(`${API_URL}/orders`, {
           userId: username,
           hotelId: hotel_id,
           cartItems,

@@ -3,6 +3,9 @@ import Axios from "axios";
 import jsPDF from "jspdf";
 import { CalendarDays } from "lucide-react"; // calendar icon
 
+
+const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
+
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [activeTab, setActiveTab] = useState("pending");
@@ -31,7 +34,7 @@ const Orders = () => {
       }
     }
 
-    Axios.get(`http://localhost:4000/api/admin/orders?${params.toString()}`)
+    Axios.get(`${API_URL}/admin/orders?${params.toString()}`)
       .then((res) => {
         if (res.data.success) {
           setOrders(res.data.orders);
@@ -77,7 +80,7 @@ const Orders = () => {
     doc.save(`Order_${order.orderId}.pdf`);
 
     try {
-      await Axios.put(`http://localhost:4000/api/orders/${order._id}/complete`);
+      await Axios.put(`${API_URL}/orders/${order._id}/complete`);
       fetchOrders();
     } catch (err) {
       console.error("Failed to update order status", err);
