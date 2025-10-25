@@ -2,6 +2,9 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext();
 
+
+const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);    
   const [loading, setLoading] = useState(true); 
@@ -25,7 +28,7 @@ export const AuthProvider = ({ children }) => {
   
   const register = async (name, mobile, password) => {
     try {
-      const response = await fetch("http://localhost:4000/api/admin/register", {
+      const response = await fetch(`${API_URL}/admin/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, mobile, password }),
@@ -46,7 +49,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (mobile, password) => {
     try {
-      const response = await fetch("http://localhost:4000/api/login", {
+      const response = await fetch(`${API_URL}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mobile, password }),
