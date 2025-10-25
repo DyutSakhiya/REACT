@@ -5,6 +5,8 @@ import { useSelector } from "react-redux";
 import Axios from "axios";
 import { useParams, useSearchParams } from "react-router-dom";
 
+const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
+
 const FoodItems = () => {
   const category = useSelector((state) => state.category.category);
   const search = useSelector((state) => state.search.search);
@@ -17,7 +19,7 @@ const FoodItems = () => {
   const [list, setList] = useState([]);
 
   useEffect(() => {
-    Axios.get(`http://localhost:4000/api/get_food_items?category=${category}&search=${search}&hotel_id=${hotel_id}`)
+    Axios.get(`${API_URL}/get_food_items?category=${category}&search=${search}&hotel_id=${hotel_id}`)
       .then((res) => setList(res.data))
       .catch((err) => console.error("Error fetching data:", err));
   }, [category, search, hotel_id]);
