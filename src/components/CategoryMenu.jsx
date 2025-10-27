@@ -13,20 +13,26 @@ const CategoryMenu = () => {
   const { user } = useSelector((state) => state.auth);
 
   const hotel_id = searchParams.get("hotel_id") || user?.hotelId || "hotel_001";
+  const dispatch = useDispatch();
+  const selectedCategory = useSelector((state) => state.category.category);
 
+  // ✅ Fetch categories safely
   const fetchCategories = async () => {
     try {
-      const response = await Axios.get(`${API_URL}/categories/${hotel_id}`);
+      const response = await Axios.get(`${API_URL}/get_categories?hotel_id=${hotel_id}`);
       if (response.data.success) {
         const processedCategories = processCategories(response.data.categories);
         setCategories(processedCategories);
+      } else {
+        setCategories(["All"]);
       }
     } catch (error) {
       console.error("Error fetching categories:", error);
-      setCategories(["All"]);
+      setCategories(["All"]); // fallback
     }
   };
 
+  // ✅ Process categories to merge Punjabi subcategories
   const processCategories = (categories) => {
     const uniqueCategories = ["All"];
     const hasPunjabi = categories.some((cat) => cat.includes("Punjabi"));
@@ -47,9 +53,6 @@ const CategoryMenu = () => {
   useEffect(() => {
     fetchCategories();
   }, [hotel_id]);
-
-  const dispatch = useDispatch();
-  const selectedCategory = useSelector((state) => state.category.category);
 
   const handleCategoryClick = (category) => {
     if (category === "Punjabi") {
@@ -73,7 +76,7 @@ const CategoryMenu = () => {
     <div className="ml-6">
       <h3 className="text-xl font-semibold">Find the best food</h3>
 
-      {/* ✅ Fixed-size categories */}
+      {/* ✅ Fixed-size categories for mobile */}
       <div className="my-5 flex gap-3 overflow-x-auto scroll-smooth lg:overflow-x-hidden">
         {categories.map((category, index) => {
           const isActive =
@@ -94,6 +97,7 @@ const CategoryMenu = () => {
         })}
       </div>
 
+      {/* ✅ Punjabi Submenu */}
       {(showPunjabiSubmenu || isPunjabiMainSelected) && (
         <div className="my-7 flex gap-3 overflow-x-auto scroll-smooth lg:overflow-x-hidden">
           <button
