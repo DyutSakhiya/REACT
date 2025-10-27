@@ -28,7 +28,6 @@ const CategoryMenu = () => {
       setCategories(["All"]);
     }
   };
-  // ✅ Process categories to merge Punjabi subcategories
 
   const processCategories = (categories) => {
     const uniqueCategories = ["All"];
