@@ -16,9 +16,7 @@ const CategoryMenu = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await Axios.get(
-        `${API_URL}/categories/${hotel_id}`
-      );
+      const response = await Axios.get(`${API_URL}/categories/${hotel_id}`);
       if (response.data.success) {
         const processedCategories = processCategories(response.data.categories);
         setCategories(processedCategories);
@@ -74,7 +72,9 @@ const CategoryMenu = () => {
   return (
     <div className="ml-6">
       <h3 className="text-xl font-semibold">Find the best food</h3>
-      <div className="my-5 flex gap-3 overflow-x-scroll scroll-smooth lg:overflow-x-hidden">
+
+      {/* ✅ Fixed-size categories */}
+      <div className="my-5 flex gap-3 overflow-x-auto scroll-smooth lg:overflow-x-hidden">
         {categories.map((category, index) => {
           const isActive =
             selectedCategory === category ||
@@ -84,7 +84,7 @@ const CategoryMenu = () => {
             <button
               onClick={() => handleCategoryClick(category)}
               key={index}
-              className={`px-3 py-2 bg-gray-200 font-bold rounded-lg hover:bg-green-500 hover:text-white ${
+              className={`min-w-[100px] sm:min-w-[120px] text-sm text-center px-3 py-2 bg-gray-200 font-semibold rounded-lg flex-shrink-0 hover:bg-green-500 hover:text-white transition-all ${
                 isActive && "bg-green-500 text-white"
               }`}
             >
@@ -95,10 +95,10 @@ const CategoryMenu = () => {
       </div>
 
       {(showPunjabiSubmenu || isPunjabiMainSelected) && (
-        <div className="my-7 flex gap-3 overflow-x-scroll scroll-smooth lg:overflow-x-hidden">
+        <div className="my-7 flex gap-3 overflow-x-auto scroll-smooth lg:overflow-x-hidden">
           <button
             onClick={() => handleSubcategoryClick("Punjabi Paneer")}
-            className={`px-3 py-2 bg-gray-200 font-bold rounded-lg hover:bg-green-400 hover:text-white ${
+            className={`min-w-[100px] sm:min-w-[120px] text-sm text-center px-3 py-2 bg-gray-200 font-semibold rounded-lg flex-shrink-0 hover:bg-green-400 hover:text-white transition-all ${
               selectedCategory === "Punjabi Paneer" && "bg-green-400 text-white"
             }`}
           >
@@ -106,7 +106,7 @@ const CategoryMenu = () => {
           </button>
           <button
             onClick={() => handleSubcategoryClick("Punjabi Veg")}
-            className={`px-3 py-2 bg-gray-200 font-bold rounded-lg hover:bg-green-400 hover:text-white ${
+            className={`min-w-[100px] sm:min-w-[120px] text-sm text-center px-3 py-2 bg-gray-200 font-semibold rounded-lg flex-shrink-0 hover:bg-green-400 hover:text-white transition-all ${
               selectedCategory === "Punjabi Veg" && "bg-green-400 text-white"
             }`}
           >
