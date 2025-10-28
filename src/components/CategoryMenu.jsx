@@ -57,8 +57,8 @@ const CategoryMenu = () => {
   const handleCategoryClick = async (category) => {
     setIsLoading(true);
     
-    // Simulate a slow loading process (1.5-2 seconds)
-    await new Promise(resolve => setTimeout(resolve, 1800));
+    // Simulate a small delay to show the loading bar (you can remove this if not needed)
+    await new Promise(resolve => setTimeout(resolve, 100));
     
     if (category === "Punjabi") {
       dispatch(setCategory("Punjabi Paneer"));
@@ -74,8 +74,8 @@ const CategoryMenu = () => {
   const handleSubcategoryClick = async (subcategory) => {
     setIsLoading(true);
     
-    // Simulate a slow loading process for subcategories too
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    // Simulate a small delay to show the loading bar (you can remove this if not needed)
+    await new Promise(resolve => setTimeout(resolve, 100));
     
     dispatch(setCategory(subcategory));
     setIsLoading(false);
@@ -87,15 +87,14 @@ const CategoryMenu = () => {
 
   return (
     <div className="ml-5">
-      <h3 className="text-xl font-semibold">Find the best food</h3>
-      
-      {/* Loading Bar */}
+      {/* Loading Bar - positioned below URL and above "Flavoro foods" */}
       {isLoading && (
-        <div className="my-3 w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
-          <div className="loading-bar h-2.5 bg-gradient-to-r from-green-400 to-green-600 rounded-full animate-loading"></div>
+        <div className="w-full h-1 bg-gray-200 mb-4 overflow-hidden">
+          <div className="h-full bg-green-500 animate-pulse"></div>
         </div>
       )}
       
+      <h3 className="text-xl font-semibold">Find the best food</h3>
       <div className="my-5 flex gap-3 overflow-x-auto scroll-smooth no-scrollbar">
         {categories.map((category, index) => {
           const isActive =
@@ -107,7 +106,7 @@ const CategoryMenu = () => {
               onClick={() => handleCategoryClick(category)}
               key={index}
               disabled={isLoading}
-              className={`px-3 py-2 bg-gray-200 font-bold rounded-lg hover:bg-green-500 hover:text-white whitespace-nowrap transition-all duration-300 ${
+              className={`px-3 py-2 bg-gray-200 font-bold rounded-lg hover:bg-green-500 hover:text-white whitespace-nowrap ${
                 isActive && "bg-green-500 text-white"
               } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
             >
@@ -122,7 +121,7 @@ const CategoryMenu = () => {
           <button
             onClick={() => handleSubcategoryClick("Punjabi Paneer")}
             disabled={isLoading}
-            className={`px-3 py-2 bg-gray-200 font-bold rounded-lg hover:bg-green-400 hover:text-white whitespace-nowrap transition-all duration-300 ${
+            className={`px-3 py-2 bg-gray-200 font-bold rounded-lg hover:bg-green-400 hover:text-white whitespace-nowrap ${
               selectedCategory === "Punjabi Paneer" && "bg-green-400 text-white"
             } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
           >
@@ -131,7 +130,7 @@ const CategoryMenu = () => {
           <button
             onClick={() => handleSubcategoryClick("Punjabi Veg")}
             disabled={isLoading}
-            className={`px-3 py-2 bg-gray-200 font-bold rounded-lg hover:bg-green-400 hover:text-white whitespace-nowrap transition-all duration-300 ${
+            className={`px-3 py-2 bg-gray-200 font-bold rounded-lg hover:bg-green-400 hover:text-white whitespace-nowrap ${
               selectedCategory === "Punjabi Veg" && "bg-green-400 text-white"
             } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
           >
