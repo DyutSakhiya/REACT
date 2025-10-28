@@ -131,7 +131,7 @@ const CategoryMenu = () => {
             onClick={() => handleSubcategoryClick("Punjabi Veg")}
             disabled={isLoading}
             className={`px-3 py-2 bg-gray-200 font-bold rounded-lg hover:bg-green-400 hover:text-white whitespace-nowrap transition-all duration-200 ${
-              selectedCategory === "Punjabi Veg" && "bg-green-400 text-white"
+              selectedCategory === "Punjabi Veg" && "bg-green-500 text-white"
             } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
           >
             Veg Dishes
