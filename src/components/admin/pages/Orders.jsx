@@ -3,7 +3,6 @@ import Axios from "axios";
 import jsPDF from "jspdf";
 import { CalendarDays } from "lucide-react"; // calendar icon
 
-
 const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
 
 const Orders = () => {
@@ -54,11 +53,7 @@ const Orders = () => {
 
     doc.setFontSize(12);
     doc.text(`Order ID: ${order.orderId}`, 20, 40);
-    doc.text(
-      `Customer: ${order.customerName || order.userId || "Guest"}`,
-      20,
-      50
-    );
+    doc.text(`Table No: ${order.tableNumber || "N/A"}`, 20, 50);
     doc.text(`Hotel ID: ${order.hotelId || "N/A"}`, 20, 60);
     doc.text(
       `Date: ${
@@ -96,7 +91,7 @@ const Orders = () => {
         <thead>
           <tr className="bg-gray-200">
             <th className="px-4 py-2 border">Order ID</th>
-            <th className="px-4 py-2 border">Customer</th>
+            <th className="px-4 py-2 border">Table No.</th>
             <th className="px-4 py-2 border">Hotel ID</th>
             <th className="px-4 py-2 border">Date & Time</th>
             <th className="px-4 py-2 border">Items</th>
@@ -109,9 +104,7 @@ const Orders = () => {
           {list.map((order) => (
             <tr key={order._id}>
               <td className="px-4 py-2 border">{order.orderId}</td>
-              <td className="px-4 py-2 border font-medium">
-                {order.customerName || order.userId || "Guest"}
-              </td>
+              <td className="px-4 py-2 border">{order.tableNumber || "N/A"}</td>
               <td className="px-4 py-2 border">{order.hotelId || "N/A"}</td>
               <td className="px-4 py-2 border">
                 {order.timestamp

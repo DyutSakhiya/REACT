@@ -94,7 +94,7 @@ const CategoryMenu = () => {
         </div>
       )}
       
-      <h3 className="text-xl font-semibold">Find the best food</h3>
+      <h3 className="text-xl my-5 font-semibold">Find the best food</h3>
       <div className="my-5 flex gap-3 overflow-x-auto scroll-smooth no-scrollbar">
         {categories.map((category, index) => {
           const isActive =

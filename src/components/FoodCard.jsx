@@ -7,8 +7,7 @@ const FoodCard = ({ id, name, price, desc, img, rating, handleToast }) => {
   const dispatch = useDispatch();
 
   return (
-    <div className="font-bold w-[150px] sm:w-[180px] md:w-[200px] bg-white p-4 flex flex-col rounded-lg gap-2 shadow-md hover:shadow-lg transition-all duration-300">
-      {/* ✅ Fixed image size */}
+    <div className="font-bold w-[200px] sm:w-[180px] md:w-[200px] bg-white p-4 flex flex-col rounded-lg gap-2 shadow-md hover:shadow-lg transition-all duration-300">
       <img
         src={img}
         alt={name}

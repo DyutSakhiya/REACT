@@ -197,13 +197,7 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Recent Activity Section */}
-      <div className="bg-white p-4 lg:p-6 rounded-xl shadow border border-gray-100">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">Recent Activity</h2>
-        <div className="text-center py-6 lg:py-8 text-gray-500 text-sm lg:text-base">
-          <p>Hotel {user?.hotelId || "hotel_001"} - No recent activity to display</p>
-        </div>
-      </div>
+      
     </div>
   );
 };

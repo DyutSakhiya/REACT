@@ -32,24 +32,12 @@ export default function AdminPanel() {
           <div className="max-w-7xl mx-auto">
             <div className="mb-8">
               <h2 className="text-3xl font-extrabold text-gray-800">
-                Welcome back, {user.username}
+                Welcome  {user.username}
               </h2>
-              <p className="text-gray-600 mt-2">
-                {user.isSuperAdmin
-                  ? "Super Admin - Access to all hotels"
-                  : `Hotel ID: ${user.hotelId} - Here's what's happening with your store today.`}
-              </p>
+              
             </div>
             <Dashboard />
-            <div className="mt-8 grid grid-cols-1 gap-8">
-              <div className="bg-white p-6 rounded-xl shadow">
-                <h3 className="text-xl font-semibold mb-4">
-                  {user.isSuperAdmin
-                    ? "All Hotels Overview"
-                    : `Recent Activity - Hotel ${user.hotelId}`}
-                </h3>
-              </div>
-            </div>
+            
           </div>
         </main>
       </div>
