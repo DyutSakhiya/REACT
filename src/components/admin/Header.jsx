@@ -1,9 +1,9 @@
 import React from "react";
-import { LogOut } from "lucide-react";
+import { LogOut, Menu } from "lucide-react";
 import { useAuth } from "../admin/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-const Header = () => {
+const Header = ({ onMenuToggle }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -14,14 +14,31 @@ const Header = () => {
 
   return (
     <header className="bg-white shadow p-4 flex justify-between items-center sticky top-0 z-10">
-      <h1 className="text-2xl font-bold text-orange-700">Admin Dashboard</h1>
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2">
+      {/* Mobile Menu Button */}
+      <button
+        onClick={onMenuToggle}
+        className="lg:hidden p-2 rounded-lg border border-gray-200 mr-2"
+      >
+        <Menu size={20} />
+      </button>
+
+      <h1 className="text-xl lg:text-2xl font-bold text-orange-700 flex-1 text-center lg:text-left">
+        Admin Dashboard
+      </h1>
+      
+      <div className="flex items-center gap-2 lg:gap-4">
+        <div className="hidden sm:flex items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white font-medium">
             {user?.name?.charAt(0).toUpperCase()}
           </div>
-          <span className="text-gray-700 font-medium">{user?.name}</span>
+          <span className="text-gray-700 font-medium hidden lg:block">{user?.name}</span>
         </div>
+        
+        {/* Mobile user initial only */}
+        <div className="sm:hidden w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white font-medium">
+          {user?.name?.charAt(0).toUpperCase()}
+        </div>
+        
         <button
           onClick={handleLogout}
           className="p-2 text-gray-500 hover:text-orange-600 hover:bg-orange-50 rounded-full"
