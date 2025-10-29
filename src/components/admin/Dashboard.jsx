@@ -134,19 +134,22 @@ const Dashboard = () => {
     return labels[timePeriod] || "Yesterday";
   };
 
+  console.log(`met`)
+
   return (
-    <div className="space-y-4 md:space-y-6 p-2 md:p-0">
+    <div className="space-y-6">
+        
       {/* Time Period Selector */}
-      <div className="bg-white p-3 md:p-4 rounded-xl shadow border border-gray-100">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="bg-white p-4 rounded-xl shadow border border-gray-100">
+        <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Calendar size={20} className="text-gray-600" />
-            <h2 className="text-base md:text-lg font-semibold">Time Period</h2>
+            <h2 className="text-lg font-semibold">Time Period</h2>
           </div>
           <select
             value={timePeriod}
             onChange={(e) => setTimePeriod(e.target.value)}
-            className="w-full sm:w-auto px-3 py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="today">Today</option>
             <option value="yesterday">Yesterday</option>
@@ -160,38 +163,33 @@ const Dashboard = () => {
 
       {/* Loading State */}
       {loading && (
-        <div className="bg-white p-4 md:p-6 rounded-xl shadow border border-gray-100 text-center">
-          <div className="animate-spin rounded-full h-6 w-6 md:h-8 md:w-8 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-2 text-sm md:text-base text-gray-600">Loading dashboard data...</p>
+        <div className="bg-white p-6 rounded-xl shadow border border-gray-100 text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Loading dashboard data...</p>
         </div>
       )}
 
-      {/* Main Stats Grid - Responsive for mobile */}
+      {/* Main Stats Grid - Fixed to 3 columns for the 3 metrics */}
       {!loading && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {stats.map((stat, index) => (
             <div
               key={index}
-              className="bg-white p-4 md:p-6 rounded-xl shadow border border-gray-100 hover:shadow-md transition-shadow"
+              className="bg-white p-6 rounded-xl shadow border border-gray-100 hover:shadow-md transition-shadow"
             >
               <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <p className="text-xs md:text-sm font-medium text-gray-500">{stat.title}</p>
-                  <p className="text-xl md:text-2xl font-bold mt-1">{stat.value}</p>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">{stat.title}</p>
+                  <p className="text-2xl font-bold mt-1">{stat.value}</p>
                 </div>
-                <div className="p-2 rounded-lg bg-gray-50 ml-2">
-                  {React.cloneElement(stat.icon, { size: window.innerWidth < 768 ? 20 : 24 })}
-                </div>
+                <div className="p-2 rounded-lg bg-gray-50">{stat.icon}</div>
               </div>
-              <div className={`mt-3 md:mt-4 flex items-center text-xs md:text-sm ${
+              <div className={`mt-4 flex items-center text-sm ${
                 stat.isPositive ? "text-green-500" : "text-red-500"
               }`}>
-                {stat.isPositive ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+                {stat.isPositive ? <ArrowUp size={16} /> : <ArrowDown size={16} />}
                 <span className="ml-1">{stat.change}</span>
-                <span className="ml-1 text-gray-500 hidden xs:inline">vs {getPreviousPeriodLabel().toLowerCase()}</span>
-              </div>
-              <div className="mt-1 xs:hidden text-xs text-gray-500">
-                vs {getPreviousPeriodLabel().toLowerCase()}
+                <span className="ml-1 text-gray-500">vs {getPreviousPeriodLabel().toLowerCase()}</span>
               </div>
             </div>
           ))}
@@ -199,10 +197,10 @@ const Dashboard = () => {
       )}
 
       {/* Recent Activity Section */}
-      <div className="bg-white p-4 md:p-6 rounded-xl shadow border border-gray-100">
-        <h2 className="text-base md:text-lg font-semibold text-gray-800 mb-4">Recent Activity</h2>
-        <div className="text-center py-6 md:py-8 text-gray-500">
-          <p className="text-sm md:text-base">Hotel {user?.hotelId || "hotel_001"} - No recent activity to display</p>
+      <div className="bg-white p-6 rounded-xl shadow border border-gray-100">
+        <h2 className="text-lg font-semibold text-gray-800 mb-4">Recent Activity</h2>
+        <div className="text-center py-8 text-gray-500">
+          <p>Hotel {user?.hotelId || "hotel_001"} - No recent activity to display</p>
         </div>
       </div>
     </div>
