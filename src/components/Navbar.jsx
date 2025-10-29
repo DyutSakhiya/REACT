@@ -15,7 +15,7 @@ const Navbar = () => {
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 py-1">
         <div className="flex justify-between items-center py-4">
           <div 
             className="flex items-center cursor-pointer" 
@@ -25,13 +25,13 @@ const Navbar = () => {
             <span className="text-2xl font-bold text-gray-800">Foods</span>
           </div>
 
-          <div className="hidden md:flex flex-1 max-w-md mx-6">
+          <div className="hidden md:flex flex-1 max-w-md mx-6 ">
             <div className="relative w-full">
               <input
                 type="search"
                 placeholder="Search foods..."
                 onChange={(e) => dispatch(setSearch(e.target.value))}
-                className="w-full py-2 px-4 pl-10 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full py-2  px-4 pl-10 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
               />
               <FiSearch className="absolute left-3 top-3 text-gray-400" />
             </div>
