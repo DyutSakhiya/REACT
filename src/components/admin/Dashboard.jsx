@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { ArrowUp, ArrowDown, TrendingUp, Users as UsersIcon, ShoppingCart, IndianRupee, Calendar } from "lucide-react";
+import { ArrowUp, ArrowDown, TrendingUp, Users as UsersIcon, ShoppingCart, IndianRupee, Calendar, Table } from "lucide-react";
 import { useAuth } from "./context/AuthContext";
 import Axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [timePeriod, setTimePeriod] = useState("today");
   const [stats, setStats] = useState([
     {
@@ -32,6 +34,12 @@ const Dashboard = () => {
     },
   ]);
 
+  const [tableStats, setTableStats] = useState({
+    available: 0,
+    occupied: 0,
+    total: 0
+  });
+
   const [loading, setLoading] = useState(false);
   const [comparisonData, setComparisonData] = useState({
     current: { orders: 0, revenue: 0 },
@@ -42,6 +50,7 @@ const Dashboard = () => {
   useEffect(() => {
     if (user && user.hotelId) {
       fetchDashboardData();
+      fetchTableStats();
     }
   }, [user, timePeriod]);
 
@@ -110,6 +119,24 @@ const Dashboard = () => {
     }
   };
 
+  const fetchTableStats = async () => {
+    try {
+      // For demo purposes, we'll use mock data
+      // In production, you would call your API
+      const mockTables = Array.from({ length: 10 }, (_, i) => ({
+        status: Math.random() > 0.5 ? 'available' : 'occupied'
+      }));
+      
+      setTableStats({
+        available: mockTables.filter(t => t.status === 'available').length,
+        occupied: mockTables.filter(t => t.status === 'occupied').length,
+        total: mockTables.length
+      });
+    } catch (error) {
+      console.error("Failed to fetch table stats:", error);
+    }
+  };
+
   const getPeriodLabel = () => {
     const labels = {
       today: "Today",
@@ -168,36 +195,38 @@ const Dashboard = () => {
 
       {/* Main Stats Grid - Responsive columns */}
       {!loading && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-          {stats.map((stat, index) => (
-            <div
-              key={index}
-              className="bg-white p-4 lg:p-6 rounded-xl shadow border border-gray-100 hover:shadow-md transition-shadow"
-            >
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-500">{stat.title}</p>
-                  <p className="text-xl lg:text-2xl font-bold mt-1 truncate">{stat.value}</p>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+            {stats.map((stat, index) => (
+              <div
+                key={index}
+                className="bg-white p-4 lg:p-6 rounded-xl shadow border border-gray-100 hover:shadow-md transition-shadow"
+              >
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-500">{stat.title}</p>
+                    <p className="text-xl lg:text-2xl font-bold mt-1 truncate">{stat.value}</p>
+                  </div>
+                  <div className="p-2 rounded-lg bg-gray-50 ml-2 flex-shrink-0">
+                    {stat.icon}
+                  </div>
                 </div>
-                <div className="p-2 rounded-lg bg-gray-50 ml-2 flex-shrink-0">
-                  {stat.icon}
+                <div className={`mt-3 flex items-center text-sm ${
+                  stat.isPositive ? "text-green-500" : "text-red-500"
+                }`}>
+                  {stat.isPositive ? <ArrowUp size={16} /> : <ArrowDown size={16} />}
+                  <span className="ml-1">{stat.change}</span>
+                  <span className="ml-1 text-gray-500 text-xs hidden sm:inline">
+                    vs {getPreviousPeriodLabel().toLowerCase()}
+                  </span>
                 </div>
               </div>
-              <div className={`mt-3 flex items-center text-sm ${
-                stat.isPositive ? "text-green-500" : "text-red-500"
-              }`}>
-                {stat.isPositive ? <ArrowUp size={16} /> : <ArrowDown size={16} />}
-                <span className="ml-1">{stat.change}</span>
-                <span className="ml-1 text-gray-500 text-xs hidden sm:inline">
-                  vs {getPreviousPeriodLabel().toLowerCase()}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
 
-      
+         
+        </>
+      )}
     </div>
   );
 };

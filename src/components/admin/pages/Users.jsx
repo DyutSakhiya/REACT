@@ -171,19 +171,7 @@ const Users = () => {
           <UsersIcon className="w-7 h-7 text-orange-500" />
           User Management
         </h2>
-        <div className="flex items-center gap-4">
-          <button
-            onClick={fetchUsers}
-            disabled={fetchLoading}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-white bg-blue-500 hover:bg-blue-600 shadow-md transition disabled:opacity-50"
-          >
-            <RefreshCw className={`w-4 h-4 ${fetchLoading ? 'animate-spin' : ''}`} />
-            Refresh
-          </button>
-          <span className="text-sm px-3 py-1 rounded-full bg-orange-100 text-orange-700 font-medium">
-            Hotel ID: {user.hotelId}
-          </span>
-        </div>
+       
       </div>
 
      

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Home, Users, Settings, Package, ShoppingCart, BarChart2, Menu, X } from "lucide-react";
+import { Home, Users, Settings, Package, ShoppingCart, BarChart2, Menu, X, Table } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 
 const Sidebar = () => {
@@ -10,7 +10,8 @@ const Sidebar = () => {
     { icon: Home, label: "Dashboard", path: "/admin" },
     { icon: ShoppingCart, label: "Orders", path: "/admin/orders" },
     { icon: Package, label: "Products", path: "/admin/products" },
-    { icon: Users, label: "Users", path: "/admin/users" }, 
+    { icon: Users, label: "Users", path: "/admin/users" },
+    { icon: Table, label: "Tables", path: "/admin/tables" },
   ];
 
   const toggleMobileMenu = () => {

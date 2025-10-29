@@ -4,6 +4,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Success from "./pages/Success";
 import TableOrder from "./pages/TableOrder";
+import Tables from './components/admin/Tables';
+
 import Error from "./pages/Error";
 import Login from "./components/admin/pages/Login";
 import Register from "./components/admin/pages/Register";
@@ -26,10 +28,11 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/success" element={<Success />} />
           <Route path="/table/:tableNumber" element={<TableOrder />} />
+          <Route path="/admin/tables" element={<Tables />} />
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/admin" element={<AdminPanel />} />
+            <Route path="/admin/*" element={<AdminPanel />} />
           <Route path="/admin/products" element={<Products />} />
           <Route path="/ProtectedRoute" element={<ProtectedRoute />} />
           <Route
