@@ -39,7 +39,7 @@ function TableManagement() {
   const toggleStatus = async (id, currentStatus) => {
     const newStatus = currentStatus === "available" ? "occupied" : "available";
     try {
-      const res = await fetch(`${API_URL}/${id}`, {
+      const res = await fetch(`${API_URL}/admin/tables/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -58,35 +58,40 @@ function TableManagement() {
     }
   };
 
-  const addTable = async () => {
-    const tableNumber = tables.length + 1;
-    try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          tableNumber,
-          capacity: 4,
-          location: "Main Hall",
-        }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setTables((prev) => [...prev, data.table]);
-      }
-    } catch (err) {
-      console.error("Error adding table:", err);
+ const addTable = async () => {
+  const tableNumber = tables.length + 1;
+
+  try {
+    const res = await fetch(`${API_URL}/admin/tables`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        tableNumber,
+        capacity: 4,
+        location: "Main Hall",
+      }),
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      setTables((prev) => [...prev, data.table]);
+    } else {
+      console.error("Error adding table:", data.message);
     }
-  };
+  } catch (err) {
+    console.error("Error adding table:", err);
+  }
+};
+
 
   const deleteTable = async () => {
     if (tables.length === 0) return;
     const lastTable = tables[tables.length - 1];
     try {
-      const res = await fetch(`${API_URL}/${lastTable._id}`, {
+      const res = await fetch(`${API_URL}/admin/tables/${lastTable._id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
