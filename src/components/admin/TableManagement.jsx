@@ -153,7 +153,7 @@ function TableManagement() {
                   </div>
                 ) : (
                   <div className="flex items-center gap-1 text-sm">
-                    <CheckCircle className="w-4 h-4" /> Empty
+                    <CheckCircle className="w-4 h-4" /> available
                   </div>
                 )}
               </div>
