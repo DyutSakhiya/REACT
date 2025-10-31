@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Edit, Trash2, Upload, X } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
+import Sidebar from "../Sidebar"; 
+
+// const API_URL = "http://localhost:4000/api"
 
 const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
 
@@ -30,17 +33,13 @@ const Products = () => {
       return;
     }
 
-    console.log({user})
-
     fetch(`${API_URL}/get_food_items?hotel_id=${user.hotelId}`, {
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
     })
       .then((res) => {
-        if (!res.ok) {
-          throw new Error('Failed to fetch products');
-        }
+        if (!res.ok) throw new Error("Failed to fetch products");
         return res.json();
       })
       .then((data) => setProducts(data))
@@ -52,15 +51,11 @@ const Products = () => {
 
     fetch(`${API_URL}/categories/${user.hotelId}`)
       .then((res) => {
-        if (!res.ok) {
-          throw new Error('Failed to fetch categories');
-        }
+        if (!res.ok) throw new Error("Failed to fetch categories");
         return res.json();
       })
       .then((data) => {
-        if (data.success) {
-          setCategories(data.categories || []);
-        }
+        if (data.success) setCategories(data.categories || []);
       })
       .catch(() => toast.error("Failed to load categories"));
   };
@@ -96,9 +91,7 @@ const Products = () => {
     if (file) {
       setSelectedImage(file);
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
+      reader.onloadend = () => setImagePreview(reader.result);
       reader.readAsDataURL(file);
     }
   };
@@ -124,20 +117,15 @@ const Products = () => {
     }
 
     setUploading(true);
+    const formDataToSend = new FormData();
+    formDataToSend.append("name", name);
+    formDataToSend.append("price", price);
+    formDataToSend.append("category", category);
+    formDataToSend.append("adminUsername", user.name);
+    if (selectedImage) formDataToSend.append("image", selectedImage);
+    const token = localStorage.getItem("token");
 
     try {
-      const formDataToSend = new FormData();
-      formDataToSend.append("name", name);
-      formDataToSend.append("price", price);
-      formDataToSend.append("category", category);
-      formDataToSend.append("adminUsername", user.name); 
-
-      if (selectedImage) {
-        formDataToSend.append("image", selectedImage);
-      }
-
-      const token = localStorage.getItem('token');
-      
       if (isEditing) {
         if (formData.imagePublicId && selectedImage) {
           formDataToSend.append("oldImagePublicId", formData.imagePublicId);
@@ -145,39 +133,27 @@ const Products = () => {
 
         const response = await fetch(`${API_URL}/products/${formData.id}`, {
           method: "PUT",
-          headers: {
-            'Authorization': `Bearer ${token}`
-          },
+          headers: { Authorization: `Bearer ${token}` },
           body: formDataToSend,
         });
 
-        if (response.ok) {
-          toast.success("Product updated!");
-          fetchProducts();
-          resetForm();
-        } else {
-          throw new Error("Update failed");
-        }
+        if (!response.ok) throw new Error("Update failed");
+        toast.success("Product updated!");
       } else {
         const response = await fetch(`${API_URL}/products`, {
           method: "POST",
-          headers: {
-            'Authorization': `Bearer ${token}`
-          },
+          headers: { Authorization: `Bearer ${token}` },
           body: formDataToSend,
         });
 
-        if (response.ok) {
-          toast.success("Product added!");
-          fetchProducts();
-          fetchCategories(); // Refresh categories after adding new product
-          resetForm();
-        } else {
-          throw new Error("Add failed");
-        }
+        if (!response.ok) throw new Error("Add failed");
+        toast.success("Product added!");
       }
+
+      fetchProducts();
+      fetchCategories();
+      resetForm();
     } catch (error) {
-      console.error("Error:", error);
       toast.error(isEditing ? "Update failed" : "Add failed");
     } finally {
       setUploading(false);
@@ -200,19 +176,14 @@ const Products = () => {
 
   const handleDelete = (id) => {
     if (!window.confirm("Delete this product?")) return;
-    
-    const token = localStorage.getItem('token');
-    
+    const token = localStorage.getItem("token");
+
     fetch(`${API_URL}/products/${id}`, {
       method: "DELETE",
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
+      headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
-        if (!res.ok) {
-          throw new Error('Delete failed');
-        }
+        if (!res.ok) throw new Error("Delete failed");
         return res.json();
       })
       .then(() => {
@@ -238,11 +209,9 @@ const Products = () => {
     setNewCategory("");
   };
 
-  if (loading) {
-    return <div className="max-w-6xl mx-auto p-4">Loading...</div>;
-  }
+  if (loading) return <div className="max-w-6xl mx-auto p-4">Loading...</div>;
 
-  if (!user) {
+  if (!user)
     return (
       <div className="max-w-6xl mx-auto p-4">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">
@@ -250,207 +219,219 @@ const Products = () => {
         </h2>
       </div>
     );
-  }
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">
-        Product Management - {user?.hotelId}
-      </h2>
+    <>
+      
+      <div className="lg:hidden">
+        <Sidebar />
+      </div>
 
-      <div className="bg-white p-4 rounded-lg shadow mb-8">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input
-              name="name"
-              type="text"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Product Name"
-              className="w-full px-3 py-2 rounded border"
-            />
-            <input
-              name="price"
-              type="number"
-              value={formData.price}
-              onChange={handleChange}
-              placeholder="Price (₹)"
-              className="w-full px-3 py-2 rounded border"
-            />
-          </div>
+     
+      <div className="max-w-6xl mx-auto p-4 mt-16 lg:mt-0">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">
+          Product Management - {user?.hotelId}
+        </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Category
-              </label>
-              {!showNewCategoryInput ? (
-                <select
-                  name="category"
-                  value={formData.category}
-                  onChange={handleCategoryChange}
-                  className="w-full px-3 py-2 rounded border"
-                >
-                  <option value="">Select Category</option>
-                  {categories.map((category, index) => (
-                    <option key={index} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                  <option value="add_new">+ Add New Category</option>
-                </select>
-              ) : (
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={newCategory}
-                    onChange={handleNewCategoryChange}
-                    placeholder="Enter new category"
-                    className="flex-1 px-3 py-2 rounded border"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowNewCategoryInput(false);
-                      setFormData({ ...formData, category: "" });
-                      setNewCategory("");
-                    }}
-                    className="px-3 py-2 rounded text-gray-600 bg-gray-200 hover:bg-gray-300"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              )}
+       
+        <div className="bg-white p-4 rounded-lg shadow mb-8">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input
+                name="name"
+                type="text"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Product Name"
+                className="w-full px-3 py-2 rounded border"
+              />
+              <input
+                name="price"
+                type="number"
+                value={formData.price}
+                onChange={handleChange}
+                placeholder="Price (₹)"
+                className="w-full px-3 py-2 rounded border"
+              />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Product Image
-              </label>
-              {imagePreview ? (
-                <div className="relative inline-block">
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="w-24 h-24 object-cover rounded border"
-                  />
-                  <button
-                    type="button"
-                    onClick={removeImage}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                  >
-                    <X size={14} />
-                  </button>
-                </div>
-              ) : (
-                <label
-                  htmlFor="image-upload"
-                  className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center block cursor-pointer hover:border-orange-500"
-                >
-                  <Upload className="w-6 h-6 text-gray-400 mx-auto" />
-                  <span className="text-xs text-gray-500">Click to upload</span>
-                  <input
-                    id="image-upload"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                  />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Category
                 </label>
+                {!showNewCategoryInput ? (
+                  <select
+                    name="category"
+                    value={formData.category}
+                    onChange={handleCategoryChange}
+                    className="w-full px-3 py-2 rounded border"
+                  >
+                    <option value="">Select Category</option>
+                    {categories.map((category, index) => (
+                      <option key={index} value={category}>
+                        {category}
+                      </option>
+                    ))}
+                    <option value="add_new">+ Add New Category</option>
+                  </select>
+                ) : (
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={newCategory}
+                      onChange={handleNewCategoryChange}
+                      placeholder="Enter new category"
+                      className="flex-1 px-3 py-2 rounded border"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowNewCategoryInput(false);
+                        setFormData({ ...formData, category: "" });
+                        setNewCategory("");
+                      }}
+                      className="px-3 py-2 rounded text-gray-600 bg-gray-200 hover:bg-gray-300"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Image upload */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Product Image
+                </label>
+                {imagePreview ? (
+                  <div className="relative inline-block">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-24 h-24 object-cover rounded border"
+                    />
+                    <button
+                      type="button"
+                      onClick={removeImage}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ) : (
+                  <label
+                    htmlFor="image-upload"
+                    className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center block cursor-pointer hover:border-orange-500"
+                  >
+                    <Upload className="w-6 h-6 text-gray-400 mx-auto" />
+                    <span className="text-xs text-gray-500">
+                      Click to upload
+                    </span>
+                    <input
+                      id="image-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                    />
+                  </label>
+                )}
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                type="submit"
+                disabled={uploading}
+                className="px-4 py-2 rounded text-white font-medium bg-orange-500 hover:bg-orange-600 disabled:opacity-50"
+              >
+                {uploading
+                  ? isEditing
+                    ? "Updating..."
+                    : "Adding..."
+                  : isEditing
+                  ? "Update Product"
+                  : "Add Product"}
+              </button>
+              {isEditing && (
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="px-4 py-2 rounded text-gray-600 bg-gray-200 hover:bg-gray-300"
+                >
+                  Cancel
+                </button>
               )}
             </div>
-          </div>
+          </form>
+        </div>
 
-          <div className="flex gap-3">
-            <button
-              type="submit"
-              disabled={uploading}
-              className="px-4 py-2 rounded text-white font-medium bg-orange-500 hover:bg-orange-600 disabled:opacity-50"
-            >
-              {uploading
-                ? isEditing
-                  ? "Updating..."
-                  : "Adding..."
-                : isEditing
-                ? "Update Product"
-                : "Add Product"}
-            </button>
-            {isEditing && (
-              <button
-                type="button"
-                onClick={resetForm}
-                className="px-4 py-2 rounded text-gray-600 bg-gray-200 hover:bg-gray-300"
-              >
-                Cancel
-              </button>
-            )}
-          </div>
-        </form>
-      </div>
-
-      <div className="bg-white p-4 rounded-lg shadow">
-        <h3 className="text-lg font-semibold mb-3">Product List</h3>
-        {products.length === 0 ? (
-          <p className="text-gray-500">No products available.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr className="text-gray-600 border-b">
-                  <th className="p-3">Image</th>
-                  <th className="p-3">Name</th>
-                  <th className="p-3">Price (₹)</th>
-                  <th className="p-3">Category</th>
-                  <th className="p-3">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {products.map((product) => (
-                  <tr key={product._id} className="border-b hover:bg-gray-50">
-                    <td className="p-3">
-                      {product.imageUrl ? (
-                        <img
-                          src={product.imageUrl}
-                          alt={product.name}
-                          className="w-12 h-12 object-cover rounded"
-                        />
-                      ) : (
-                        <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-400">
-                          No Img
-                        </div>
-                      )}
-                    </td>
-                    <td className="p-3">{product.name}</td>
-                    <td className="p-3">{product.price}</td>
-                    <td className="p-3">
-                      <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-                        {product.category}
-                      </span>
-                    </td>
-                    <td className="p-3 flex gap-2">
-                      <button
-                        onClick={() => handleEdit(product)}
-                        className="p-1 text-orange-600 hover:bg-orange-50 rounded"
-                        title="Edit"
-                      >
-                        <Edit size={16} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(product._id)}
-                        className="p-1 text-red-600 hover:bg-red-50 rounded"
-                        title="Delete"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </td>
+        {/* Product list */}
+        <div className="bg-white p-4 rounded-lg shadow">
+          <h3 className="text-lg font-semibold mb-3">Product List</h3>
+          {products.length === 0 ? (
+            <p className="text-gray-500">No products available.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead>
+                  <tr className="text-gray-600 border-b">
+                    <th className="p-3">Image</th>
+                    <th className="p-3">Name</th>
+                    <th className="p-3">Price (₹)</th>
+                    <th className="p-3">Category</th>
+                    <th className="p-3">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                </thead>
+                <tbody>
+                  {products.map((product) => (
+                    <tr key={product._id} className="border-b hover:bg-gray-50">
+                      <td className="p-3">
+                        {product.imageUrl ? (
+                          <img
+                            src={product.imageUrl}
+                            alt={product.name}
+                            className="w-12 h-12 object-cover rounded"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-400">
+                            No Img
+                          </div>
+                        )}
+                      </td>
+                      <td className="p-3">{product.name}</td>
+                      <td className="p-3">{product.price}</td>
+                      <td className="p-3">
+                        <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                          {product.category}
+                        </span>
+                      </td>
+                      <td className="p-3 flex gap-2">
+                        <button
+                          onClick={() => handleEdit(product)}
+                          className="p-1 text-orange-600 hover:bg-orange-50 rounded"
+                          title="Edit"
+                        >
+                          <Edit size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(product._id)}
+                          className="p-1 text-red-600 hover:bg-red-50 rounded"
+                          title="Delete"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
