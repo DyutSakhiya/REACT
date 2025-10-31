@@ -3,8 +3,6 @@ import Axios from "axios";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Success from "./pages/Success";
-import TableOrder from "./pages/TableOrder";
-import Tables from './components/admin/Tables';
 
 import Error from "./pages/Error";
 import Login from "./components/admin/pages/Login";
@@ -15,6 +13,7 @@ import { AuthProvider } from "./components/admin/context/AuthContext";
 import Users from "./components/admin/pages/Users";
 import Orders from "./components/admin/pages/Orders"; 
 import ProtectedRoute from "./components/ProtectedRoute";
+import Tables from"./components/admin/Tables";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
 import QRCodeGenerator from "./pages/QRCodeGenerator";
 
@@ -27,12 +26,11 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/success" element={<Success />} />
-          <Route path="/table/:tableNumber" element={<TableOrder />} />
-          <Route path="/admin/tables" element={<Tables />} />
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
             <Route path="/admin/*" element={<AdminPanel />} />
+            <Route path="tables" element={<Tables/>} />
           <Route path="/admin/products" element={<Products />} />
           <Route path="/ProtectedRoute" element={<ProtectedRoute />} />
           <Route

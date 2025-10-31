@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Axios from "axios";
 import jsPDF from "jspdf";
-import { CalendarDays } from "lucide-react"; // calendar icon
+import { CalendarDays } from "lucide-react";
+import Sidebar from "../Sidebar"; 
 
 const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
 
@@ -83,7 +84,9 @@ const Orders = () => {
   };
 
   const pendingOrders = orders.filter((order) => order.status === "pending");
-  const completedOrders = orders.filter((order) => order.status === "completed");
+  const completedOrders = orders.filter(
+    (order) => order.status === "completed"
+  );
 
   const renderTable = (list, isPending) => (
     <div className="overflow-x-auto mt-4">
@@ -152,72 +155,78 @@ const Orders = () => {
   );
 
   return (
-    <div className="p-5">
-      <h1 className="text-2xl font-bold mb-5">Orders Management</h1>
+    <>
+      <div className="lg:hidden">
+        <Sidebar />
+      </div>
 
-      <div className="mb-5 p-4 bg-gray-50 rounded-lg">
-        <div className="flex flex-wrap gap-4 items-center">
-          <label className="font-medium">Filter by Date:</label>
+      <div className="p-5 mt-16 lg:mt-0">
+        <h1 className="text-2xl font-bold mb-5">Orders Management</h1>
 
-          <div className="flex items-center gap-2">
-            <select
-              value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="all">All Dates</option>
-              <option value="today">Today</option>
-              <option value="tomorrow">Tomorrow</option>
-              <option value="month">This Month</option>
-              <option value="year">This Year</option>
-              <option value="custom">Custom Date</option>
-            </select>
+        <div className="mb-5 p-4 bg-gray-50 rounded-lg">
+          <div className="flex flex-wrap gap-4 items-center">
+            <label className="font-medium">Filter by Date:</label>
 
-            <CalendarDays className="text-gray-500 w-5 h-5" />
+            <div className="flex items-center gap-2">
+              <select
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all">All Dates</option>
+                <option value="today">Today</option>
+                <option value="tomorrow">Tomorrow</option>
+                <option value="month">This Month</option>
+                <option value="year">This Year</option>
+                <option value="custom">Custom Date</option>
+              </select>
+
+              <CalendarDays className="text-gray-500 w-5 h-5" />
+            </div>
+
+            {dateFilter === "custom" && (
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            )}
           </div>
-
-          {dateFilter === "custom" && (
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          )}
         </div>
-      </div>
 
-      <div className="flex gap-4 mb-5">
-        <button
-          onClick={() => setActiveTab("pending")}
-          className={`px-4 py-2 rounded ${
-            activeTab === "pending"
-              ? "bg-green-500 text-white"
-              : "bg-gray-200 text-gray-800"
-          }`}
-        >
-          Pending Orders ({pendingOrders.length})
-        </button>
-        <button
-          onClick={() => setActiveTab("completed")}
-          className={`px-4 py-2 rounded ${
-            activeTab === "completed"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200 text-gray-800"
-          }`}
-        >
-          Completed Orders ({completedOrders.length})
-        </button>
-      </div>
+        <div className="flex gap-4 mb-5">
+          <button
+            onClick={() => setActiveTab("pending")}
+            className={`px-4 py-2 rounded ${
+              activeTab === "pending"
+                ? "bg-green-500 text-white"
+                : "bg-gray-200 text-gray-800"
+            }`}
+          >
+            Pending Orders ({pendingOrders.length})
+          </button>
+          <button
+            onClick={() => setActiveTab("completed")}
+            className={`px-4 py-2 rounded ${
+              activeTab === "completed"
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200 text-gray-800"
+            }`}
+          >
+            Completed Orders ({completedOrders.length})
+          </button>
+        </div>
 
-      {activeTab === "pending"
-        ? pendingOrders.length > 0
-          ? renderTable(pendingOrders, true)
-          : <p className="text-gray-500">No pending orders for selected date</p>
-        : completedOrders.length > 0
-          ? renderTable(completedOrders, false)
-          : <p className="text-gray-500">No completed orders for selected date</p>}
-    </div>
+        {activeTab === "pending"
+          ? pendingOrders.length > 0
+            ? renderTable(pendingOrders, true)
+            : <p className="text-gray-500">No pending orders for selected date</p>
+          : completedOrders.length > 0
+            ? renderTable(completedOrders, false)
+            : <p className="text-gray-500">No completed orders for selected date</p>}
+      </div>
+    </>
   );
 };
 
