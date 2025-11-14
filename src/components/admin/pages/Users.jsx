@@ -5,6 +5,8 @@ import { UserPlus, Users as UsersIcon } from "lucide-react";
 import Sidebar from "../Sidebar"; 
 
 const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
+// const API_URL  = "http://localhost:4000/api"
+
 
 const Users = () => {
   const { user, loading } = useAuth();

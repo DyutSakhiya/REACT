@@ -4,6 +4,8 @@ const AuthContext = createContext();
 
 
 const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
+// const API_URL  = "http://localhost:4000/api"
+
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);    

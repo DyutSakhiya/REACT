@@ -9,14 +9,34 @@ const cartSlice = createSlice({
   },
   reducers: {
     addToCart: (state, action) => {
-      const existingItem = state.cart.find(item => item.id === action.payload.id);
-      if (existingItem) {
-        existingItem.qty += action.payload.qty || 1;
+      const { id, weight, unit, originalPrice } = action.payload;
+      
+      if (weight && unit) {
+        const existingItem = state.cart.find(item => 
+          item.id === id && 
+          item.weight === weight && 
+          item.unit === unit
+        );
+        
+        if (existingItem) {
+          existingItem.qty += action.payload.qty || 1;
+        } else {
+          state.cart.push({
+            ...action.payload,
+            qty: action.payload.qty || 1
+          });
+        }
       } else {
-        state.cart.push({
-          ...action.payload,
-          qty: action.payload.qty || 1
-        });
+      
+        const existingItem = state.cart.find(item => item.id === id);
+        if (existingItem) {
+          existingItem.qty += action.payload.qty || 1;
+        } else {
+          state.cart.push({
+            ...action.payload,
+            qty: action.payload.qty || 1
+          });
+        }
       }
     },
     
@@ -25,11 +45,22 @@ const cartSlice = createSlice({
     },
     
     updateQuantity: (state, action) => {
-      const { id, qty } = action.payload;
-      const item = state.cart.find(item => item.id === id);
+      const { id, qty, weight, unit } = action.payload;
+      
+      let item;
+      if (weight && unit) {
+        item = state.cart.find(item => 
+          item.id === id && 
+          item.weight === weight && 
+          item.unit === unit
+        );
+      } else {
+        item = state.cart.find(item => item.id === id);
+      }
+      
       if (item) {
         if (qty <= 0) {
-          state.cart = state.cart.filter(item => item.id !== id);
+          state.cart = state.cart.filter(cartItem => cartItem !== item);
         } else {
           item.qty = qty;
         }
