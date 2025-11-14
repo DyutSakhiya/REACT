@@ -6,8 +6,8 @@ import { useSelector } from "react-redux";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Axios from "axios";
 
-
 const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
+// const API_URL  = "http://localhost:4000/api"  
 
 const Cart = () => {
   const [activeCart, setActiveCart] = useState(false);
@@ -16,6 +16,7 @@ const Cart = () => {
   const [searchParams] = useSearchParams();
 
   const hotel_id = searchParams.get("hotel_id") || user?.hotelId || "hotel_001";
+  const tableNumber = searchParams.get("table_id") || "N/A";
   const totalQty = cartItems.reduce((totalQty, item) => totalQty + item.qty, 0);
   const totalPrice = cartItems.reduce(
     (total, item) => total + item.qty * item.price,
@@ -28,10 +29,11 @@ const Cart = () => {
 
     try {
       const pendingResponse = await Axios.get(
-        `${API_URL}/orders/pending/${username}/${hotel_id}`
+        `${API_URL}/orders/pending/${hotel_id}/${tableNumber}`
       );
 
-      if (pendingResponse.data.success && pendingResponse.data.order) {
+      if (pendingResponse.data.success && pendingResponse.data.order) { 
+        
         await Axios.put(
           `${API_URL}/orders/${pendingResponse.data.order._id}/add-items`,
           {
@@ -39,29 +41,31 @@ const Cart = () => {
             total: totalPrice,
           }
         );
-        
-        navigate("/success", { 
-          state: { 
-            orderId: pendingResponse.data.order.orderId, 
+
+        navigate("/success", {
+          state: {
+            orderId: pendingResponse.data.order.orderId,
             hotelId: hotel_id,
-            merged: true 
-          } 
+            tableNumber,
+            merged: true,
+          },
         });
       } else {
-       
         const response = await Axios.post(`${API_URL}/orders`, {
           userId: username,
           hotelId: hotel_id,
           cartItems,
           total: totalPrice,
+          tableNumber, 
         });
 
-        navigate("/success", { 
-          state: { 
-            orderId: response.data.orderId, 
+        navigate("/success", {
+          state: {
+            orderId: response.data.orderId,
             hotelId: hotel_id,
-            merged: false 
-          } 
+            tableNumber,
+            merged: false,
+          },
         });
       }
     } catch (err) {
@@ -85,16 +89,18 @@ const Cart = () => {
           />
         </div>
 
-        <div className="h-[70vh] overflow-y-auto">
+        <div className="h-[65vh] overflow-y-auto">
           {cartItems.length > 0 ? (
-            cartItems.map((food) => (
+            cartItems.map((food, index) => (
               <ItemCard
-                key={food.id}
+                key={`${food.id}-${food.weight}-${food.unit}-${index}`}
                 id={food.id}
                 name={food.name}
                 price={food.price}
                 img={food.img}
                 qty={food.qty}
+                weight={food.weight}
+                unit={food.unit}
               />
             ))
           ) : (
@@ -107,14 +113,14 @@ const Cart = () => {
         <div className="absolute bottom-0 left-0 right-0 bg-white p-5">
           <h3 className="font-semibold text-gray-800">Items: {totalQty}</h3>
           <h3 className="font-semibold text-gray-800">
-            Total Amount: ₹{totalPrice}
+            Total Amount: ₹{totalPrice.toFixed(2)}
           </h3>
           <hr className="w-full my-2" />
           <button
             onClick={handleCheckout}
             className="bg-green-500 font-bold px-3 text-white py-2 rounded-lg w-full mb-5"
           >
-            Checkout
+            {tableNumber !== "N/A" ? "Add to Table Order" : "Create New Order"}
           </button>
         </div>
       </div>

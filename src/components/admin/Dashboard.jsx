@@ -5,6 +5,8 @@ import Axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
+// const API_URL  = "http://localhost:4000/api"
+
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -81,7 +83,6 @@ const Dashboard = () => {
           }
         });
 
-        // Calculate average order value
         const avgOrderValue = orderData.currentPeriod > 0 ? revenueData.currentPeriod / orderData.currentPeriod : 0;
         const previousAvgOrderValue = orderData.previousPeriod > 0 ? revenueData.previousPeriod / orderData.previousPeriod : 0;
         const avgOrderValueChange = previousAvgOrderValue > 0 ? ((avgOrderValue - previousAvgOrderValue) / previousAvgOrderValue) * 100 : 0;
@@ -121,8 +122,7 @@ const Dashboard = () => {
 
   const fetchTableStats = async () => {
     try {
-      // For demo purposes, we'll use mock data
-      // In production, you would call your API
+      
       const mockTables = Array.from({ length: 10 }, (_, i) => ({
         status: Math.random() > 0.5 ? 'available' : 'occupied'
       }));
@@ -163,7 +163,7 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-4 lg:space-y-6 p-2 lg:p-0">
-      {/* Time Period Selector */}
+   
       <div className="bg-white p-4 rounded-xl shadow border border-gray-100">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex items-center space-x-2">
@@ -185,7 +185,7 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Loading State */}
+     
       {loading && (
         <div className="bg-white p-6 rounded-xl shadow border border-gray-100 text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
@@ -193,7 +193,7 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Main Stats Grid - Responsive columns */}
+     
       {!loading && (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">

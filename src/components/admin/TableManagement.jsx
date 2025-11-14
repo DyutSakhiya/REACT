@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { PlusCircle, Trash2, CheckCircle, XCircle } from "lucide-react";
+import { PlusCircle, Trash2, CheckCircle, XCircle, RefreshCw } from "lucide-react";
 import Sidebar from "../admin/Sidebar";
 
-// const API_URL = "http://localhost:4000/api/admin/tables";
 const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
-
+// const API_URL = "http://localhost:4000/api";
 
 function TableManagement() {
   const [tables, setTables] = useState([]);
@@ -14,7 +13,15 @@ function TableManagement() {
   const fetchTables = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_URL}/admin/tables`, {
+      const userData = localStorage.getItem("user");
+      const user = userData ? JSON.parse(userData) : null;
+      
+      if (!user || !user.hotelId) {
+        console.error("User data or hotelId not found");
+        return;
+      }
+
+      const res = await fetch(`${API_URL}/admin/tables?hotelId=${user.hotelId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -33,9 +40,11 @@ function TableManagement() {
   useEffect(() => {
     fetchTables();
     
+    const interval = setInterval(fetchTables, 10000);
+    
+    return () => clearInterval(interval);
   }, []);
 
-  
   const toggleStatus = async (id, currentStatus) => {
     const newStatus = currentStatus === "available" ? "occupied" : "available";
     try {
@@ -58,34 +67,43 @@ function TableManagement() {
     }
   };
 
- const addTable = async () => {
-  const tableNumber = tables.length + 1;
-
-  try {
-    const res = await fetch(`${API_URL}/admin/tables`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        tableNumber,
-        capacity: 4,
-        location: "Main Hall",
-      }),
-    });
-
-    const data = await res.json();
-    if (data.success) {
-      setTables((prev) => [...prev, data.table]);
-    } else {
-      console.error("Error adding table:", data.message);
+  const addTable = async () => {
+    const userData = localStorage.getItem("user");
+    const user = userData ? JSON.parse(userData) : null;
+    
+    if (!user || !user.hotelId) {
+      console.error("User data or hotelId not found");
+      return;
     }
-  } catch (err) {
-    console.error("Error adding table:", err);
-  }
-};
 
+    const existingNumbers = tables.map(t => t.tableNumber);
+    const tableNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) + 1 : 1;
+
+    try {
+      const res = await fetch(`${API_URL}/admin/tables`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          tableNumber,
+          capacity: 4,
+          location: "Main Hall",
+          hotelId: user.hotelId
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setTables((prev) => [...prev, data.table]);
+      } else {
+        console.error("Error adding table:", data.message);
+      }
+    } catch (err) {
+      console.error("Error adding table:", err);
+    }
+  };
 
   const deleteTable = async () => {
     if (tables.length === 0) return;
@@ -104,6 +122,10 @@ function TableManagement() {
     }
   };
 
+  const refreshTables = () => {
+    fetchTables();
+  };
+
   return (
     <>
       <div className="lg:hidden">
@@ -111,7 +133,7 @@ function TableManagement() {
       </div>
 
       <div className="p-6 min-h-screen bg-gray-50 flex flex-col items-center">
-        <h1 className="text-2xl font-semibold mb-4 text-gray-800"></h1>
+        <h1 className="text-2xl font-semibold mb-4 text-gray-800">Table Management</h1>
 
         <div className="flex items-center justify-center gap-4 mb-6">
           <button
@@ -127,6 +149,7 @@ function TableManagement() {
           >
             <Trash2 className="w-5 h-5" /> Delete Last
           </button>
+          
         </div>
 
         {loading ? (
@@ -153,7 +176,15 @@ function TableManagement() {
                   </div>
                 ) : (
                   <div className="flex items-center gap-1 text-sm">
-                    <CheckCircle className="w-4 h-4" /> available
+                    <CheckCircle className="w-4 h-4" /> Available
+                  </div>
+                )}
+                <div className="text-xs text-gray-500 mt-2">
+                  Capacity: {table.capacity}
+                </div>
+                {table.occupiedSince && (
+                  <div className="text-xs text-gray-400 mt-1">
+                    Since: {new Date(table.occupiedSince).toLocaleTimeString()}
                   </div>
                 )}
               </div>
@@ -161,9 +192,20 @@ function TableManagement() {
           </div>
         )}
 
-        <p className="mt-6 text-gray-500 text-sm">
-          Click a table to toggle status · Add or delete tables anytime
-        </p>
+        <div className="mt-6 text-center">
+          <p className="text-gray-500 text-sm">
+            Click a table to toggle status · Add or delete tables anytime
+          </p>
+          <p className="mt-2 text-green-600 text-xs font-medium">
+            ✅ Table status updates automatically when orders are created/completed
+          </p>
+          <p className="mt-1 text-gray-400 text-xs">
+            • Order created → Table automatically becomes OCCUPIED
+          </p>
+          <p className="text-gray-400 text-xs">
+            • Bill downloaded → Table automatically becomes AVAILABLE
+          </p>
+        </div>
       </div>
     </>
   );

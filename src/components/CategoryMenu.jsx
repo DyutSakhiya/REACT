@@ -5,6 +5,8 @@ import Axios from "axios";
 import { useSearchParams } from "react-router-dom";
 
 const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
+// const API_URL  = "http://localhost:4000/api"
+
 
 const CategoryMenu = () => {
   const [categories, setCategories] = useState([]);
@@ -57,7 +59,6 @@ const CategoryMenu = () => {
   const handleCategoryClick = async (category) => {
     setIsLoading(true);
     
-    // Simulate a small delay to show loading state
     await new Promise(resolve => setTimeout(resolve, 100));
     
     if (category === "Punjabi") {
@@ -74,7 +75,6 @@ const CategoryMenu = () => {
   const handleSubcategoryClick = async (subcategory) => {
     setIsLoading(true);
     
-    // Simulate a small delay to show loading state
     await new Promise(resolve => setTimeout(resolve, 100));
     
     dispatch(setCategory(subcategory));
@@ -87,7 +87,6 @@ const CategoryMenu = () => {
 
   return (
     <div className="ml-5">
-      {/* Loading Bar */}
       {isLoading && (
         <div className="fixed top-0 left-0 w-full h-1 bg-green-500 z-50">
           <div className="h-full bg-green-600 animate-pulse"></div>

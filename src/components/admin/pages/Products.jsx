@@ -4,9 +4,9 @@ import { toast } from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
 import Sidebar from "../Sidebar"; 
 
-// const API_URL = "http://localhost:4000/api"
-
 const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
+// const API_URL  = "http://localhost:4000/api"
+
 
 const Products = () => {
   const { user, loading } = useAuth();
@@ -299,7 +299,6 @@ const Products = () => {
                 )}
               </div>
 
-              {/* Image upload */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Product Image
@@ -367,7 +366,7 @@ const Products = () => {
           </form>
         </div>
 
-        {/* Product list */}
+      
         <div className="bg-white p-4 rounded-lg shadow">
           <h3 className="text-lg font-semibold mb-3">Product List</h3>
           {products.length === 0 ? (
