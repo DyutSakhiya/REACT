@@ -38,7 +38,7 @@ const CategorySkeleton = () => {
     <div className="mb-10 animate-pulse">
       <div className="h-8 bg-gray-300 rounded w-48 mb-5"></div>
       
-      <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-32 justify-items-center">
+      <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-40 justify-items-center">
         {Array.from({ length: 4 }).map((_, index) => (
           <FoodCardSkeleton key={index} />
         ))}
