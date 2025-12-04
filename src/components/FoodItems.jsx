@@ -11,8 +11,8 @@ const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
 const FoodCardSkeleton = () => {
   return (
     <div className="w-full flex justify-center animate-pulse">
-      <div className="bg-white rounded-2xl shadow-lg overflow-hidden w-full max-w-[280px] min-w-[160px]">
-        <div className="w-full h-40 bg-gray-300 rounded-t-2xl"></div>
+      <div className="bg-white rounded-2xl shadow-lg overflow-hidden w-full h-full">
+        <div className="w-full h-48 bg-gray-300 rounded-t-2xl"></div>
         
         <div className="p-4">
           <div className="h-5 bg-gray-300 rounded mb-3"></div>
@@ -38,9 +38,11 @@ const CategorySkeleton = () => {
     <div className="mb-10 animate-pulse">
       <div className="h-8 bg-gray-300 rounded w-48 mb-5"></div>
       
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 md:gap-5 justify-items-center">
+      <div className="grid grid-cols-2 gap-4 md:gap-6 lg:gap-8">
         {Array.from({ length: 4 }).map((_, index) => (
-          <FoodCardSkeleton key={index} />
+          <div key={index} className="w-full">
+            <FoodCardSkeleton />
+          </div>
         ))}
       </div>
     </div>
@@ -201,7 +203,6 @@ const FoodItems = () => {
           ref={isLastItem ? lastFoodElementRef : null}
           className="w-full flex justify-center"
           key={food._id || food.id}
-          style={{ minHeight: '300px' }}
         >
           <FoodCard
             id={food._id || food.id}
@@ -213,6 +214,8 @@ const FoodItems = () => {
             handleToast={handleToast}
             quantityPrices={food.quantityPrices || []}
             imageLoaded={loadedImages[food.imageUrl]}
+            containerClass="h-full"
+            imageClass="h-48 object-cover"
           />
         </div>
       );
@@ -237,7 +240,8 @@ const FoodItems = () => {
               {categoryName} 
             </h2>
 
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4 md:grid-cols-3 md:gap-5 lg:grid-cols-4 xl:grid-cols-5 justify-items-center">
+            {/* Fixed grid with consistent spacing */}
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 md:gap-6 lg:gap-8">
               {renderFoodItems(items, categoryIndex === categories.length - 1)}
             </div>
           </div>
@@ -249,9 +253,11 @@ const FoodItems = () => {
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
               <p className="text-gray-500 mt-2">Loading more delicious items...</p>
             </div>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4 md:grid-cols-3 md:gap-5 lg:grid-cols-4 xl:grid-cols-5 justify-items-center">
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 md:gap-6 lg:gap-8">
               {Array.from({ length: 4 }).map((_, index) => (
-                <FoodCardSkeleton key={`loading-more-${index}`} />
+                <div key={`loading-more-${index}`} className="w-full">
+                  <FoodCardSkeleton />
+                </div>
               ))}
             </div>
           </div>
