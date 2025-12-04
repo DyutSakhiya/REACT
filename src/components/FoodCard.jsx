@@ -12,8 +12,6 @@ const FoodCard = ({
   rating,
   handleToast,
   quantityPrices = [],
-  containerClass = "",
-  imageClass = "h-48"
 }) => {
   const dispatch = useDispatch();
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -31,8 +29,6 @@ const FoodCard = ({
 
   const isWeightBased = () => {
     const lowerName = name.toLowerCase().trim();
-    // Add your weight-based logic here
-    return false;
   };
 
   const getQuantityOptions = () => {
@@ -48,11 +44,7 @@ const FoodCard = ({
     }
 
     if (isWeightBased()) {
-      return [
-        { quantity: 0.5, unit: "kg", price: price * 0.5, display: "500 Gm" },
-        { quantity: 1, unit: "kg", price: price, display: "1 Kg" },
-        { quantity: 2, unit: "kg", price: price * 2, display: "2 Kg" },
-      ];
+      return defaultWeightOptions;
     }
 
     return [
@@ -172,7 +164,6 @@ const FoodCard = ({
   const getPriceDisplay = () => {
     if (hasQuantityPrices()) {
       const minPrice = Math.min(...quantityPrices.map((qp) => qp.price));
-      return `₹${minPrice}+`;
     }
     if (isWeightBased()) {
       return `₹${price}/100g`;
@@ -186,10 +177,9 @@ const FoodCard = ({
     <>
       <div
         ref={cardRef}
-        className={`font-bold bg-white p-3 flex flex-col rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 relative h-full ${containerClass}`}
+        className="font-bold w-[200px] sm:w-[180px] md:w-[200px] bg-white p-2 flex flex-col rounded-lg gap-2 shadow-md hover:shadow-lg transition-all duration-300 relative"
       >
-        {/* Image container with fixed height */}
-        <div className="relative w-full overflow-hidden rounded-lg bg-gray-100 mb-3">
+        <div className="relative w-full h-40 rounded-lg overflow-hidden bg-gray-100">
           {!imageLoaded && !imageError && (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
               <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
@@ -212,7 +202,7 @@ const FoodCard = ({
               src={img}
               alt={name}
               loading="lazy"
-              className={`w-full ${imageClass} object-cover transition-all duration-500 ${
+              className={`w-full h-40 object-cover rounded-lg transition-all duration-500 ${
                 imageLoaded
                   ? "opacity-100 scale-100 blur-0"
                   : "opacity-0 scale-105 blur-sm"
@@ -223,37 +213,33 @@ const FoodCard = ({
           )}
 
           {!imageLoaded && isInView && (
-            <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse rounded-lg"></div>
           )}
         </div>
 
-        <div className="flex-grow">
-          <div className="flex justify-between items-center mb-2">
-            <h2 className="text-base font-bold text-gray-800 truncate">{name}</h2>
-            <span className="text-green-600 font-bold text-lg whitespace-nowrap ml-2">
-              {getPriceDisplay()}
-            </span>
-          </div>
+        <div className="text-sm flex justify-between items-center mt-2">
+          <h2 className="truncate">{name}</h2>
+          <span className="text-green-500 font-semibold">
+            {getPriceDisplay()}
+          </span>
+        </div>
 
-          <p className="text-sm text-gray-600 font-normal line-clamp-2 mb-3">
-            {desc}
-          </p>
+        <p className="text-xs text-gray-600 font-normal line-clamp-2">{desc}</p>
 
-          <div className="flex justify-between items-center mt-auto">
-            <span className="flex items-center text-sm bg-gray-100 px-2 py-1 rounded-full">
-              <AiFillStar className="mr-1 text-yellow-500" /> {rating}
-            </span>
-            <button
-              onClick={handleAddToCart}
-              className="px-4 py-2 text-white bg-green-500 hover:bg-green-600 rounded-lg text-sm font-medium transition-colors duration-200 shadow-md hover:shadow-lg"
-            >
-              {getButtonText()}
-            </button>
-          </div>
+        <div className="flex justify-between items-center mt-1">
+          <span className="flex items-center text-sm">
+            <AiFillStar className="mr-1 text-yellow-400" /> {rating}
+          </span>
+          <button
+            onClick={handleAddToCart}
+            className="px-2 py-1 text-white bg-green-500 hover:bg-green-600 rounded-md text-xs transition-colors duration-200"
+          >
+            {getButtonText()}
+          </button>
         </div>
 
         {(hasQuantityPrices() || isWeightBased()) && (
-          <div className="mt-3 text-xs text-blue-600 bg-blue-50 p-2 rounded-lg text-center">
+          <div className="mt-2 text-xs text-blue-600 bg-blue-50 p-1 rounded text-center">
             {hasQuantityPrices()
               ? "⚖️ Weight-based pricing"
               : "⚖️ Weight-based pricing"}
@@ -263,7 +249,7 @@ const FoodCard = ({
 
       {showQuantityModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <h3 className="text-lg font-bold mb-4 text-center">
               Select {hasQuantityPrices() ? "Quantity" : "Weight"} for {name}
             </h3>
@@ -305,7 +291,7 @@ const FoodCard = ({
               ))}
             </div>
 
-            <div className="bg-gray-50 p-4 rounded-lg mb-4">
+            <div className="bg-gray-50 p-4 rounded-md mb-4">
               <div className="flex justify-between text-sm mb-2">
                 <span className="text-gray-600">
                   Selected {hasQuantityPrices() ? "quantity" : "weight"}:
