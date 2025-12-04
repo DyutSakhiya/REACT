@@ -176,9 +176,10 @@ const FoodCard = ({
   return (
     <>
       <div
-        ref={cardRef}
-        className="font-bold w-[200px] sm:w-[180px] md:w-[200px] bg-white p-2 flex flex-col rounded-lg gap-2 shadow-md hover:shadow-lg transition-all duration-300 relative"
-      >
+  ref={cardRef}
+  className="font-bold w-full max-w-[180px] bg-white p-2 flex flex-col rounded-lg gap-2 shadow-md hover:shadow-lg transition-all duration-300 relative"
+>
+
         <div className="relative w-full h-40 rounded-lg overflow-hidden bg-gray-100">
           {!imageLoaded && !imageError && (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
