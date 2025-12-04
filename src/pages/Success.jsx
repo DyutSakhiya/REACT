@@ -89,7 +89,7 @@ const Success = () => {
                 {cartItems.map((item) => (
                   <div key={item.id} className="flex justify-between mt-2 text-sm">
                     <span className="text-left flex-1">
-                      {getItemDisplay(item)} × {item.qty}
+                      {getItemDisplay(item)} × {item.quantity === 1 ? (item.qty) : item.qty + ' x ' + item.quantity}
                     </span>
                     <span className="text-right flex-1">₹{(item.price * item.qty).toFixed(2)}</span>
                   </div>

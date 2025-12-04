@@ -122,10 +122,7 @@ function TableManagement() {
     }
   };
 
-  const refreshTables = () => {
-    fetchTables();
-  };
-
+      
   return (
     <>
       <div className="lg:hidden">

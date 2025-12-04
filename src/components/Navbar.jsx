@@ -137,7 +137,7 @@ const Navbar = () => {
               
               {isAuthenticated ? (
                 <>
-                  <span className="px-4 py-2 text-gray-700">Hi, {user?.name}</span>
+                  <span className="px-4 py-2 text-gray-700 ">Hi, {user?.name}</span>
                   <button
                     onClick={() => {
                       dispatch(logout());
@@ -150,13 +150,13 @@ const Navbar = () => {
                   </button>
                 </>
               ) : (
-                <div className="flex space-x-4 px-4">
+                <div className=" space-x-4 px-4 hidden">
                   <button
                     onClick={() => {
                       navigate("/login");
                       setMobileMenuOpen(false);
                     }}
-                    className="px-4 py-2 text-sm font-medium text-green-600 border border-green-600 rounded-md hover:bg-green-50"
+                    className="px-4 py-2 text-sm font-medium text-green-600 border border-green-600 rounded-md hover:bg-green-50 "
                   >
                     Login
                   </button>
