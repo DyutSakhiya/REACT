@@ -77,8 +77,8 @@ const AdminLogin = () => {
 
           <p className="text-center text-sm mt-4">
             Not an admin?{' '}
-            <a href="/login" className="text-orange-600 hover:underline mx-2">
-              Go to User Login
+            <a href="/Register" className="text-orange-600 hover:underline mx-2">
+              Go to User Register
             </a>
           </p>
 

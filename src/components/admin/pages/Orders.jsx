@@ -60,7 +60,7 @@ const AnimatedWrap = ({
   );
 };
 
-const CuteOrderCard = ({ order, onDownload, total, animationMode }) => {
+const CuteOrderCard = ({ order,  onPrint, total, animationMode }) => {
   return (
     <AnimatedWrap
       mode={animationMode}
@@ -117,7 +117,7 @@ const CuteOrderCard = ({ order, onDownload, total, animationMode }) => {
         <ul className="list-disc ml-5 text-sm text-gray-700">
           {(order.cartItems || []).map((item, idx) => (
             <li key={idx}>
-              {item.name} × {item.qty} (₹{item.price})
+              {item.name} × {item.quantity === 1 ? (item.qty) : item.qty + ' x ' + item.quantity} (₹{item.price})
             </li>
           ))}
         </ul>
@@ -128,12 +128,15 @@ const CuteOrderCard = ({ order, onDownload, total, animationMode }) => {
           ₹{total}
         </div>
         {order.status === "pending" ? (
-          <button
-            onClick={() => onDownload(order)}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-green-500 to-violet-500 text-white shadow hover:shadow-green-300/60 active:scale-[0.98] transition-all"
-          >
-            <span>⬇️</span> Download & Complete
-          </button>
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={() => onPrint(order)}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500 text-white shadow hover:shadow-blue-300/60 active:scale-[0.98] transition-all text-sm"
+            >
+              <span>🖨️</span> Print Bill
+            </button>
+          
+          </div>
         ) : (
           <span className="text-emerald-600/80 text-sm">Completed ✅</span>
         )}
@@ -196,38 +199,202 @@ const Orders = () => {
   const calculateTotal = (items) =>
     (items || []).reduce((total, item) => total + item.qty * item.price, 0);
 
-  const handleDownload = async (order) => {
-    const doc = new jsPDF();
-    doc.setFontSize(18);
-    doc.text("Order Receipt", 20, 20);
+  const printThermalBill = (order) => {
+    const subtotal = calculateTotal(order.cartItems || []);
+    const gst = subtotal * 0.05;
+    const total = subtotal + gst;
 
-    doc.setFontSize(12);
-    doc.text(`Order ID: ${order.orderId}`, 20, 40);
-    doc.text(`Table No: ${order.tableNumber || "N/A"}`, 20, 50);
-    doc.text(`Hotel ID: ${order.hotelId || "N/A"}`, 20, 60);
-    doc.text(
-      `Date: ${
-        order.timestamp ? new Date(order.timestamp).toLocaleString() : "N/A"
-      }`,
-      20,
-      70
-    );
+    const billContent = `
+==============================
+      FLAVOROFOODS
+==============================
+  Rajkot - 360004
+  Phone: 9157433685
+------------------------------
+Order ID: ${order.orderId}
+Table: ${order.tableNumber || "N/A"}
+Date: ${order.timestamp ? new Date(order.timestamp).toLocaleDateString() : "N/A"}
+Time: ${order.timestamp ? new Date(order.timestamp).toLocaleTimeString() : "N/A"}
+------------------------------
+ITEMS:
+${(order.cartItems || []).map(item => 
+  `${item.name.padEnd(20).substring(0,20)} ${item.quantity === 1 ? item.qty : `${item.qty} x ${item.quantity}`}  ₹${item.price * item.qty}`
+).join('\n')}
+------------------------------
+Subtotal:       ₹${subtotal.toFixed(2)}
+GST (5%):       ₹${gst.toFixed(2)}
+------------------------------
+TOTAL:          ₹${total.toFixed(2)}
+==============================
+Thank you for dining with us!
+      Visit Again!
+==============================
+    `.trim();
+    
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Bill ${order.orderId}</title>
+          <style>
+            @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap');
+            
+            body { 
+              font-family: 'Roboto Mono', monospace;
+              font-size: 14px;
+              font-weight: 500;
+              line-height: 1.4;
+              background: white;
+              color: #000;
+              margin: 0;
+              padding: 20px;
+              max-width: 80mm;
+              margin: 0 auto;
+            }
+            
+            .bill-container {
+              text-align: center;
+            }
+            
+            .header {
+              margin-bottom: 20px;
+            }
+            
+            .restaurant-name {
+              font-size: 18px;
+              font-weight: bold;
+              margin-bottom: 5px;
+              letter-spacing: 1px;
+            }
+            
+            .divider {
+              border-top: 2px dashed #000;
+              margin: 15px 0;
+            }
+            
+            .items-table {
+              width: 100%;
+              margin: 15px 0;
+              border-collapse: collapse;
+            }
+            
+            .items-table td {
+              padding: 4px 0;
+              border-bottom: 1px dashed #ddd;
+            }
+            
+            .item-name {
+              text-align: left;
+            }
+            
+            .item-qty {
+              text-align: center;
+            }
+            
+            .item-price {
+              text-align: right;
+            }
+            
+            .totals {
+              margin-top: 20px;
+            }
+            
+            .total-row {
+              display: flex;
+              justify-content: space-between;
+              padding: 6px 0;
+              border-bottom: 1px solid #000;
+            }
+            
+            .grand-total {
+              font-size: 16px;
+              font-weight: bold;
+              margin-top: 10px;
+            }
+            
+            .footer {
+              margin-top: 30px;
+              font-style: italic;
+            }
+            
+            @media print {
+              body { 
+                margin: 0; 
+                padding: 10px;
+                font-size: 13px;
+              }
+            }
+          </style>
+        </head>
+        <body onload="setTimeout(() => { window.print(); window.close(); }, 500);">
+          <div class="bill-container">
+            <div class="header">
+              <div class="restaurant-name">FLAVOROFOODS</div>
+              <div>Rajkot - 360004</div>
+              <div>Phone: 9157433685</div>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <div style="text-align: left; margin-bottom: 10px;">
+              <div>Order ID: ${order.orderId}</div>
+              <div>Table: ${order.tableNumber || "N/A"}</div>
+              <div>Date: ${order.timestamp ? new Date(order.timestamp).toLocaleDateString() : "N/A"}</div>
+              <div>Time: ${order.timestamp ? new Date(order.timestamp).toLocaleTimeString() : "N/A"}</div>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <table class="items-table">
+              <tbody>
+                ${(order.cartItems || []).map(item => `
+                  <tr>
+                    <td class="item-name">${item.name}</td>
+                    <td class="item-qty">${item.quantity === 1 ? item.qty : `${item.qty} x ${item.quantity}`}</td>
+                    <td class="item-price">₹${item.price * item.qty}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+            
+            <div class="divider"></div>
+            
+            <div class="totals">
+              <div class="total-row">
+                <span>Subtotal:</span>
+                <span>₹${subtotal.toFixed(2)}</span>
+              </div>
+              <div class="total-row">
+                <span>GST (5%):</span>
+                <span>₹${gst.toFixed(2)}</span>
+              </div>
+              <div class="grand-total total-row">
+                <span>TOTAL:</span>
+                <span>₹${total.toFixed(2)}</span>
+              </div>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <div class="footer">
+              Thank you for dining with us!<br>
+              Visit Again!
+            </div>
+          </div>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
 
-    doc.text("Items:", 20, 90);
-    let y = 100;
-    (order.cartItems || []).forEach((item) => {
-      doc.text(`${item.name} × ${item.qty} - ₹${item.price * item.qty}`, 25, y);
-      y += 10;
-    });
+  
 
-    doc.text(`Total: ₹${calculateTotal(order.cartItems || [])}`, 20, y + 10);
-    doc.save(`Order_${order.orderId}.pdf`);
-
+  const handlePrint = async (order) => {
+    printThermalBill(order);
+    
     try {
       await Axios.put(`${API_URL}/orders/${order._id}/complete`);
-      
       console.log(`Order completed and table ${order.tableNumber} set to available`);
-      
       fetchOrders();
     } catch (err) {
       console.error("Failed to update order status", err);
@@ -260,7 +427,7 @@ const Orders = () => {
             <th className="px-4 py-3 border border-green-200 text-left">💰 Total</th>
             <th className="px-4 py-3 border border-green-200 text-left">📌 Status</th>
             {isPending && (
-              <th className="px-4 py-3 border border-green-200 text-left">✨ Action</th>
+              <th className="px-4 py-3 border border-green-200 text-left">✨ Actions</th>
             )}
           </tr>
         </thead>
@@ -283,7 +450,7 @@ const Orders = () => {
                 <ul className="list-disc ml-5">
                   {(order.cartItems || []).map((item, idx) => (
                     <li key={idx}>
-                      {item.name} × {item.qty} (₹{item.price})
+                      {item.name} × {item.quantity === 1 ? (item.qty) : item.qty + ' x ' + item.quantity} (₹{item.price})
                     </li>
                   ))}
                 </ul>
@@ -303,13 +470,16 @@ const Orders = () => {
                 </span>
               </td>
               {isPending && (
-                <td className="px-4 py-3">
-                  <button
-                    onClick={() => handleDownload(order)}
-                    className="px-4 py-2 rounded-full bg-gradient-to-r from-green-500 to-violet-500 text-white shadow hover:shadow-green-300/60 active:scale-[0.98] transition-all"
-                  >
-                    ⬇️ Download & Complete
-                  </button>
+                <td className="px-4 py-3 border border-green-100">
+                  <div className="flex flex-col gap-2">
+                    <button
+                      onClick={() => handlePrint(order)}
+                      className="px-3 py-1 rounded-full bg-blue-500 text-white text-xs hover:shadow-blue-300/60 active:scale-[0.98] transition-all"
+                    >
+                      🖨️ Print
+                    </button>
+                   
+                  </div>
                 </td>
               )}
             </CuteRow>
@@ -330,7 +500,7 @@ const Orders = () => {
           key={order._id}
           order={order}
           total={calculateTotal(order.cartItems || [])}
-          onDownload={handleDownload}
+          onPrint={handlePrint}
           animationMode={animationMode}
         />
       ))}
