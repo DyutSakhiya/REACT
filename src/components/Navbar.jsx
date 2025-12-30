@@ -38,22 +38,7 @@ const Navbar = () => {
           </div>
 
           <div className="hidden md:flex items-center space-x-6">
-            <button 
-              className="text-gray-700 hover:text-green-600 transition-colors"
-              onClick={() => navigate("/")}
-            >
-              Home
-            </button>
-            <button className="text-gray-700 hover:text-green-600 transition-colors">
-              Menu
-            </button>
-            <button className="text-gray-700 hover:text-green-600 transition-colors">
-              About Us
-            </button>
-            <button className="text-gray-700 hover:text-green-600 transition-colors">
-              Contact
-            </button>
-            
+           
             {isAuthenticated ? (
               <div className="flex items-center space-x-4">
                 <span className="text-gray-700">Hi, {user?.name}</span>
@@ -70,7 +55,7 @@ const Navbar = () => {
             ) : (
               <div className="flex space-x-4">
                 <button
-                  onClick={() => navigate("/login")}
+                  onClick={() => localStorage.getItem("token") ? navigate("/admin") : navigate("/login")}
                   className="px-4 py-2 text-sm font-medium text-green-600 border border-green-600 rounded-md hover:bg-green-50"
                 >
                   Login
@@ -85,20 +70,7 @@ const Navbar = () => {
             )}
           </div>
 
-          <div className="md:hidden flex items-center">
-            <button 
-              className="text-gray-700 mr-4 relative"
-              onClick={() => navigate("/cart")}
-            >
-              
-            </button>
-            <button 
-              className="text-gray-700"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              {mobileMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
-            </button>
-          </div>
+         
         </div>
 
         <div className="md:hidden mb-3">
@@ -116,24 +88,8 @@ const Navbar = () => {
         {mobileMenuOpen && (
           <div className="md:hidden bg-white py-4 border-t">
             <div className="flex flex-col space-y-4">
-              <button 
-                className="text-gray-700 hover:text-green-600 px-4 py-2 text-left"
-                onClick={() => {
-                  navigate("/");
-                  setMobileMenuOpen(false);
-                }}
-              >
-                Home
-              </button>
-              <button className="text-gray-700 hover:text-green-600 px-4 py-2 text-left">
-                Menu
-              </button>
-              <button className="text-gray-700 hover:text-green-600 px-4 py-2 text-left">
-                About Us
-              </button>
-              <button className="text-gray-700 hover:text-green-600 px-4 py-2 text-left">
-                Contact
-              </button>
+              
+              
               
               {isAuthenticated ? (
                 <>

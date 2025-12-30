@@ -1,17 +1,27 @@
 import React, { useState, useEffect } from "react";
-import { ArrowUp, ArrowDown, TrendingUp, Users as UsersIcon, ShoppingCart, IndianRupee, Calendar, Table } from "lucide-react";
+import {
+  ArrowUp,
+  ArrowDown,
+  TrendingUp,
+  Users as UsersIcon,
+  ShoppingCart,
+  IndianRupee,
+  Calendar,
+  Table,
+  ChevronDown,
+} from "lucide-react";
 import { useAuth } from "./context/AuthContext";
 import Axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
-// const API_URL  = "http://localhost:4000/api"
-
+// const API_URL = "http://localhost:4000/api";
 
 const Dashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [timePeriod, setTimePeriod] = useState("today");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [stats, setStats] = useState([
     {
       title: "Total Revenue",
@@ -39,14 +49,14 @@ const Dashboard = () => {
   const [tableStats, setTableStats] = useState({
     available: 0,
     occupied: 0,
-    total: 0
+    total: 0,
   });
 
   const [loading, setLoading] = useState(false);
   const [comparisonData, setComparisonData] = useState({
     current: { orders: 0, revenue: 0 },
     previous: { orders: 0, revenue: 0 },
-    percentageChange: { orders: 0, revenue: 0 }
+    percentageChange: { orders: 0, revenue: 0 },
   });
 
   useEffect(() => {
@@ -60,8 +70,12 @@ const Dashboard = () => {
     setLoading(true);
     try {
       const [orderStats, revenueStats] = await Promise.all([
-        Axios.get(`${API_URL}/admin/order-stats?hotelId=${user.hotelId}&period=${timePeriod}`),
-        Axios.get(`${API_URL}/admin/revenue-stats?hotelId=${user.hotelId}&period=${timePeriod}`),
+        Axios.get(
+          `${API_URL}/admin/order-stats?hotelId=${user.hotelId}&period=${timePeriod}`
+        ),
+        Axios.get(
+          `${API_URL}/admin/revenue-stats?hotelId=${user.hotelId}&period=${timePeriod}`
+        ),
       ]);
 
       if (orderStats.data.success && revenueStats.data.success) {
@@ -80,37 +94,54 @@ const Dashboard = () => {
           percentageChange: {
             orders: orderData.percentageChange,
             revenue: revenueData.percentageChange,
-          }
+          },
         });
 
-        const avgOrderValue = orderData.currentPeriod > 0 ? revenueData.currentPeriod / orderData.currentPeriod : 0;
-        const previousAvgOrderValue = orderData.previousPeriod > 0 ? revenueData.previousPeriod / orderData.previousPeriod : 0;
-        const avgOrderValueChange = previousAvgOrderValue > 0 ? ((avgOrderValue - previousAvgOrderValue) / previousAvgOrderValue) * 100 : 0;
+        const avgOrderValue =
+          orderData.currentPeriod > 0
+            ? revenueData.currentPeriod / orderData.currentPeriod
+            : 0;
+        const previousAvgOrderValue =
+          orderData.previousPeriod > 0
+            ? revenueData.previousPeriod / orderData.previousPeriod
+            : 0;
+        const avgOrderValueChange =
+          previousAvgOrderValue > 0
+            ? ((avgOrderValue - previousAvgOrderValue) /
+                previousAvgOrderValue) *
+              100
+            : 0;
 
         const newStats = [
           {
             title: "Total Revenue",
             value: `₹${revenueData.currentPeriod.toLocaleString()}`,
-            change: `${revenueData.percentageChange >= 0 ? '+' : ''}${revenueData.percentageChange.toFixed(1)}%`,
+            change: `${
+              revenueData.percentageChange >= 0 ? "+" : ""
+            }${revenueData.percentageChange.toFixed(1)}%`,
             isPositive: revenueData.percentageChange >= 0,
             icon: <IndianRupee size={24} className="text-green-500" />,
           },
           {
             title: "Total Orders",
             value: orderData.currentPeriod.toString(),
-            change: `${orderData.percentageChange >= 0 ? '+' : ''}${orderData.percentageChange.toFixed(1)}%`,
+            change: `${
+              orderData.percentageChange >= 0 ? "+" : ""
+            }${orderData.percentageChange.toFixed(1)}%`,
             isPositive: orderData.percentageChange >= 0,
             icon: <ShoppingCart size={24} className="text-blue-500" />,
           },
           {
             title: "Average Order Value",
             value: `₹${avgOrderValue.toFixed(0)}`,
-            change: `${avgOrderValueChange >= 0 ? '+' : ''}${avgOrderValueChange.toFixed(1)}%`,
+            change: `${
+              avgOrderValueChange >= 0 ? "+" : ""
+            }${avgOrderValueChange.toFixed(1)}%`,
             isPositive: avgOrderValueChange >= 0,
             icon: <TrendingUp size={24} className="text-orange-500" />,
           },
         ];
-        
+
         setStats(newStats);
       }
     } catch (error) {
@@ -122,15 +153,14 @@ const Dashboard = () => {
 
   const fetchTableStats = async () => {
     try {
-      
       const mockTables = Array.from({ length: 10 }, (_, i) => ({
-        status: Math.random() > 0.5 ? 'available' : 'occupied'
+        status: Math.random() > 0.5 ? "available" : "occupied",
       }));
-      
+
       setTableStats({
-        available: mockTables.filter(t => t.status === 'available').length,
-        occupied: mockTables.filter(t => t.status === 'occupied').length,
-        total: mockTables.length
+        available: mockTables.filter((t) => t.status === "available").length,
+        occupied: mockTables.filter((t) => t.status === "occupied").length,
+        total: mockTables.length,
       });
     } catch (error) {
       console.error("Failed to fetch table stats:", error);
@@ -144,7 +174,6 @@ const Dashboard = () => {
       week: "This Week",
       month: "This Month",
       year: "This Year",
-      "5years": "Last 5 Years"
     };
     return labels[timePeriod] || "Today";
   };
@@ -156,36 +185,84 @@ const Dashboard = () => {
       week: "Last Week",
       month: "Last Month",
       year: "Last Year",
-      "5years": "Previous 5 Years"
     };
     return labels[timePeriod] || "Yesterday";
   };
 
+  const periodOptions = [
+    { value: "today", label: "Today" },
+    { value: "yesterday", label: "Yesterday" },
+    { value: "week", label: "This Week" },
+    { value: "month", label: "This Month" },
+    { value: "year", label: "This Year" },
+  ];
+
+  const handlePeriodSelect = (value) => {
+    setTimePeriod(value);
+    setIsDropdownOpen(false);
+  };
+
   return (
     <div className="space-y-4 lg:space-y-6 p-2 lg:p-0">
-   
+      
       <div className="bg-white p-4 rounded-xl shadow border border-gray-100">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex items-center space-x-2">
             <Calendar size={20} className="text-gray-600" />
             <h2 className="text-lg font-semibold">Time Period</h2>
           </div>
-          <select
-            value={timePeriod}
-            onChange={(e) => setTimePeriod(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto"
-          >
-            <option value="today">Today</option>
-            <option value="yesterday">Yesterday</option>
-            <option value="week">This Week</option>
-            <option value="month">This Month</option>
-            <option value="year">This Year</option>
-            <option value="5years">Last 5 Years</option>
-          </select>
+          
+         
+          <div className="relative w-full sm:w-64">
+            <button
+              type="button"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="w-full px-4 py-3 flex items-center justify-between border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white hover:bg-gray-50 transition-colors"
+            >
+              <span className="font-medium">{getPeriodLabel()}</span>
+              <ChevronDown 
+                size={20} 
+                className={`text-gray-500 transition-transform duration-200 ${isDropdownOpen ? 'transform rotate-180' : ''}`}
+              />
+            </button>
+            
+          
+            {isDropdownOpen && (
+              <>
+               
+                <div 
+                  className="fixed inset-0 z-10 sm:hidden"
+                  onClick={() => setIsDropdownOpen(false)}
+                />
+                
+                <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
+                  <div className="py-1">
+                    {periodOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => handlePeriodSelect(option.value)}
+                        className={`
+                          w-full px-4 py-3 text-left flex items-center justify-between
+                          hover:bg-blue-50 transition-colors
+                          ${timePeriod === option.value ? 'bg-blue-50 text-blue-600' : 'text-gray-700'}
+                        `}
+                      >
+                        <span className="font-medium">{option.label}</span>
+                        {timePeriod === option.value && (
+                          <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
-     
+    
       {loading && (
         <div className="bg-white p-6 rounded-xl shadow border border-gray-100 text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
@@ -204,17 +281,27 @@ const Dashboard = () => {
               >
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-500">{stat.title}</p>
-                    <p className="text-xl lg:text-2xl font-bold mt-1 truncate">{stat.value}</p>
+                    <p className="text-sm font-medium text-gray-500">
+                      {stat.title}
+                    </p>
+                    <p className="text-xl lg:text-2xl font-bold mt-1 truncate">
+                      {stat.value}
+                    </p>
                   </div>
                   <div className="p-2 rounded-lg bg-gray-50 ml-2 flex-shrink-0">
                     {stat.icon}
                   </div>
                 </div>
-                <div className={`mt-3 flex items-center text-sm ${
-                  stat.isPositive ? "text-green-500" : "text-red-500"
-                }`}>
-                  {stat.isPositive ? <ArrowUp size={16} /> : <ArrowDown size={16} />}
+                <div
+                  className={`mt-3 flex items-center text-sm ${
+                    stat.isPositive ? "text-green-500" : "text-red-500"
+                  }`}
+                >
+                  {stat.isPositive ? (
+                    <ArrowUp size={16} />
+                  ) : (
+                    <ArrowDown size={16} />
+                  )}
                   <span className="ml-1">{stat.change}</span>
                   <span className="ml-1 text-gray-500 text-xs hidden sm:inline">
                     vs {getPreviousPeriodLabel().toLowerCase()}
@@ -223,8 +310,6 @@ const Dashboard = () => {
               </div>
             ))}
           </div>
-
-         
         </>
       )}
     </div>

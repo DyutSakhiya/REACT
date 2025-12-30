@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { AiFillStar } from "react-icons/ai";
+import { FaMinus, FaPlus } from "react-icons/fa";
 import { useDispatch } from "react-redux";
-import { addToCart } from "../redux/slices/CartSlice";
+import { addToCart, incrementQty, decrementQty } from "../redux/slices/CartSlice"; 
 
 const FoodCard = ({
   id,
@@ -20,6 +21,8 @@ const FoodCard = ({
   const [showQuantityModal, setShowQuantityModal] = useState(false);
   const [selectedQuantity, setSelectedQuantity] = useState(1);
   const [selectedPrice, setSelectedPrice] = useState(price);
+  const [showQuantityControls, setShowQuantityControls] = useState(false);
+  const [quantity, setQuantity] = useState(0); 
   const imgRef = useRef(null);
   const cardRef = useRef(null);
 
@@ -29,6 +32,7 @@ const FoodCard = ({
 
   const isWeightBased = () => {
     const lowerName = name.toLowerCase().trim();
+    return false;
   };
 
   const getQuantityOptions = () => {
@@ -41,10 +45,6 @@ const FoodCard = ({
           qp.quantity +
           (qp.unit === "kg" ? " Kg" : qp.unit === "g" ? " Gm" : ""),
       }));
-    }
-
-    if (isWeightBased()) {
-      return defaultWeightOptions;
     }
 
     return [
@@ -89,56 +89,73 @@ const FoodCard = ({
     }
   }, [quantityPrices]);
 
-  const calculatePrice = (quantity) => {
-    const options = getQuantityOptions();
-    const option = options.find((opt) => opt.quantity === quantity);
-    return option ? option.price : price;
-  };
-
-  const handleAddToCart = () => {
+  const handleAddToCartClick = () => {
     if (hasQuantityPrices() || isWeightBased()) {
       setShowQuantityModal(true);
-      return;
+    } else {
+      dispatch(
+        addToCart({
+          id,
+          name,
+          price,
+          img,
+          rating,
+          quantity: 1,
+          unit: "item",
+          displayQuantity: "1 Item",
+        })
+      );
+      
+      setQuantity(1);
+      setShowQuantityControls(true);
+      handleToast(`${name} added to cart!`);
     }
+  };
 
-    dispatch(
-      addToCart({
-        id,
-        name,
-        price,
-        rating,
-        img,
-        qty: 1,
-        quantity: 1,
-        unit: "item",
-        displayQuantity: "1 Item",
-      })
-    );
-    handleToast(name);
+  const handleIncrement = () => {
+    const newQuantity = quantity + 1;
+    setQuantity(newQuantity);
+    
+    dispatch(incrementQty({ id }));
+    
+    handleToast(`Updated ${name} to ${newQuantity}`);
+  };
+
+  const handleDecrement = () => {
+    if (quantity > 1) {
+      const newQuantity = quantity - 1;
+      setQuantity(newQuantity);
+      
+      dispatch(decrementQty({ id }));
+      
+      handleToast(`Updated ${name} to ${newQuantity}`);
+    } else {
+      dispatch(decrementQty({ id })); 
+      setShowQuantityControls(false);
+      setQuantity(0);
+      handleToast(`${name} removed from cart`);
+    }
   };
 
   const handleConfirmQuantity = () => {
     const selectedOption = getQuantityOptions().find(
       (opt) => opt.quantity === selectedQuantity
     );
-    const finalPrice = calculatePrice(selectedQuantity);
 
     dispatch(
       addToCart({
         id,
         name,
-        price: finalPrice,
-        originalPrice: price,
-        rating,
+        price: selectedPrice,
         img,
-        qty: 1,
+        rating,
         quantity: selectedOption.quantity,
         unit: selectedOption.unit,
         displayQuantity: selectedOption.display,
       })
     );
 
-    handleToast(`${name} - ${selectedOption.display}`);
+    handleToast(`${name} - ${selectedOption.display} added to cart!`);
     setShowQuantityModal(false);
   };
 
@@ -158,15 +175,13 @@ const FoodCard = ({
     if (isWeightBased()) {
       return "Select Weight";
     }
-    return "Add to cart";
+    return quantity > 0 ? `${quantity} in cart` : "Add to cart";
   };
 
   const getPriceDisplay = () => {
     if (hasQuantityPrices()) {
       const minPrice = Math.min(...quantityPrices.map((qp) => qp.price));
-    }
-    if (isWeightBased()) {
-      return `₹${price}/100g`;
+      return `₹${minPrice}`;
     }
     return `₹${price}`;
   };
@@ -176,10 +191,9 @@ const FoodCard = ({
   return (
     <>
       <div
-  ref={cardRef}
-  className="font-bold w-full max-w-[180px] bg-white p-2 flex flex-col rounded-lg gap-2 shadow-md hover:shadow-lg transition-all duration-300 relative"
->
-
+        ref={cardRef}
+        className="font-bold w-full max-w-[180px] bg-white p-2 flex flex-col rounded-lg gap-2 shadow-md hover:shadow-lg transition-all duration-300 relative"
+      >
         <div className="relative w-full h-40 rounded-lg overflow-hidden bg-gray-100">
           {!imageLoaded && !imageError && (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
@@ -225,18 +239,49 @@ const FoodCard = ({
           </span>
         </div>
 
-        <p className="text-xs text-gray-600 font-normal line-clamp-2">{desc}</p>
+        {/* <p className="text-xs text-gray-600 font-normal line-clamp-2">{desc}</p> */}
 
         <div className="flex justify-between items-center mt-1">
           <span className="flex items-center text-sm">
-            <AiFillStar className="mr-1 text-yellow-400" /> {rating}
+            {/* <AiFillStar className="mr-1 text-yellow-400" /> {rating} */}
           </span>
-          <button
-            onClick={handleAddToCart}
-            className="px-2 py-1 text-white bg-green-500 hover:bg-green-600 rounded-md text-xs transition-colors duration-200"
-          >
-            {getButtonText()}
-          </button>
+          
+          <div className="flex items-center gap-2">
+            {quantity > 0 && !hasQuantityPrices() && !isWeightBased() ? (
+              <div className="flex items-center bg-green-500 text-white rounded-lg overflow-hidden">
+                <button
+                  onClick={handleDecrement}
+                  className={`px-3 py-1 transition-colors duration-200 flex items-center justify-center ${
+                    quantity === 1 ? 'hover:bg-green-600' : 'hover:bg-green-600'
+                  }`}
+                >
+                  <FaMinus className="text-xs" />
+                </button>
+                
+                <span className="px-3 py-1 font-semibold min-w-[2rem] text-center">
+                  {quantity}
+                </span>
+                
+                <button
+                  onClick={handleIncrement}
+                  className="px-3 py-1 hover:bg-green-600 transition-colors duration-200 flex items-center justify-center"
+                >
+                  <FaPlus className="text-xs" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={handleAddToCartClick}
+                className={`px-2 py-1 text-white rounded-md text-xs transition-colors duration-200 ${
+                  quantity > 0 
+                    ? "bg-green-600 hover:bg-green-700" 
+                    : "bg-green-500 hover:bg-green-600"
+                }`}
+              >
+                {getButtonText()}
+              </button>
+            )}
+          </div>
         </div>
 
         {(hasQuantityPrices() || isWeightBased()) && (
@@ -246,6 +291,7 @@ const FoodCard = ({
               : "⚖️ Weight-based pricing"}
           </div>
         )}
+
       </div>
 
       {showQuantityModal && (
