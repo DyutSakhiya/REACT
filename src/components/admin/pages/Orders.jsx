@@ -1,13 +1,23 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Axios from "axios";
 import jsPDF from "jspdf";
-import { CalendarDays, Home, Users, ShoppingCart, Package, Table, Menu, X as CloseIcon, ChevronDown } from "lucide-react";
+import {
+  CalendarDays,
+  Home,
+  Users,
+  ShoppingCart,
+  Package,
+  Table,
+  Menu,
+  X as CloseIcon,
+  ChevronDown,
+} from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 
 const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
 // const API_URL = "http://localhost:4000/api";
 
-const SPRING_EASE = "cubic-bezier(0.22, 1, 0.36, 1)"; 
+const SPRING_EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
 
 const Sidebar = () => {
   const location = useLocation();
@@ -37,16 +47,18 @@ const Sidebar = () => {
         </button>
       </div>
 
-      <div className={`
+      <div
+        className={`
         fixed lg:sticky top-0 left-0 h-screen bg-white border-r p-4 z-40
         transform transition-transform duration-300 ease-in-out
-        ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}
+        ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0 lg:w-64 w-64
-      `}>
+      `}
+      >
         <h2 className="text-2xl font-bold text-orange-600 mb-8 px-4 hidden lg:block">
           Flavaro Admin
         </h2>
-        
+
         <div className="lg:hidden flex justify-end mb-4">
           <button
             onClick={toggleMobileMenu}
@@ -80,7 +92,7 @@ const Sidebar = () => {
       </div>
 
       {isMobileOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
           onClick={() => setIsMobileOpen(false)}
         />
@@ -131,7 +143,10 @@ const AnimatedWrap = ({
     <Tag
       onMouseMove={onMove}
       onMouseLeave={onLeave}
-      style={{ ...(mode === "tilt" ? style : {}), ["--spring-ease"]: SPRING_EASE }}
+      style={{
+        ...(mode === "tilt" ? style : {}),
+        ["--spring-ease"]: SPRING_EASE,
+      }}
       className={`${base} ${mode === "soft" ? soft : tilt} ${className}`}
       {...props}
     >
@@ -191,16 +206,18 @@ const CuteOrderCard = ({ order, onPrint, total, animationMode }) => {
         <ul className="list-disc ml-5 text-sm text-gray-700">
           {(order.cartItems || []).map((item, idx) => (
             <li key={idx}>
-              {item.name} × {item.quantity === 1 ? (item.qty) : item.qty + ' x ' + item.quantity} (₹{item.price})
+              {item.name} ×{" "}
+              {item.quantity === 1
+                ? item.qty
+                : item.qty + " x " + item.quantity}{" "}
+              (₹{item.price})
             </li>
           ))}
         </ul>
       </div>
 
       <div className="mt-4 flex items-center justify-between">
-        <div className="text-lg font-extrabold text-orange-600">
-          ₹{total}
-        </div>
+        <div className="text-lg font-extrabold text-orange-600">₹{total}</div>
         {order.status === "pending" ? (
           <div className="flex flex-col gap-2">
             <button
@@ -275,7 +292,7 @@ const Orders = () => {
       if (dateFilter === "yesterday") {
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = yesterday.toISOString().split('T')[0];
+        const yesterdayStr = yesterday.toISOString().split("T")[0];
         params.append("date", yesterdayStr);
         params.append("period", "custom");
       } else {
@@ -303,7 +320,10 @@ const Orders = () => {
         yesterday.setDate(yesterday.getDate() - 1);
         return `Showing orders for: Yesterday (${yesterday.toLocaleDateString()})`;
       case "month":
-        return `Showing orders for: This month (${today.toLocaleDateString('default', { month: 'long', year: 'numeric' })})`;
+        return `Showing orders for: This month (${today.toLocaleDateString(
+          "default",
+          { month: "long", year: "numeric" }
+        )})`;
       case "custom":
         if (selectedDate) {
           const customDate = new Date(selectedDate);
@@ -318,7 +338,7 @@ const Orders = () => {
   const filterOrdersByDate = (ordersList) => {
     if (dateFilter === "all") return ordersList;
     const now = new Date();
-    return ordersList.filter(order => {
+    return ordersList.filter((order) => {
       if (!order.timestamp) return false;
       const orderDate = new Date(order.timestamp);
       switch (dateFilter) {
@@ -329,8 +349,10 @@ const Orders = () => {
           yesterday.setDate(yesterday.getDate() - 1);
           return orderDate.toDateString() === yesterday.toDateString();
         case "month":
-          return orderDate.getMonth() === now.getMonth() && 
-                 orderDate.getFullYear() === now.getFullYear();
+          return (
+            orderDate.getMonth() === now.getMonth() &&
+            orderDate.getFullYear() === now.getFullYear()
+          );
         case "custom":
           if (!selectedDate) return true;
           const selected = new Date(selectedDate);
@@ -349,7 +371,7 @@ const Orders = () => {
     const gst = subtotal * 0.05;
     const total = subtotal + gst;
 
-    const printWindow = window.open('', '_blank');
+    const printWindow = window.open("", "_blank");
     printWindow.document.write(`
       <html>
         <head>
@@ -397,19 +419,35 @@ const Orders = () => {
             <div style="text-align: left; margin-bottom: 10px;">
               <div>Order ID: ${order.orderId}</div>
               <div>Table: ${order.tableNumber || "N/A"}</div>
-              <div>Date: ${order.timestamp ? new Date(order.timestamp).toLocaleDateString() : "N/A"}</div>
-              <div>Time: ${order.timestamp ? new Date(order.timestamp).toLocaleTimeString() : "N/A"}</div>
+              <div>Date: ${
+                order.timestamp
+                  ? new Date(order.timestamp).toLocaleDateString()
+                  : "N/A"
+              }</div>
+              <div>Time: ${
+                order.timestamp
+                  ? new Date(order.timestamp).toLocaleTimeString()
+                  : "N/A"
+              }</div>
             </div>
             <div class="divider"></div>
             <table class="items-table">
               <tbody>
-                ${(order.cartItems || []).map(item => `
+                ${(order.cartItems || [])
+                  .map(
+                    (item) => `
                   <tr>
                     <td class="item-name">${item.name}</td>
-                    <td class="item-qty">${item.quantity === 1 ? item.qty : `${item.qty} x ${item.quantity}`}</td>
+                    <td class="item-qty">${
+                      item.quantity === 1
+                        ? item.qty
+                        : `${item.qty} x ${item.quantity}`
+                    }</td>
                     <td class="item-price">₹${item.price * item.qty}</td>
                   </tr>
-                `).join('')}
+                `
+                  )
+                  .join("")}
               </tbody>
             </table>
             <div class="divider"></div>
@@ -443,7 +481,9 @@ const Orders = () => {
     printThermalBill(order);
     try {
       await Axios.put(`${API_URL}/orders/${order._id}/complete`);
-      console.log(`Order completed and table ${order.tableNumber} set to available`);
+      console.log(
+        `Order completed and table ${order.tableNumber} set to available`
+      );
       fetchOrders();
     } catch (err) {
       console.error("Failed to update order status", err);
@@ -480,21 +520,37 @@ const Orders = () => {
       <table className="table-auto w-full border border-orange-200 rounded-2xl overflow-hidden bg-white">
         <thead>
           <tr className="bg-orange-100/70 text-orange-800">
-            <th className="px-4 py-3 border border-orange-200 text-left">🧾 Order</th>
-            <th className="px-4 py-3 border border-orange-200 text-left">🍽️ Table</th>
-            <th className="px-4 py-3 border border-orange-200 text-left">⏰ Date</th>
-            <th className="px-4 py-3 border border-orange-200 text-left">🍱 Items</th>
-            <th className="px-4 py-3 border border-orange-200 text-left">💰 Total</th>
-            <th className="px-4 py-3 border border-orange-200 text-left">📌 Status</th>
+            <th className="px-4 py-3 border border-orange-200 text-left">
+              🧾 Order
+            </th>
+            <th className="px-4 py-3 border border-orange-200 text-left">
+              🍽️ Table
+            </th>
+            <th className="px-4 py-3 border border-orange-200 text-left">
+              ⏰ Date
+            </th>
+            <th className="px-4 py-3 border border-orange-200 text-left">
+              🍱 Items
+            </th>
+            <th className="px-4 py-3 border border-orange-200 text-left">
+              💰 Total
+            </th>
+            <th className="px-4 py-3 border border-orange-200 text-left">
+              📌 Status
+            </th>
             {isPending && (
-              <th className="px-4 py-3 border border-orange-200 text-left">✨ Actions</th>
+              <th className="px-4 py-3 border border-orange-200 text-left">
+                ✨ Actions
+              </th>
             )}
           </tr>
         </thead>
         <tbody>
           {list.map((order) => (
             <CuteRow key={order._id} animationMode={animationMode}>
-              <td className="px-4 py-3 border border-orange-100">{order.orderId}</td>
+              <td className="px-4 py-3 border border-orange-100">
+                {order.orderId}
+              </td>
               <td className="px-4 py-3 border border-orange-100">
                 {order.tableNumber || "N/A"}
               </td>
@@ -507,7 +563,11 @@ const Orders = () => {
                 <ul className="list-disc ml-5">
                   {(order.cartItems || []).map((item, idx) => (
                     <li key={idx}>
-                      {item.name} × {item.quantity === 1 ? (item.qty) : item.qty + ' x ' + item.quantity} (₹{item.price})
+                      {item.name} ×{" "}
+                      {item.quantity === 1
+                        ? item.qty
+                        : item.qty + " x " + item.quantity}{" "}
+                      (₹{item.price})
                     </li>
                   ))}
                 </ul>
@@ -586,7 +646,9 @@ const Orders = () => {
           <div className="relative p-5 mt-16 lg:mt-0">
             <div
               className={`transition-all duration-700 ${
-                mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+                mounted
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-2"
               }`}
             >
               <h1 className="text-3xl font-extrabold tracking-tight text-black drop-shadow-sm">
@@ -626,7 +688,9 @@ const Orders = () => {
 
               <div className="mt-4 p-4 rounded-2xl bg-white/80 backdrop-blur border border-orange-200 shadow-sm">
                 <div className="flex flex-wrap gap-4 items-center">
-                  <label className="font-medium text-black">🎯 Filter by Date:</label>
+                  <label className="font-medium text-black">
+                    🎯 Filter by Date:
+                  </label>
 
                   <div className="relative flex-shrink-0" ref={dropdownRef}>
                     <button
@@ -640,40 +704,66 @@ const Orders = () => {
                         {dateFilter === "month" && "This Month"}
                         {dateFilter === "custom" && "Custom Date"}
                       </span>
-                      <ChevronDown className={`text-orange-500 w-4 h-4 transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""}`} />
+                      <ChevronDown
+                        className={`text-orange-500 w-4 h-4 transition-transform duration-200 ${
+                          isDropdownOpen ? "rotate-180" : ""
+                        }`}
+                      />
                     </button>
-                    
+
                     {isDropdownOpen && (
                       <div className="absolute top-full left-0 right-0 mt-1 z-50 ">
                         <div className="rounded-xl border border-orange-200 bg-white shadow-lg overflow-hidden">
                           <div className="py-1">
                             <button
                               onClick={() => handleDateFilterChange("all")}
-                              className={`w-full text-left px-4 py-2 hover:bg-orange-50 cursor-pointer transition-colors ${dateFilter === "all" ? "bg-orange-50 text-orange-600 font-medium" : "text-black"}`}
+                              className={`w-full text-left px-4 py-2 hover:bg-orange-50 cursor-pointer transition-colors ${
+                                dateFilter === "all"
+                                  ? "bg-orange-50 text-orange-600 font-medium"
+                                  : "text-black"
+                              }`}
                             >
                               All Dates
                             </button>
                             <button
                               onClick={() => handleDateFilterChange("today")}
-                              className={`w-full text-left px-4 py-2 hover:bg-orange-50 cursor-pointer transition-colors ${dateFilter === "today" ? "bg-orange-50 text-orange-600 font-medium" : "text-black"}`}
+                              className={`w-full text-left px-4 py-2 hover:bg-orange-50 cursor-pointer transition-colors ${
+                                dateFilter === "today"
+                                  ? "bg-orange-50 text-orange-600 font-medium"
+                                  : "text-black"
+                              }`}
                             >
                               Today
                             </button>
                             <button
-                              onClick={() => handleDateFilterChange("yesterday")}
-                              className={`w-full text-left px-4 py-2 hover:bg-orange-50 cursor-pointer transition-colors ${dateFilter === "yesterday" ? "bg-orange-50 text-orange-600 font-medium" : "text-black"}`}
+                              onClick={() =>
+                                handleDateFilterChange("yesterday")
+                              }
+                              className={`w-full text-left px-4 py-2 hover:bg-orange-50 cursor-pointer transition-colors ${
+                                dateFilter === "yesterday"
+                                  ? "bg-orange-50 text-orange-600 font-medium"
+                                  : "text-black"
+                              }`}
                             >
                               Yesterday
                             </button>
                             <button
                               onClick={() => handleDateFilterChange("month")}
-                              className={`w-full text-left px-4 py-2 hover:bg-orange-50 cursor-pointer transition-colors ${dateFilter === "month" ? "bg-orange-50 text-orange-600 font-medium" : "text-black"}`}
+                              className={`w-full text-left px-4 py-2 hover:bg-orange-50 cursor-pointer transition-colors ${
+                                dateFilter === "month"
+                                  ? "bg-orange-50 text-orange-600 font-medium"
+                                  : "text-black"
+                              }`}
                             >
                               This Month
                             </button>
                             <button
                               onClick={() => handleDateFilterChange("custom")}
-                              className={`w-full text-left px-4 py-2 hover:bg-orange-50 cursor-pointer transition-colors ${dateFilter === "custom" ? "bg-orange-50 text-orange-600 font-medium" : "text-black"}`}
+                              className={`w-full text-left px-4 py-2 hover:bg-orange-50 cursor-pointer transition-colors ${
+                                dateFilter === "custom"
+                                  ? "bg-orange-50 text-orange-600 font-medium"
+                                  : "text-black"
+                              }`}
                             >
                               Custom Date
                             </button>
@@ -697,54 +787,61 @@ const Orders = () => {
                     </div>
                   )}
                 </div>
-                <div className={`mt-4 transition-all duration-300 -z-1 ${isDropdownOpen ? '' : ''}`}>
-                <div className="inline-flex p-1 rounded-full bg-white/80 backdrop-blur border border-orange-200 shadow-sm">
-                  <button
-                    onClick={() => setActiveTab("pending")}
-                    className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
-                      activeTab === "pending"
-                        ? "bg-orange-500 text-white shadow"
-                        : "text-orange-600 hover:bg-orange-50"
-                    }`}
-                  >
-                    🍥 Pending ({pendingOrders.length})
-                  </button>
-                  <button
-                    onClick={() => setActiveTab("completed")}
-                    className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
-                      activeTab === "completed"
-                        ? "bg-orange-500 text-white shadow"
-                        : "text-orange-600 hover:bg-orange-50"
-                    }`}
-                  >
-                    🍡 Completed ({completedOrders.length})
-                  </button>
+                <div
+                  className={`mt-4 transition-all duration-300 -z-1 ${
+                    isDropdownOpen ? "" : ""
+                  }`}
+                >
+                  <div className="inline-flex p-1 rounded-full bg-white/80 backdrop-blur border border-orange-200 shadow-sm">
+                    <button
+                      onClick={() => setActiveTab("pending")}
+                      className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
+                        activeTab === "pending"
+                          ? "bg-orange-500 text-white shadow"
+                          : "text-orange-600 hover:bg-orange-50"
+                      }`}
+                    >
+                      🍥 Pending ({pendingOrders.length})
+                    </button>
+                    <button
+                      onClick={() => setActiveTab("completed")}
+                      className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
+                        activeTab === "completed"
+                          ? "bg-orange-500 text-white shadow"
+                          : "text-orange-600 hover:bg-orange-50"
+                      }`}
+                    >
+                      🍡 Completed ({completedOrders.length})
+                    </button>
+                  </div>
                 </div>
-              </div>
-              </div>
-
-              
-
-              <div className={`transition-all duration-300 ${isDropdownOpen ? 'mt-8' : 'mt-4'}`}>
-                {viewMode === "cards"
-                  ? activeTab === "pending"
-                    ? renderCards(pendingOrders, true)
-                    : renderCards(completedOrders, false)
-                  : activeTab === "pending"
-                  ? pendingOrders.length > 0
-                    ? renderTable(pendingOrders, true)
-                    : (
+                <div
+                  className={`transition-all duration-300 ${
+                    isDropdownOpen ? "mt-8" : "mt-4"
+                  }`}
+                >
+                  {viewMode === "cards" ? (
+                    activeTab === "pending" ? (
+                      renderCards(pendingOrders, true)
+                    ) : (
+                      renderCards(completedOrders, false)
+                    )
+                  ) : activeTab === "pending" ? (
+                    pendingOrders.length > 0 ? (
+                      renderTable(pendingOrders, true)
+                    ) : (
                       <p className="mt-4 text-gray-500">
                         No pending orders for selected date
                       </p>
                     )
-                  : completedOrders.length > 0
-                  ? renderTable(completedOrders, false)
-                  : (
+                  ) : completedOrders.length > 0 ? (
+                    renderTable(completedOrders, false)
+                  ) : (
                     <p className="mt-4 text-gray-500">
                       No completed orders for selected date
                     </p>
                   )}
+                </div>
               </div>
             </div>
           </div>
