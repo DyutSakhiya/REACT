@@ -1,11 +1,97 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Edit, Trash2, Upload, X, Plus, Minus } from "lucide-react";
+import { Edit, Trash2, Upload, X, Plus, Minus, Home, Users, ShoppingCart, Package, Table, Menu, X as CloseIcon } from "lucide-react";
+import { NavLink, useLocation } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
-import Sidebar from "../Sidebar"; 
 
 const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
 // const API_URL  = "http://localhost:4000/api"
+
+// Integrated Sidebar Component
+const Sidebar = () => {
+  const location = useLocation();
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+  const navItems = [
+    { icon: Home, label: "Dashboard", path: "/admin" },
+    { icon: ShoppingCart, label: "Orders", path: "/admin/orders" },
+    { icon: Package, label: "Products", path: "/admin/products" },
+    { icon: Users, label: "Users", path: "/admin/users" },
+    { icon: Table, label: "Tables", path: "/admin/tables" },
+  ];
+
+  const toggleMobileMenu = () => {
+    setIsMobileOpen(!isMobileOpen);
+  };
+
+  return (
+    <>
+      {/* Mobile Header */}
+      <div className="lg:hidden bg-white border-b p-4 fixed top-0 left-0 right-0 z-50 flex items-center justify-between">
+        <h2 className="text-xl font-bold text-orange-600">Flavaro Admin</h2>
+        <button
+          onClick={toggleMobileMenu}
+          className="p-2 rounded-lg border border-gray-200"
+        >
+          {isMobileOpen ? <CloseIcon size={20} /> : <Menu size={20} />}
+        </button>
+      </div>
+
+      {/* Sidebar */}
+      <div className={`
+        fixed lg:sticky top-0 left-0 h-screen bg-white border-r p-4 z-40
+        transform transition-transform duration-300 ease-in-out
+        ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}
+        lg:translate-x-0 lg:w-64 w-64
+      `}>
+        {/* Desktop Title - Hidden on mobile */}
+        <h2 className="text-2xl font-bold text-orange-600 mb-8 px-4 hidden lg:block">
+          Flavaro Admin
+        </h2>
+        
+        {/* Close button for mobile */}
+        <div className="lg:hidden flex justify-end mb-4">
+          <button
+            onClick={toggleMobileMenu}
+            className="p-2 rounded-lg border border-gray-200"
+          >
+            <CloseIcon size={20} />
+          </button>
+        </div>
+
+        <nav className="space-y-1">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = location.pathname === item.path;
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                onClick={() => setIsMobileOpen(false)}
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                  isActive
+                    ? "bg-orange-50 text-orange-600 font-medium"
+                    : "text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                <Icon size={20} />
+                <span>{item.label}</span>
+              </NavLink>
+            );
+          })}
+        </nav>
+      </div>
+
+      {/* Mobile Overlay */}
+      {isMobileOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
+    </>
+  );
+};
 
 const ProductRowSkeleton = () => {
   return (
@@ -117,6 +203,7 @@ const Products = () => {
     { quantity: "", price: "" }
   ]);
 
+  const formRef = useRef(null);
   const observer = useRef();
 
   const fetchProducts = useCallback(async (pageNum = 1, append = false) => {
@@ -362,7 +449,17 @@ const Products = () => {
     setIsEditing(true);
     setImagePreview(product.imageUrl || "");
     setShowNewCategoryInput(false);
-    setSelectedImage(null); 
+    setSelectedImage(null);
+    
+    // Scroll to the form at the top of the page
+    setTimeout(() => {
+      if (formRef.current) {
+        formRef.current.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    }, 100);
   };
 
   const handleDelete = async (id) => {
@@ -476,236 +573,306 @@ const Products = () => {
         <Sidebar />
       </div>
 
-      <div className="max-w-6xl mx-auto p-4 mt-16 lg:mt-0">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">
-          Product Management 
-        </h2>
+      <div className="lg:flex">
+        {/* Desktop Sidebar */}
+        <div className="hidden lg:block">
+          <Sidebar />
+        </div>
 
-        {initialLoad ? (
-          <FormSkeleton />
-        ) : (
-          <div className="bg-white p-4 rounded-lg shadow mb-8">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <input
-                    name="name"
-                    type="text"
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="Product Name"
-                    className="w-full px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    required
-                  />
-                </div>
-                <div>
-                  <input
-                    name="price"
-                    type="number"
-                    value={formData.price}
-                    onChange={handleChange}
-                    placeholder="Base Price (₹)"
-                    className="w-full px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    required
-                    min="0"
-                    step="0.01"
-                  />
-                </div>
-              </div>
+        <div className="flex-1 max-w-6xl mx-auto p-4 mt-16 lg:mt-0">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            Product Management 
+          </h2>
 
-              <div className="border rounded-lg p-4 bg-gray-50">
-                <div className="flex justify-between items-center mb-3">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Quantity-Price Options (Optional)
-                  </label>
-                  <button
-                    type="button"
-                    onClick={addQuantityPriceField}
-                    className="flex items-center gap-1 px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
-                  >
-                    <Plus size={16} />
-                    Add Option
-                  </button>
-                </div>
-                
-                {quantityPrices.map((qp, index) => (
-                  <div key={index} className="flex gap-2 mb-2 items-center">
+          {initialLoad ? (
+            <FormSkeleton />
+          ) : (
+            <div ref={formRef} className="bg-white p-4 rounded-lg shadow mb-8">
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
                     <input
+                      name="name"
                       type="text"
-                      value={qp.quantity}
-                      onChange={(e) => handleQuantityPriceChange(index, "quantity", e.target.value)}
-                      placeholder="Quantity (e.g., 250ml, 500g, Large)"
-                      className="flex-1 px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
+                      value={formData.name}
+                      onChange={handleChange}
+                      placeholder="Product Name"
+                      className="w-full px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      required
                     />
+                  </div>
+                  <div>
                     <input
+                      name="price"
                       type="number"
-                      value={qp.price}
-                      onChange={(e) => handleQuantityPriceChange(index, "price", e.target.value)}
-                      placeholder="Price (₹)"
-                      className="w-32 px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
+                      value={formData.price}
+                      onChange={handleChange}
+                      placeholder="Base Price (₹)"
+                      className="w-full px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      required
                       min="0"
                       step="0.01"
                     />
-                    {quantityPrices.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeQuantityPriceField(index)}
-                        className="p-2 text-red-500 hover:bg-red-50 rounded transition-colors"
-                      >
-                        <Minus size={16} />
-                      </button>
-                    )}
                   </div>
-                ))}
-                <p className="text-xs text-gray-500 mt-2">
-                  Add different quantity options with their prices (e.g., 250ml - ₹50, 500ml - ₹90). This is optional.
-                </p>
-              </div>
+                </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Category *
-                  </label>
-                  {!showNewCategoryInput ? (
-                    <select
-                      name="category"
-                      value={formData.category}
-                      onChange={handleCategoryChange}
-                      className="w-full px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                      required
+                <div className="border rounded-lg p-4 bg-gray-50">
+                  <div className="flex justify-between items-center mb-3">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Quantity-Price Options (Optional)
+                    </label>
+                    <button
+                      type="button"
+                      onClick={addQuantityPriceField}
+                      className="flex items-center gap-1 px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
                     >
-                      <option value="">Select Category</option>
-                      {categories.map((category, index) => (
-                        <option key={index} value={category}>
-                          {category}
-                        </option>
-                      ))}
-                      <option value="add_new">+ Add New Category</option>
-                    </select>
-                  ) : (
-                    <div className="flex gap-2">
+                      <Plus size={16} />
+                      Add Option
+                    </button>
+                  </div>
+                  
+                  {quantityPrices.map((qp, index) => (
+                    <div key={index} className="flex gap-2 mb-2 items-center">
                       <input
                         type="text"
-                        value={newCategory}
-                        onChange={handleNewCategoryChange}
-                        placeholder="Enter new category"
-                        className="flex-1 px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                        required
+                        value={qp.quantity}
+                        onChange={(e) => handleQuantityPriceChange(index, "quantity", e.target.value)}
+                        placeholder="Quantity (e.g., 250ml, 500g, Large)"
+                        className="flex-1 px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
                       />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setShowNewCategoryInput(false);
-                          setFormData({ ...formData, category: "" });
-                          setNewCategory("");
-                        }}
-                        className="px-3 py-2 rounded text-gray-600 bg-gray-200 hover:bg-gray-300 transition-colors"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Product Image (Optional)
-                  </label>
-                  {imagePreview ? (
-                    <div className="relative inline-block">
-                      <img
-                        src={imagePreview}
-                        alt="Preview"
-                        className="w-24 h-24 object-cover rounded border"
-                      />
-                      <button
-                        type="button"
-                        onClick={removeImage}
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  ) : (
-                    <label
-                      htmlFor="image-upload"
-                      className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center block cursor-pointer hover:border-orange-500 transition-colors"
-                    >
-                      <Upload className="w-6 h-6 text-gray-400 mx-auto" />
-                      <span className="text-xs text-gray-500">
-                        Click to upload (optional)
-                      </span>
                       <input
-                        id="image-upload"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        className="hidden"
+                        type="number"
+                        value={qp.price}
+                        onChange={(e) => handleQuantityPriceChange(index, "price", e.target.value)}
+                        placeholder="Price (₹)"
+                        className="w-32 px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
+                        min="0"
+                        step="0.01"
                       />
+                      {quantityPrices.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeQuantityPriceField(index)}
+                          className="p-2 text-red-500 hover:bg-red-50 rounded transition-colors"
+                        >
+                          <Minus size={16} />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  <p className="text-xs text-gray-500 mt-2">
+                    Add different quantity options with their prices (e.g., 250ml - ₹50, 500ml - ₹90). This is optional.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Category *
                     </label>
+                    {!showNewCategoryInput ? (
+                      <select
+                        name="category"
+                        value={formData.category}
+                        onChange={handleCategoryChange}
+                        className="w-full px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        required
+                      >
+                        <option value="">Select Category</option>
+                        {categories.map((category, index) => (
+                          <option key={index} value={category}>
+                            {category}
+                          </option>
+                        ))}
+                        <option value="add_new">+ Add New Category</option>
+                      </select>
+                    ) : (
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={newCategory}
+                          onChange={handleNewCategoryChange}
+                          placeholder="Enter new category"
+                          className="flex-1 px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowNewCategoryInput(false);
+                            setFormData({ ...formData, category: "" });
+                            setNewCategory("");
+                          }}
+                          className="px-3 py-2 rounded text-gray-600 bg-gray-200 hover:bg-gray-300 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Product Image (Optional)
+                    </label>
+                    {imagePreview ? (
+                      <div className="relative inline-block">
+                        <img
+                          src={imagePreview}
+                          alt="Preview"
+                          className="w-24 h-24 object-cover rounded border"
+                        />
+                        <button
+                          type="button"
+                          onClick={removeImage}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ) : (
+                      <label
+                        htmlFor="image-upload"
+                        className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center block cursor-pointer hover:border-orange-500 transition-colors"
+                      >
+                        <Upload className="w-6 h-6 text-gray-400 mx-auto" />
+                        <span className="text-xs text-gray-500">
+                          Click to upload (optional)
+                        </span>
+                        <input
+                          id="image-upload"
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          className="hidden"
+                        />
+                      </label>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="submit"
+                    disabled={uploading}
+                    className="px-6 py-2 rounded text-white font-medium bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {uploading
+                      ? isEditing
+                        ? "Updating..."
+                        : "Adding..."
+                      : isEditing
+                      ? "Update Product"
+                      : "Add Product"}
+                  </button>
+                  {isEditing && (
+                    <button
+                      type="button"
+                      onClick={resetForm}
+                      className="px-6 py-2 rounded text-gray-600 bg-gray-200 hover:bg-gray-300 transition-colors"
+                    >
+                      Cancel
+                    </button>
                   )}
                 </div>
-              </div>
+              </form>
+            </div>
+          )}
 
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="submit"
-                  disabled={uploading}
-                  className="px-6 py-2 rounded text-white font-medium bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  {uploading
-                    ? isEditing
-                      ? "Updating..."
-                      : "Adding..."
-                    : isEditing
-                    ? "Update Product"
-                    : "Add Product"}
-                </button>
-                {isEditing && (
-                  <button
-                    type="button"
-                    onClick={resetForm}
-                    className="px-6 py-2 rounded text-gray-600 bg-gray-200 hover:bg-gray-300 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                )}
-              </div>
-            </form>
-          </div>
-        )}
-
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h3 className="text-lg font-semibold mb-3">Product List</h3>
-          
-          {initialLoad ? (
-            <TableSkeleton />
-          ) : products.length === 0 ? (
-            <p className="text-gray-500">No products available.</p>
-          ) : (
-            <>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm">
-                  <thead>
-                    <tr className="text-gray-600 border-b">
-                      <th className="p-3">Image</th>
-                      <th className="p-3">Name</th>
-                      <th className="p-3">Base Price (₹)</th>
-                      <th className="p-3">Quantity Options</th>
-                      <th className="p-3">Category</th>
-                      <th className="p-3">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {products.map((product, index) => {
-                      if (index === products.length - 1) {
+          <div className="bg-white p-4 rounded-lg shadow">
+            <h3 className="text-lg font-semibold mb-3">Product List</h3>
+            
+            {initialLoad ? (
+              <TableSkeleton />
+            ) : products.length === 0 ? (
+              <p className="text-gray-500">No products available.</p>
+            ) : (
+              <>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm">
+                    <thead>
+                      <tr className="text-gray-600 border-b">
+                        <th className="p-3">Image</th>
+                        <th className="p-3">Name</th>
+                        <th className="p-3">Base Price (₹)</th>
+                        <th className="p-3">Quantity Options</th>
+                        <th className="p-3">Category</th>
+                        <th className="p-3">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {products.map((product, index) => {
+                        if (index === products.length - 1) {
+                          return (
+                            <tr 
+                              ref={lastProductElementRef}
+                              key={product._id} 
+                              className="border-b hover:bg-gray-50"
+                            >
+                              <td className="p-3">
+                                {product.imageUrl ? (
+                                  <img
+                                    src={product.imageUrl}
+                                    alt={product.name}
+                                    className="w-12 h-12 object-cover rounded"
+                                  />
+                                ) : (
+                                  <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-400">
+                                    No Img
+                                  </div>
+                                )}
+                              </td>
+                              <td className="p-3 font-medium">{product.name}</td>
+                              <td className="p-3">₹{product.price}</td>
+                              <td className="p-3">
+                                {product.quantityPrices && product.quantityPrices.length > 0 ? (
+                                  <div className="space-y-1">
+                                    {product.quantityPrices.map((qp, index) => (
+                                      <div key={index} className="flex items-center gap-2">
+                                        <span className="text-xs text-gray-600">
+                                          {qp.quantity}: ₹{qp.price}
+                                        </span>
+                                        <button
+                                          onClick={() => handleDeleteQuantityPrice(product._id, qp.quantity)}
+                                          className="p-1 text-red-500 hover:bg-red-50 rounded text-xs transition-colors"
+                                          title="Delete this quantity option"
+                                        >
+                                          <Trash2 size={12} />
+                                        </button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <span className="text-xs text-gray-400">No options</span>
+                                )}
+                              </td>
+                              <td className="p-3">
+                                <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                                  {product.category}
+                                </span>
+                              </td>
+                              <td className="p-3 flex gap-2">
+                                <button
+                                  onClick={() => handleEdit(product)}
+                                  className="p-1 text-orange-600 hover:bg-orange-50 rounded transition-colors"
+                                  title="Edit"
+                                >
+                                  <Edit size={16} />
+                                </button>
+                                <button
+                                  onClick={() => handleDelete(product._id)}
+                                  className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors"
+                                  title="Delete"
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        }
+                        
                         return (
-                          <tr 
-                            ref={lastProductElementRef}
-                            key={product._id} 
-                            className="border-b hover:bg-gray-50"
-                          >
+                          <tr key={product._id} className="border-b hover:bg-gray-50">
                             <td className="p-3">
                               {product.imageUrl ? (
                                 <img
@@ -766,88 +933,25 @@ const Products = () => {
                             </td>
                           </tr>
                         );
-                      }
-                      
-                      return (
-                        <tr key={product._id} className="border-b hover:bg-gray-50">
-                          <td className="p-3">
-                            {product.imageUrl ? (
-                              <img
-                                src={product.imageUrl}
-                                alt={product.name}
-                                className="w-12 h-12 object-cover rounded"
-                              />
-                            ) : (
-                              <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-400">
-                                No Img
-                              </div>
-                            )}
-                          </td>
-                          <td className="p-3 font-medium">{product.name}</td>
-                          <td className="p-3">₹{product.price}</td>
-                          <td className="p-3">
-                            {product.quantityPrices && product.quantityPrices.length > 0 ? (
-                              <div className="space-y-1">
-                                {product.quantityPrices.map((qp, index) => (
-                                  <div key={index} className="flex items-center gap-2">
-                                    <span className="text-xs text-gray-600">
-                                      {qp.quantity}: ₹{qp.price}
-                                    </span>
-                                    <button
-                                      onClick={() => handleDeleteQuantityPrice(product._id, qp.quantity)}
-                                      className="p-1 text-red-500 hover:bg-red-50 rounded text-xs transition-colors"
-                                      title="Delete this quantity option"
-                                    >
-                                      <Trash2 size={12} />
-                                    </button>
-                                  </div>
-                                ))}
-                              </div>
-                            ) : (
-                              <span className="text-xs text-gray-400">No options</span>
-                            )}
-                          </td>
-                          <td className="p-3">
-                            <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-                              {product.category}
-                            </span>
-                          </td>
-                          <td className="p-3 flex gap-2">
-                            <button
-                              onClick={() => handleEdit(product)}
-                              className="p-1 text-orange-600 hover:bg-orange-50 rounded transition-colors"
-                              title="Edit"
-                            >
-                              <Edit size={16} />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(product._id)}
-                              className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors"
-                              title="Delete"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-
-              {loadingMore && (
-                <div className="mt-4">
-                  <TableSkeleton />
+                      })}
+                    </tbody>
+                  </table>
                 </div>
-              )}
 
-              {!hasMore && products.length > 0 && (
-                <div className="text-center py-6">
-                  <p className="text-gray-500">All products loaded</p>
-                </div>
-              )}
-            </>
-          )}
+                {loadingMore && (
+                  <div className="mt-4">
+                    <TableSkeleton />
+                  </div>
+                )}
+
+                {!hasMore && products.length > 0 && (
+                  <div className="text-center py-6">
+                    <p className="text-gray-500">All products loaded</p>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
     </>
