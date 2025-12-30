@@ -721,6 +721,27 @@ const Orders = () => {
                   </button>
                 </div>
               </div>
+               <div className={`transition-all duration-300 ${isDropdownOpen ? 'mt-8' : 'mt-4'}`}>
+                {viewMode === "cards"
+                  ? activeTab === "pending"
+                    ? renderCards(pendingOrders, true)
+                    : renderCards(completedOrders, false)
+                  : activeTab === "pending"
+                  ? pendingOrders.length > 0
+                    ? renderTable(pendingOrders, true)
+                    : (
+                      <p className="mt-4 text-gray-500">
+                        No pending orders for selected date
+                      </p>
+                    )
+                  : completedOrders.length > 0
+                  ? renderTable(completedOrders, false)
+                  : (
+                    <p className="mt-4 text-gray-500">
+                      No completed orders for selected date
+                    </p>
+                  )}
+              </div>
               </div>
 
               
