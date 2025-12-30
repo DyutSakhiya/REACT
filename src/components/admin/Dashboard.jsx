@@ -8,20 +8,18 @@ import {
   IndianRupee,
   Calendar,
   Table,
-  ChevronDown,
 } from "lucide-react";
 import { useAuth } from "./context/AuthContext";
 import Axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
-// const API_URL = "http://localhost:4000/api";
+// const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
+const API_URL = "http://localhost:4000/api";
 
 const Dashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [timePeriod, setTimePeriod] = useState("today");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [stats, setStats] = useState([
     {
       title: "Total Revenue",
@@ -182,6 +180,7 @@ const Dashboard = () => {
     const labels = {
       today: "Yesterday",
       yesterday: "Day Before",
+
       week: "Last Week",
       month: "Last Month",
       year: "Last Year",
@@ -189,80 +188,29 @@ const Dashboard = () => {
     return labels[timePeriod] || "Yesterday";
   };
 
-  const periodOptions = [
-    { value: "today", label: "Today" },
-    { value: "yesterday", label: "Yesterday" },
-    { value: "week", label: "This Week" },
-    { value: "month", label: "This Month" },
-    { value: "year", label: "This Year" },
-  ];
-
-  const handlePeriodSelect = (value) => {
-    setTimePeriod(value);
-    setIsDropdownOpen(false);
-  };
-
   return (
     <div className="space-y-4 lg:space-y-6 p-2 lg:p-0">
-      
       <div className="bg-white p-4 rounded-xl shadow border border-gray-100">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex items-center space-x-2">
             <Calendar size={20} className="text-gray-600" />
             <h2 className="text-lg font-semibold">Time Period</h2>
           </div>
-          
-         
-          <div className="relative w-full sm:w-64">
-            <button
-              type="button"
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="w-full px-4 py-3 flex items-center justify-between border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white hover:bg-gray-50 transition-colors"
-            >
-              <span className="font-medium">{getPeriodLabel()}</span>
-              <ChevronDown 
-                size={20} 
-                className={`text-gray-500 transition-transform duration-200 ${isDropdownOpen ? 'transform rotate-180' : ''}`}
-              />
-            </button>
-            
-          
-            {isDropdownOpen && (
-              <>
-               
-                <div 
-                  className="fixed inset-0 z-10 sm:hidden"
-                  onClick={() => setIsDropdownOpen(false)}
-                />
-                
-                <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
-                  <div className="py-1">
-                    {periodOptions.map((option) => (
-                      <button
-                        key={option.value}
-                        type="button"
-                        onClick={() => handlePeriodSelect(option.value)}
-                        className={`
-                          w-full px-4 py-3 text-left flex items-center justify-between
-                          hover:bg-blue-50 transition-colors
-                          ${timePeriod === option.value ? 'bg-blue-50 text-blue-600' : 'text-gray-700'}
-                        `}
-                      >
-                        <span className="font-medium">{option.label}</span>
-                        {timePeriod === option.value && (
-                          <div className="w-2 h-2 bg-blue-500 rounded-full" />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
+          <select
+            value={timePeriod}
+            onChange={(e) => setTimePeriod(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto"
+          >
+            <option value="today">Today</option>
+            <option value="yesterday">Yesterday</option>
+
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="year">This Year</option>
+          </select>
         </div>
       </div>
 
-    
       {loading && (
         <div className="bg-white p-6 rounded-xl shadow border border-gray-100 text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
@@ -270,7 +218,6 @@ const Dashboard = () => {
         </div>
       )}
 
-     
       {!loading && (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
