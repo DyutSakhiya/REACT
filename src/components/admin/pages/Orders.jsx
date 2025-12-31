@@ -1,13 +1,25 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Axios from "axios";
 import jsPDF from "jspdf";
-import { CalendarDays, Home, Users, ShoppingCart, Package, Table, Menu, X as CloseIcon, ChevronDown } from "lucide-react";
+import {
+  CalendarDays,
+  Home,
+  Users,
+  ShoppingCart,
+  Package,
+  Table,
+  Menu,
+  X as CloseIcon,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 
 const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
 // const API_URL = "http://localhost:4000/api";
 
-const SPRING_EASE = "cubic-bezier(0.22, 1, 0.36, 1)"; 
+const SPRING_EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
 
 const Sidebar = () => {
   const location = useLocation();
@@ -37,16 +49,18 @@ const Sidebar = () => {
         </button>
       </div>
 
-      <div className={`
+      <div
+        className={`
         fixed lg:sticky top-0 left-0 h-screen bg-white border-r p-4 z-40
         transform transition-transform duration-300 ease-in-out
-        ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}
+        ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0 lg:w-64 w-64
-      `}>
+      `}
+      >
         <h2 className="text-2xl font-bold text-orange-600 mb-8 px-4 hidden lg:block">
           Flavaro Admin
         </h2>
-        
+
         <div className="lg:hidden flex justify-end mb-4">
           <button
             onClick={toggleMobileMenu}
@@ -80,7 +94,7 @@ const Sidebar = () => {
       </div>
 
       {isMobileOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
           onClick={() => setIsMobileOpen(false)}
         />
@@ -131,7 +145,10 @@ const AnimatedWrap = ({
     <Tag
       onMouseMove={onMove}
       onMouseLeave={onLeave}
-      style={{ ...(mode === "tilt" ? style : {}), ["--spring-ease"]: SPRING_EASE }}
+      style={{
+        ...(mode === "tilt" ? style : {}),
+        ["--spring-ease"]: SPRING_EASE,
+      }}
       className={`${base} ${mode === "soft" ? soft : tilt} ${className}`}
       {...props}
     >
@@ -191,16 +208,18 @@ const CuteOrderCard = ({ order, onPrint, total, animationMode }) => {
         <ul className="list-disc ml-5 text-sm text-gray-700">
           {(order.cartItems || []).map((item, idx) => (
             <li key={idx}>
-              {item.name} × {item.quantity === 1 ? (item.qty) : item.qty + ' x ' + item.quantity} (₹{item.price})
+              {item.name} ×{" "}
+              {item.quantity === 1
+                ? item.qty
+                : item.qty + " x " + item.quantity}{" "}
+              (₹{item.price})
             </li>
           ))}
         </ul>
       </div>
 
       <div className="mt-4 flex items-center justify-between">
-        <div className="text-lg font-extrabold text-orange-600">
-          ₹{total}
-        </div>
+        <div className="text-lg font-extrabold text-orange-600">₹{total}</div>
         {order.status === "pending" ? (
           <div className="flex flex-col gap-2">
             <button
@@ -238,6 +257,9 @@ const Orders = () => {
   const [viewMode, setViewMode] = useState("cards");
   const [animationMode, setAnimationMode] = useState("soft");
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10); 
+
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
@@ -246,6 +268,10 @@ const Orders = () => {
   useEffect(() => {
     fetchOrders();
   }, [dateFilter, selectedDate]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -275,7 +301,7 @@ const Orders = () => {
       if (dateFilter === "yesterday") {
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = yesterday.toISOString().split('T')[0];
+        const yesterdayStr = yesterday.toISOString().split("T")[0];
         params.append("date", yesterdayStr);
         params.append("period", "custom");
       } else {
@@ -303,7 +329,10 @@ const Orders = () => {
         yesterday.setDate(yesterday.getDate() - 1);
         return `Showing orders for: Yesterday (${yesterday.toLocaleDateString()})`;
       case "month":
-        return `Showing orders for: This month (${today.toLocaleDateString('default', { month: 'long', year: 'numeric' })})`;
+        return `Showing orders for: This month (${today.toLocaleDateString(
+          "default",
+          { month: "long", year: "numeric" }
+        )})`;
       case "custom":
         if (selectedDate) {
           const customDate = new Date(selectedDate);
@@ -318,7 +347,7 @@ const Orders = () => {
   const filterOrdersByDate = (ordersList) => {
     if (dateFilter === "all") return ordersList;
     const now = new Date();
-    return ordersList.filter(order => {
+    return ordersList.filter((order) => {
       if (!order.timestamp) return false;
       const orderDate = new Date(order.timestamp);
       switch (dateFilter) {
@@ -329,8 +358,10 @@ const Orders = () => {
           yesterday.setDate(yesterday.getDate() - 1);
           return orderDate.toDateString() === yesterday.toDateString();
         case "month":
-          return orderDate.getMonth() === now.getMonth() && 
-                 orderDate.getFullYear() === now.getFullYear();
+          return (
+            orderDate.getMonth() === now.getMonth() &&
+            orderDate.getFullYear() === now.getFullYear()
+          );
         case "custom":
           if (!selectedDate) return true;
           const selected = new Date(selectedDate);
@@ -349,7 +380,7 @@ const Orders = () => {
     const gst = subtotal * 0.05;
     const total = subtotal + gst;
 
-    const printWindow = window.open('', '_blank');
+    const printWindow = window.open("", "_blank");
     printWindow.document.write(`
       <html>
         <head>
@@ -397,19 +428,35 @@ const Orders = () => {
             <div style="text-align: left; margin-bottom: 10px;">
               <div>Order ID: ${order.orderId}</div>
               <div>Table: ${order.tableNumber || "N/A"}</div>
-              <div>Date: ${order.timestamp ? new Date(order.timestamp).toLocaleDateString() : "N/A"}</div>
-              <div>Time: ${order.timestamp ? new Date(order.timestamp).toLocaleTimeString() : "N/A"}</div>
+              <div>Date: ${
+                order.timestamp
+                  ? new Date(order.timestamp).toLocaleDateString()
+                  : "N/A"
+              }</div>
+              <div>Time: ${
+                order.timestamp
+                  ? new Date(order.timestamp).toLocaleTimeString()
+                  : "N/A"
+              }</div>
             </div>
             <div class="divider"></div>
             <table class="items-table">
               <tbody>
-                ${(order.cartItems || []).map(item => `
+                ${(order.cartItems || [])
+                  .map(
+                    (item) => `
                   <tr>
                     <td class="item-name">${item.name}</td>
-                    <td class="item-qty">${item.quantity === 1 ? item.qty : `${item.qty} x ${item.quantity}`}</td>
+                    <td class="item-qty">${
+                      item.quantity === 1
+                        ? item.qty
+                        : `${item.qty} x ${item.quantity}`
+                    }</td>
                     <td class="item-price">₹${item.price * item.qty}</td>
                   </tr>
-                `).join('')}
+                `
+                  )
+                  .join("")}
               </tbody>
             </table>
             <div class="divider"></div>
@@ -443,7 +490,9 @@ const Orders = () => {
     printThermalBill(order);
     try {
       await Axios.put(`${API_URL}/orders/${order._id}/complete`);
-      console.log(`Order completed and table ${order.tableNumber} set to available`);
+      console.log(
+        `Order completed and table ${order.tableNumber} set to available`
+      );
       fetchOrders();
     } catch (err) {
       console.error("Failed to update order status", err);
@@ -471,102 +520,324 @@ const Orders = () => {
     setIsDropdownOpen(false);
   };
 
-  const renderTable = (list, isPending) => (
-    <div
-      className={`overflow-x-auto mt-4 transition-all duration-500 ${
-        mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
-      }`}
-    >
-      <table className="table-auto w-full border border-orange-200 rounded-2xl overflow-hidden bg-white">
-        <thead>
-          <tr className="bg-orange-100/70 text-orange-800">
-            <th className="px-4 py-3 border border-orange-200 text-left">🧾 Order</th>
-            <th className="px-4 py-3 border border-orange-200 text-left">🍽️ Table</th>
-            <th className="px-4 py-3 border border-orange-200 text-left">⏰ Date</th>
-            <th className="px-4 py-3 border border-orange-200 text-left">🍱 Items</th>
-            <th className="px-4 py-3 border border-orange-200 text-left">💰 Total</th>
-            <th className="px-4 py-3 border border-orange-200 text-left">📌 Status</th>
-            {isPending && (
-              <th className="px-4 py-3 border border-orange-200 text-left">✨ Actions</th>
-            )}
-          </tr>
-        </thead>
-        <tbody>
-          {list.map((order) => (
-            <CuteRow key={order._id} animationMode={animationMode}>
-              <td className="px-4 py-3 border border-orange-100">{order.orderId}</td>
-              <td className="px-4 py-3 border border-orange-100">
-                {order.tableNumber || "N/A"}
-              </td>
-              <td className="px-4 py-3 border border-orange-100">
-                {order.timestamp
-                  ? new Date(order.timestamp).toLocaleString()
-                  : "N/A"}
-              </td>
-              <td className="px-4 py-3 border border-orange-100">
-                <ul className="list-disc ml-5">
-                  {(order.cartItems || []).map((item, idx) => (
-                    <li key={idx}>
-                      {item.name} × {item.quantity === 1 ? (item.qty) : item.qty + ' x ' + item.quantity} (₹{item.price})
-                    </li>
-                  ))}
-                </ul>
-              </td>
-              <td className="px-4 py-3 border border-orange-100 font-bold text-orange-600">
-                ₹{calculateTotal(order.cartItems || [])}
-              </td>
-              <td className="px-4 py-3 border border-orange-100">
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                    order.status === "pending"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-orange-100 text-orange-700"
-                  }`}
-                >
-                  {order.status}
-                </span>
-              </td>
-              {isPending && (
-                <td className="px-4 py-3 border border-orange-100">
-                  <div className="flex flex-col gap-2">
-                    <button
-                      onClick={() => handlePrint(order)}
-                      className="px-3 py-1 rounded-full bg-orange-500 text-white text-xs hover:shadow-orange-300/60 active:scale-[0.98] transition-all"
-                    >
-                      🖨️ Print
-                    </button>
-                  </div>
-                </td>
-              )}
-            </CuteRow>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+  const getCurrentPageOrders = (ordersList) => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return ordersList.slice(startIndex, endIndex);
+  };
 
-  const renderCards = (list, isPending) => (
-    <div
-      className={`grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 mt-4 transition-all duration-500 ${
-        mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
-      }`}
-    >
-      {list.map((order) => (
-        <CuteOrderCard
-          key={order._id}
-          order={order}
-          total={calculateTotal(order.cartItems || [])}
-          onPrint={handlePrint}
-          animationMode={animationMode}
-        />
-      ))}
-      {list.length === 0 && (
-        <div className="col-span-full text-center text-gray-500">
-          No {isPending ? "pending" : "completed"} orders for selected date
+  const totalPages = (ordersList) => {
+    return Math.ceil(ordersList.length / itemsPerPage);
+  };
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleItemsPerPageChange = (e) => {
+    setItemsPerPage(parseInt(e.target.value));
+    setCurrentPage(1); 
+  };
+
+  const renderTable = (list, isPending) => {
+    const currentPageOrders = getCurrentPageOrders(list);
+    const totalPageCount = totalPages(list);
+
+    return (
+      <>
+        <div
+          className={`overflow-x-auto mt-4 transition-all duration-500 ${
+            mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+          }`}
+        >
+          <table className="table-auto w-full border border-orange-200 rounded-2xl overflow-hidden bg-white">
+            <thead>
+              <tr className="bg-orange-100/70 text-orange-800">
+                <th className="px-4 py-3 border border-orange-200 text-left">
+                  🧾 Order
+                </th>
+                <th className="px-4 py-3 border border-orange-200 text-left">
+                  🍽️ Table
+                </th>
+                <th className="px-4 py-3 border border-orange-200 text-left">
+                  ⏰ Date
+                </th>
+                <th className="px-4 py-3 border border-orange-200 text-left">
+                  🍱 Items
+                </th>
+                <th className="px-4 py-3 border border-orange-200 text-left">
+                  💰 Total
+                </th>
+                <th className="px-4 py-3 border border-orange-200 text-left">
+                  📌 Status
+                </th>
+                {isPending && (
+                  <th className="px-4 py-3 border border-orange-200 text-left">
+                    ✨ Actions
+                  </th>
+                )}
+              </tr>
+            </thead>
+            <tbody>
+              {currentPageOrders.map((order) => (
+                <CuteRow key={order._id} animationMode={animationMode}>
+                  <td className="px-4 py-3 border border-orange-100">
+                    {order.orderId}
+                  </td>
+                  <td className="px-4 py-3 border border-orange-100">
+                    {order.tableNumber || "N/A"}
+                  </td>
+                  <td className="px-4 py-3 border border-orange-100">
+                    {order.timestamp
+                      ? new Date(order.timestamp).toLocaleString()
+                      : "N/A"}
+                  </td>
+                  <td className="px-4 py-3 border border-orange-100">
+                    <ul className="list-disc ml-5">
+                      {(order.cartItems || []).map((item, idx) => (
+                        <li key={idx}>
+                          {item.name} ×{" "}
+                          {item.quantity === 1
+                            ? item.qty
+                            : item.qty + " x " + item.quantity}{" "}
+                          (₹{item.price})
+                        </li>
+                      ))}
+                    </ul>
+                  </td>
+                  <td className="px-4 py-3 border border-orange-100 font-bold text-orange-600">
+                    ₹{calculateTotal(order.cartItems || [])}
+                  </td>
+                  <td className="px-4 py-3 border border-orange-100">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        order.status === "pending"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-orange-100 text-orange-700"
+                      }`}
+                    >
+                      {order.status}
+                    </span>
+                  </td>
+                  {isPending && (
+                    <td className="px-4 py-3 border border-orange-100">
+                      <div className="flex flex-col gap-2">
+                        <button
+                          onClick={() => handlePrint(order)}
+                          className="px-3 py-1 rounded-full bg-orange-500 text-white text-xs hover:shadow-orange-300/60 active:scale-[0.98] transition-all"
+                        >
+                          🖨️ Print
+                        </button>
+                      </div>
+                    </td>
+                  )}
+                </CuteRow>
+              ))}
+            </tbody>
+          </table>
         </div>
-      )}
-    </div>
-  );
+
+        {list.length > 0 && (
+          <div className="flex flex-col sm:flex-row items-center justify-between mt-4 p-3 bg-white/80 backdrop-blur border border-orange-200 rounded-xl">
+            <div className="flex items-center gap-3 mb-3 sm:mb-0">
+              <span className="text-sm text-gray-600">Items per page:</span>
+              <select
+                value={itemsPerPage}
+                onChange={handleItemsPerPageChange}
+                className="px-3 py-1 border border-orange-200 rounded-lg bg-white text-sm"
+              >
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+              </select>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">
+                Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
+                {Math.min(currentPage * itemsPerPage, list.length)} of{" "}
+                {list.length} orders
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 mt-3 sm:mt-0">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`p-2 rounded-lg border ${
+                  currentPage === 1
+                    ? "border-gray-200 text-gray-400 cursor-not-allowed"
+                    : "border-orange-200 text-orange-600 hover:bg-orange-50"
+                }`}
+              >
+                <ChevronLeft size={18} />
+              </button>
+
+              <div className="flex items-center gap-1">
+                {Array.from({ length: Math.min(5, totalPageCount) }, (_, i) => {
+                  let pageNum;
+                  if (totalPageCount <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPageCount - 2) {
+                    pageNum = totalPageCount - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+
+                  if (pageNum > 0 && pageNum <= totalPageCount) {
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => handlePageChange(pageNum)}
+                        className={`px-3 py-1 rounded-lg text-sm ${
+                          currentPage === pageNum
+                            ? "bg-orange-500 text-white font-medium"
+                            : "text-gray-600 hover:bg-orange-50"
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  }
+                  return null;
+                })}
+              </div>
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPageCount}
+                className={`p-2 rounded-lg border ${
+                  currentPage === totalPageCount
+                    ? "border-gray-200 text-gray-400 cursor-not-allowed"
+                    : "border-orange-200 text-orange-600 hover:bg-orange-50"
+                }`}
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
+          </div>
+        )}
+      </>
+    );
+  };
+
+  const renderCards = (list, isPending) => {
+    const currentPageOrders = getCurrentPageOrders(list);
+    const totalPageCount = totalPages(list);
+
+    return (
+      <>
+        <div
+          className={`grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 mt-4 transition-all duration-500 ${
+            mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+          }`}
+        >
+          {currentPageOrders.map((order) => (
+            <CuteOrderCard
+              key={order._id}
+              order={order}
+              total={calculateTotal(order.cartItems || [])}
+              onPrint={handlePrint}
+              animationMode={animationMode}
+            />
+          ))}
+          {list.length === 0 && (
+            <div className="col-span-full text-center text-gray-500">
+              No {isPending ? "pending" : "completed"} orders for selected date
+            </div>
+          )}
+        </div>
+
+        {list.length > 0 && (
+          <div className="flex flex-col sm:flex-row items-center justify-between mt-4 p-3 bg-white/80 backdrop-blur border border-orange-200 rounded-xl">
+            <div className="flex items-center gap-3 mb-3 sm:mb-0">
+              <span className="text-sm text-gray-600">Items per page:</span>
+              <select
+                value={itemsPerPage}
+                onChange={handleItemsPerPageChange}
+                className="px-3 py-1 border border-orange-200 rounded-lg bg-white text-sm"
+              >
+                <option value="4">4</option>
+                <option value="8">8</option>
+                <option value="12">12</option>
+                <option value="16">16</option>
+              </select>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">
+                Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
+                {Math.min(currentPage * itemsPerPage, list.length)} of{" "}
+                {list.length} orders
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 mt-3 sm:mt-0">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`p-2 rounded-lg border ${
+                  currentPage === 1
+                    ? "border-gray-200 text-gray-400 cursor-not-allowed"
+                    : "border-orange-200 text-orange-600 hover:bg-orange-50"
+                }`}
+              >
+                <ChevronLeft size={18} />
+              </button>
+
+              <div className="flex items-center gap-1">
+                {Array.from({ length: Math.min(5, totalPageCount) }, (_, i) => {
+                  let pageNum;
+                  if (totalPageCount <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPageCount - 2) {
+                    pageNum = totalPageCount - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+
+                  if (pageNum > 0 && pageNum <= totalPageCount) {
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => handlePageChange(pageNum)}
+                        className={`px-3 py-1 rounded-lg text-sm ${
+                          currentPage === pageNum
+                            ? "bg-orange-500 text-white font-medium"
+                            : "text-gray-600 hover:bg-orange-50"
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  }
+                  return null;
+                })}
+              </div>
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPageCount}
+                className={`p-2 rounded-lg border ${
+                  currentPage === totalPageCount
+                    ? "border-gray-200 text-gray-400 cursor-not-allowed"
+                    : "border-orange-200 text-orange-600 hover:bg-orange-50"
+                }`}
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
+          </div>
+        )}
+      </>
+    );
+  };
 
   const listForTab = activeTab === "pending" ? pendingOrders : completedOrders;
 
@@ -586,7 +857,9 @@ const Orders = () => {
           <div className="relative p-5 mt-16 lg:mt-0">
             <div
               className={`transition-all duration-700 ${
-                mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+                mounted
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-2"
               }`}
             >
               <h1 className="text-3xl font-extrabold tracking-tight text-black drop-shadow-sm">
@@ -626,7 +899,9 @@ const Orders = () => {
 
               <div className="mt-4 p-4 rounded-2xl bg-white/80 backdrop-blur border border-orange-200 shadow-sm">
                 <div className="flex flex-wrap gap-4 items-center">
-                  <label className="font-medium text-black">🎯 Filter by Date:</label>
+                  <label className="font-medium text-black">
+                    🎯 Filter by Date:
+                  </label>
 
                   <div className="relative flex-shrink-0" ref={dropdownRef}>
                     <button
@@ -640,40 +915,66 @@ const Orders = () => {
                         {dateFilter === "month" && "This Month"}
                         {dateFilter === "custom" && "Custom Date"}
                       </span>
-                      <ChevronDown className={`text-orange-500 w-4 h-4 transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""}`} />
+                      <ChevronDown
+                        className={`text-orange-500 w-4 h-4 transition-transform duration-200 ${
+                          isDropdownOpen ? "rotate-180" : ""
+                        }`}
+                      />
                     </button>
-                    
+
                     {isDropdownOpen && (
                       <div className="absolute top-full left-0 right-0 mt-1 z-50 ">
                         <div className="rounded-xl border border-orange-200 bg-white shadow-lg overflow-hidden">
                           <div className="py-1">
                             <button
                               onClick={() => handleDateFilterChange("all")}
-                              className={`w-full text-left px-4 py-2 hover:bg-orange-50 cursor-pointer transition-colors ${dateFilter === "all" ? "bg-orange-50 text-orange-600 font-medium" : "text-black"}`}
+                              className={`w-full text-left px-4 py-2 hover:bg-orange-50 cursor-pointer transition-colors ${
+                                dateFilter === "all"
+                                  ? "bg-orange-50 text-orange-600 font-medium"
+                                  : "text-black"
+                              }`}
                             >
                               All Dates
                             </button>
                             <button
                               onClick={() => handleDateFilterChange("today")}
-                              className={`w-full text-left px-4 py-2 hover:bg-orange-50 cursor-pointer transition-colors ${dateFilter === "today" ? "bg-orange-50 text-orange-600 font-medium" : "text-black"}`}
+                              className={`w-full text-left px-4 py-2 hover:bg-orange-50 cursor-pointer transition-colors ${
+                                dateFilter === "today"
+                                  ? "bg-orange-50 text-orange-600 font-medium"
+                                  : "text-black"
+                              }`}
                             >
                               Today
                             </button>
                             <button
-                              onClick={() => handleDateFilterChange("yesterday")}
-                              className={`w-full text-left px-4 py-2 hover:bg-orange-50 cursor-pointer transition-colors ${dateFilter === "yesterday" ? "bg-orange-50 text-orange-600 font-medium" : "text-black"}`}
+                              onClick={() =>
+                                handleDateFilterChange("yesterday")
+                              }
+                              className={`w-full text-left px-4 py-2 hover:bg-orange-50 cursor-pointer transition-colors ${
+                                dateFilter === "yesterday"
+                                  ? "bg-orange-50 text-orange-600 font-medium"
+                                  : "text-black"
+                              }`}
                             >
                               Yesterday
                             </button>
                             <button
                               onClick={() => handleDateFilterChange("month")}
-                              className={`w-full text-left px-4 py-2 hover:bg-orange-50 cursor-pointer transition-colors ${dateFilter === "month" ? "bg-orange-50 text-orange-600 font-medium" : "text-black"}`}
+                              className={`w-full text-left px-4 py-2 hover:bg-orange-50 cursor-pointer transition-colors ${
+                                dateFilter === "month"
+                                  ? "bg-orange-50 text-orange-600 font-medium"
+                                  : "text-black"
+                              }`}
                             >
                               This Month
                             </button>
                             <button
                               onClick={() => handleDateFilterChange("custom")}
-                              className={`w-full text-left px-4 py-2 hover:bg-orange-50 cursor-pointer transition-colors ${dateFilter === "custom" ? "bg-orange-50 text-orange-600 font-medium" : "text-black"}`}
+                              className={`w-full text-left px-4 py-2 hover:bg-orange-50 cursor-pointer transition-colors ${
+                                dateFilter === "custom"
+                                  ? "bg-orange-50 text-orange-600 font-medium"
+                                  : "text-black"
+                              }`}
                             >
                               Custom Date
                             </button>
@@ -697,56 +998,62 @@ const Orders = () => {
                     </div>
                   )}
                 </div>
-                <div className={`mt-4 transition-all duration-300 -z-1 ${isDropdownOpen ? '' : ''}`}>
-                <div className="inline-flex p-1 rounded-full bg-white/80 backdrop-blur border border-orange-200 shadow-sm">
-                  <button
-                    onClick={() => setActiveTab("pending")}
-                    className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
-                      activeTab === "pending"
-                        ? "bg-orange-500 text-white shadow"
-                        : "text-orange-600 hover:bg-orange-50"
-                    }`}
-                  >
-                    🍥 Pending ({pendingOrders.length})
-                  </button>
-                  <button
-                    onClick={() => setActiveTab("completed")}
-                    className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
-                      activeTab === "completed"
-                        ? "bg-orange-500 text-white shadow"
-                        : "text-orange-600 hover:bg-orange-50"
-                    }`}
-                  >
-                    🍡 Completed ({completedOrders.length})
-                  </button>
+                <div
+                  className={`mt-4 transition-all duration-300 -z-1 ${
+                    isDropdownOpen ? "" : ""
+                  }`}
+                >
+                  <div className="inline-flex p-1 rounded-full bg-white/80 backdrop-blur border border-orange-200 shadow-sm">
+                    <button
+                      onClick={() => setActiveTab("pending")}
+                      className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
+                        activeTab === "pending"
+                          ? "bg-orange-500 text-white shadow"
+                          : "text-orange-600 hover:bg-orange-50"
+                      }`}
+                    >
+                      🍥 Pending ({pendingOrders.length})
+                    </button>
+                    <button
+                      onClick={() => setActiveTab("completed")}
+                      className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
+                        activeTab === "completed"
+                          ? "bg-orange-500 text-white shadow"
+                          : "text-orange-600 hover:bg-orange-50"
+                      }`}
+                    >
+                      🍡 Completed ({completedOrders.length})
+                    </button>
+                  </div>
                 </div>
-              </div>
-               <div className={`transition-all duration-300 ${isDropdownOpen ? 'mt-8' : 'mt-4'}`}>
-                {viewMode === "cards"
-                  ? activeTab === "pending"
-                    ? renderCards(pendingOrders, true)
-                    : renderCards(completedOrders, false)
-                  : activeTab === "pending"
-                  ? pendingOrders.length > 0
-                    ? renderTable(pendingOrders, true)
-                    : (
+                <div
+                  className={`transition-all duration-300 ${
+                    isDropdownOpen ? "mt-8" : "mt-4"
+                  }`}
+                >
+                  {viewMode === "cards" ? (
+                    activeTab === "pending" ? (
+                      renderCards(pendingOrders, true)
+                    ) : (
+                      renderCards(completedOrders, false)
+                    )
+                  ) : activeTab === "pending" ? (
+                    pendingOrders.length > 0 ? (
+                      renderTable(pendingOrders, true)
+                    ) : (
                       <p className="mt-4 text-gray-500">
                         No pending orders for selected date
                       </p>
                     )
-                  : completedOrders.length > 0
-                  ? renderTable(completedOrders, false)
-                  : (
+                  ) : completedOrders.length > 0 ? (
+                    renderTable(completedOrders, false)
+                  ) : (
                     <p className="mt-4 text-gray-500">
                       No completed orders for selected date
                     </p>
                   )}
+                </div>
               </div>
-              </div>
-
-              
-
-              
             </div>
           </div>
         </div>
