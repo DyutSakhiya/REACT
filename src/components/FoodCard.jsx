@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { AiFillStar } from "react-icons/ai";
 import { FaMinus, FaPlus } from "react-icons/fa";
-import { useDispatch, useSelector } from "react-redux";
-import { addToCart, incrementQty, decrementQty, updateItemQuantity } from "../redux/slices/CartSlice"; 
+import { useDispatch } from "react-redux";
+import { addToCart, incrementQty, decrementQty } from "../redux/slices/CartSlice"; 
 
 const FoodCard = ({
   id,
@@ -15,8 +15,6 @@ const FoodCard = ({
   quantityPrices = [],
 }) => {
   const dispatch = useDispatch();
-  const cartItems = useSelector((state) => state.cart.cart);
-  
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [isInView, setIsInView] = useState(false);
@@ -25,24 +23,8 @@ const FoodCard = ({
   const [selectedPrice, setSelectedPrice] = useState(price);
   const [showQuantityControls, setShowQuantityControls] = useState(false);
   const [quantity, setQuantity] = useState(0); 
-  
   const imgRef = useRef(null);
   const cardRef = useRef(null);
-
-  // Find current item in cart
-  const cartItem = cartItems.find(item => item.id === id);
-  const currentQty = cartItem?.qty || 0;
-
-  useEffect(() => {
-    // Sync local quantity state with Redux cart
-    if (cartItem) {
-      setQuantity(cartItem.qty);
-      setShowQuantityControls(cartItem.qty > 0);
-    } else {
-      setQuantity(0);
-      setShowQuantityControls(false);
-    }
-  }, [cartItem, id]);
 
   const hasQuantityPrices = () => {
     return quantityPrices && quantityPrices.length > 0;
@@ -134,7 +116,7 @@ const FoodCard = ({
     const newQuantity = quantity + 1;
     setQuantity(newQuantity);
     
-    dispatch(updateItemQuantity({ id, qty: newQuantity }));
+    dispatch(incrementQty({ id }));
     
     handleToast(`Updated ${name} to ${newQuantity}`);
   };
@@ -144,11 +126,11 @@ const FoodCard = ({
       const newQuantity = quantity - 1;
       setQuantity(newQuantity);
       
-      dispatch(updateItemQuantity({ id, qty: newQuantity }));
+      dispatch(decrementQty({ id }));
       
       handleToast(`Updated ${name} to ${newQuantity}`);
     } else {
-      dispatch(updateItemQuantity({ id, qty: 0 }));
+      dispatch(decrementQty({ id })); 
       setShowQuantityControls(false);
       setQuantity(0);
       handleToast(`${name} removed from cart`);
@@ -193,7 +175,7 @@ const FoodCard = ({
     if (isWeightBased()) {
       return "Select Weight";
     }
-    return currentQty > 0 ? `${currentQty} in cart` : "Add to cart";
+    return quantity > 0 ? `${quantity} in cart` : "Add to cart";
   };
 
   const getPriceDisplay = () => {
@@ -257,13 +239,15 @@ const FoodCard = ({
           </span>
         </div>
 
+        {/* <p className="text-xs text-gray-600 font-normal line-clamp-2">{desc}</p> */}
+
         <div className="flex justify-between items-center mt-1">
           <span className="flex items-center text-sm">
             {/* <AiFillStar className="mr-1 text-yellow-400" /> {rating} */}
           </span>
           
           <div className="flex items-center gap-2">
-            {currentQty >= 1 && !hasQuantityPrices() && !isWeightBased() ? (
+            {quantity >= 1 && !hasQuantityPrices() && !isWeightBased() ? (
               <div className="flex items-center bg-green-500 text-white rounded-lg overflow-hidden">
                 <button
                   onClick={handleDecrement}
@@ -275,7 +259,7 @@ const FoodCard = ({
                 </button>
                 
                 <span className="px-3 py-1 font-semibold min-w-[2rem] text-center">
-                  {currentQty}
+                  {quantity}
                 </span>
                 
                 <button
@@ -289,7 +273,7 @@ const FoodCard = ({
               <button
                 onClick={handleAddToCartClick}
                 className={`px-2 py-1 text-white rounded-md text-xs transition-colors duration-200 ${
-                  currentQty > 0 
+                  quantity > 0 
                     ? "bg-green-600 hover:bg-green-700" 
                     : "bg-green-500 hover:bg-green-600"
                 }`}
