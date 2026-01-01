@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { AiFillStar } from "react-icons/ai";
 import { FaMinus, FaPlus } from "react-icons/fa";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux"; 
 import { addToCart, incrementQty, decrementQty } from "../redux/slices/CartSlice"; 
 
 const FoodCard = ({
@@ -15,14 +15,23 @@ const FoodCard = ({
   quantityPrices = [],
 }) => {
   const dispatch = useDispatch();
+  const cart = useSelector((state) => state.cart.cart); 
+  
+ 
+  const cartItem = cart.find(item => item.id === id);
+ 
+  const quantityInCart = cartItem ? cartItem.qty : 0;
+  
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [isInView, setIsInView] = useState(false);
   const [showQuantityModal, setShowQuantityModal] = useState(false);
   const [selectedQuantity, setSelectedQuantity] = useState(1);
   const [selectedPrice, setSelectedPrice] = useState(price);
-  const [showQuantityControls, setShowQuantityControls] = useState(false);
+  
+
   const [quantity, setQuantity] = useState(0); 
+
   const imgRef = useRef(null);
   const cardRef = useRef(null);
 
@@ -100,38 +109,35 @@ const FoodCard = ({
           price,
           img,
           rating,
-          quantity: 1,
+          quantity: 1, 
           unit: "item",
           displayQuantity: "1 Item",
         })
       );
-      
-      setQuantity(1);
+       setQuantity(1);
       setShowQuantityControls(true);
       handleToast(`${name} added to cart!`);
     }
   };
 
   const handleIncrement = () => {
-    const newQuantity = quantity + 1;
-    setQuantity(newQuantity);
-    
+    const newQuantity = quantityInCart + 1;
+   setQuantity(newQuantity);    
     dispatch(incrementQty({ id }));
     
     handleToast(`Updated ${name} to ${newQuantity}`);
   };
 
   const handleDecrement = () => {
-    if (quantity > 1) {
-      const newQuantity = quantity - 1;
-      setQuantity(newQuantity);
-      
+    if (quantityInCart > 1) {
+      const newQuantity = quantityInCart - 1;
+ setQuantity(newQuantity);      
       dispatch(decrementQty({ id }));
       
       handleToast(`Updated ${name} to ${newQuantity}`);
     } else {
       dispatch(decrementQty({ id })); 
-      setShowQuantityControls(false);
+     setShowQuantityControls(false);
       setQuantity(0);
       handleToast(`${name} removed from cart`);
     }
@@ -149,7 +155,7 @@ const FoodCard = ({
         price: selectedPrice,
         img,
         rating,
-        quantity: selectedOption.quantity,
+        quantity: selectedOption.quantity, 
         unit: selectedOption.unit,
         displayQuantity: selectedOption.display,
       })
@@ -175,7 +181,7 @@ const FoodCard = ({
     if (isWeightBased()) {
       return "Select Weight";
     }
-    return quantity > 0 ? `${quantity} in cart` : "Add to cart";
+    return quantityInCart > 0 ? `${quantityInCart} in cart` : "Add to cart";
   };
 
   const getPriceDisplay = () => {
@@ -239,27 +245,27 @@ const FoodCard = ({
           </span>
         </div>
 
-        {/* <p className="text-xs text-gray-600 font-normal line-clamp-2">{desc}</p> */}
+        
 
         <div className="flex justify-between items-center mt-1">
           <span className="flex items-center text-sm">
-            {/* <AiFillStar className="mr-1 text-yellow-400" /> {rating} */}
+          
           </span>
           
           <div className="flex items-center gap-2">
-            {quantity >= 1 && !hasQuantityPrices() && !isWeightBased() ? (
+            {quantityInCart >= 1 && !hasQuantityPrices() && !isWeightBased() ? (
               <div className="flex items-center bg-green-500 text-white rounded-lg overflow-hidden">
                 <button
                   onClick={handleDecrement}
                   className={`px-3 py-1 transition-colors duration-200 flex items-center justify-center ${
-                    quantity === 1 ? 'hover:bg-green-600' : 'hover:bg-green-600'
+                    quantityInCart === 1 ? 'hover:bg-green-600' : 'hover:bg-green-600'
                   }`}
                 >
                   <FaMinus className="text-xs" />
                 </button>
                 
                 <span className="px-3 py-1 font-semibold min-w-[2rem] text-center">
-                  {quantity}
+                  {quantityInCart}
                 </span>
                 
                 <button
@@ -273,7 +279,7 @@ const FoodCard = ({
               <button
                 onClick={handleAddToCartClick}
                 className={`px-2 py-1 text-white rounded-md text-xs transition-colors duration-200 ${
-                  quantity > 0 
+                  quantityInCart > 0 
                     ? "bg-green-600 hover:bg-green-700" 
                     : "bg-green-500 hover:bg-green-600"
                 }`}
