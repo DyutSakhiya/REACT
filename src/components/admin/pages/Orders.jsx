@@ -16,8 +16,8 @@ import {
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 
-// const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
-const API_URL = "http://localhost:4000/api";
+const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
+// const API_URL = "http://localhost:4000/api";
 
 const SPRING_EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
 
