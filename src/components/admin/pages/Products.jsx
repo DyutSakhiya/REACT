@@ -4,8 +4,8 @@ import { NavLink, useLocation } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
 
-// const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
-const API_URL  = "http://localhost:4000/api"
+const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
+// const API_URL  = "http://localhost:4000/api"
 
 // Integrated Sidebar Component
 const Sidebar = () => {
