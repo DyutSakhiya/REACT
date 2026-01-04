@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { PlusCircle, Trash2, CheckCircle, XCircle, RefreshCw } from "lucide-react";
 import Sidebar from "../admin/Sidebar";
 
-const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
-// const API_URL = "http://localhost:4000/api";
+// const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
+const API_URL = "http://localhost:4000/api";
 
 function TableManagement() {
   const [tables, setTables] = useState([]);
