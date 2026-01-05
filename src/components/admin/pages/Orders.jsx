@@ -265,9 +265,9 @@ const Orders = () => {
 
   const dropdownRef = React.useRef(null);
 
-  useEffect(() => {
-    fetchOrders();
-  }, [dateFilter, selectedDate]);
+  // useEffect(() => {
+  //   fetchOrders();
+  // }, [dateFilter, selectedDate]); 
 
   useEffect(() => {
     setCurrentPage(1);
@@ -285,6 +285,22 @@ const Orders = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  
+useEffect(() => {
+  
+  fetchOrders();
+
+  const intervalId = setInterval(() => {
+    fetchOrders();
+  }, 1000); // 10 s
+
+  
+  return () => {
+    clearInterval(intervalId);
+  };
+}, [dateFilter, selectedDate]);
+
 
   const fetchOrders = () => {
     const userData = localStorage.getItem("user");
