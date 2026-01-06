@@ -438,7 +438,7 @@ useEffect(() => {
             <div class="header">
               <div class="restaurant-name">FLAVOROFOODS</div>
               <div>Rajkot - 360004</div>
-              <div>Phone: 9157433685</div>
+              <div>Phone: ${JSON.parse(localStorage.getItem("user"))?.mobile || "N/A"}</div>
             </div>
             <div class="divider"></div>
             <div style="text-align: left; margin-bottom: 10px;">
