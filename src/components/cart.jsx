@@ -6,8 +6,7 @@ import { useSelector } from "react-redux";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Axios from "axios";
 
-const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
-// const API_URL = "http://localhost:4000/api";
+import { API_URL } from "../helper";
 
 const Cart = () => {
   const [activeCart, setActiveCart] = useState(false);
@@ -89,9 +88,8 @@ const Cart = () => {
   return (
     <>
       <div
-        className={`fixed right-0 top-0 w-full md:w-[450px] h-full p-5 bg-white shadow-2xl ${
-          activeCart ? "translate-x-0" : "translate-x-full"
-        } transition-all duration-500 z-50`}
+        className={`fixed right-0 top-0 w-full md:w-[450px] h-full p-5 bg-white shadow-2xl ${activeCart ? "translate-x-0" : "translate-x-full"
+          } transition-all duration-500 z-50`}
       >
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">My Order</h2>
@@ -115,20 +113,19 @@ const Cart = () => {
           )}
         </div>
 
-       <div className="absolute bottom-0 left-0 right-0 bg-white p-5">
+        <div className="absolute bottom-0 left-0 right-0 bg-white p-5">
           <h3 className="font-semibold text-gray-800">Items: {totalQty}</h3>
           <h3 className="font-semibold text-gray-800">
             Total Amount: ₹{totalPrice.toFixed(2)}
           </h3>
           <hr className="w-full my-2" />
-                    <button
+          <button
             onClick={handleCheckout}
             disabled={isProcessing || cartItems.length === 0}
-            className={`font-bold px-3 text-white py-2 rounded-lg w-full mb-5 ${
-              isProcessing || cartItems.length === 0
+            className={`font-bold px-3 text-white py-2 rounded-lg w-full mb-5 ${isProcessing || cartItems.length === 0
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-green-500 hover:bg-green-600 active:bg-green-700"
-            } transition-colors duration-200`}
+              } transition-colors duration-200`}
           >
             {isProcessing ? (
               <span className="flex items-center justify-center">
@@ -150,7 +147,7 @@ const Cart = () => {
         </div>
       </div>
 
-      
+
 
       {showAddedBar && !activeCart && (
         <div className="fixed bottom-1 left-1/2   transform -translate-x-1/2 w-[95%] max-w-md bg-green-600 hover:bg-green-800 text-white px-6 py-4  rounded-xl shadow-2xl z-50 flex justify-between items-center animate-slide-up">
@@ -176,7 +173,7 @@ const Cart = () => {
       )}
 
       {activeCart && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40"
           onClick={() => setActiveCart(false)}
         />

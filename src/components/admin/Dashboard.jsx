@@ -13,12 +13,10 @@ import {
 import { useAuth } from "./context/AuthContext";
 import Axios from "axios";
 import { useNavigate } from "react-router-dom";
-
-const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
-// const API_URL = "http://localhost:4000/api";
+import { API_URL } from "../../helper";
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth(); 
   const navigate = useNavigate();
   const [timePeriod, setTimePeriod] = useState("today");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -59,21 +57,39 @@ const Dashboard = () => {
     percentageChange: { orders: 0, revenue: 0 },
   });
 
+  const getAuthAxios = () => {
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    return Axios.create({
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  };
+
   useEffect(() => {
+    console.log("Dashboard mounted. User:", user); 
+    
     if (user && user.hotelId) {
+      console.log("Fetching data for hotelId:", user.hotelId);
       fetchDashboardData();
       fetchTableStats();
+    } else {
+      console.warn("User or hotelId is missing. User:", user);
+      
+      navigate('/login');
     }
   }, [user, timePeriod]);
 
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
+      const authAxios = getAuthAxios();
+      
       const [orderStats, revenueStats] = await Promise.all([
-        Axios.get(
+        authAxios.get(
           `${API_URL}/admin/order-stats?hotelId=${user.hotelId}&period=${timePeriod}`
         ),
-        Axios.get(
+        authAxios.get(
           `${API_URL}/admin/revenue-stats?hotelId=${user.hotelId}&period=${timePeriod}`
         ),
       ]);
@@ -108,8 +124,8 @@ const Dashboard = () => {
         const avgOrderValueChange =
           previousAvgOrderValue > 0
             ? ((avgOrderValue - previousAvgOrderValue) /
-                previousAvgOrderValue) *
-              100
+              previousAvgOrderValue) *
+            100
             : 0;
 
         const newStats = [
@@ -146,9 +162,69 @@ const Dashboard = () => {
       }
     } catch (error) {
       console.error("Failed to fetch dashboard data:", error);
+      
+      if (error.response && error.response.status === 401) {
+        console.error("Authentication failed. Token may be expired or invalid.");
+        
+        alert("Your session has expired. Please login again.");
+        
+        localStorage.removeItem("token");
+        sessionStorage.removeItem("token");
+        
+        if (logout) {
+          logout();
+        }
+        
+        navigate("/login");
+      } else if (error.response) {
+        
+        console.error(`API Error ${error.response.status}:`, error.response.data);
+      } else if (error.request) {
+       
+        console.error("Network error. Please check your connection.");
+      }
+      
+      if (process.env.NODE_ENV === "development") {
+        showMockData();
+      }
     } finally {
       setLoading(false);
     }
+  };
+
+  const showMockData = () => {
+    console.log("Showing mock data for development");
+    
+    const mockStats = [
+      {
+        title: "Total Revenue",
+        value: "₹12,500",
+        change: "+11.6%",
+        isPositive: true,
+        icon: <IndianRupee size={24} className="text-green-500" />,
+      },
+      {
+        title: "Total Orders",
+        value: "42",
+        change: "+10.5%",
+        isPositive: true,
+        icon: <ShoppingCart size={24} className="text-blue-500" />,
+      },
+      {
+        title: "Average Order Value",
+        value: "₹298",
+        change: "+8.2%",
+        isPositive: true,
+        icon: <TrendingUp size={24} className="text-orange-500" />,
+      },
+    ];
+    
+    setStats(mockStats);
+    setComparisonData({
+      current: { orders: 42, revenue: 12500 },
+      previous: { orders: 38, revenue: 11200 },
+      percentageChange: { orders: 10.5, revenue: 11.6 },
+    });
   };
 
   const fetchTableStats = async () => {
@@ -204,15 +280,13 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-4 lg:space-y-6 p-2 lg:p-0">
-      
       <div className="bg-white p-4 rounded-xl shadow border border-gray-100">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex items-center space-x-2">
             <Calendar size={20} className="text-gray-600" />
             <h2 className="text-lg font-semibold">Time Period</h2>
           </div>
-          
-         
+
           <div className="relative w-full sm:w-64">
             <button
               type="button"
@@ -220,21 +294,19 @@ const Dashboard = () => {
               className="w-full px-4 py-3 flex items-center justify-between border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white hover:bg-gray-50 transition-colors"
             >
               <span className="font-medium">{getPeriodLabel()}</span>
-              <ChevronDown 
-                size={20} 
+              <ChevronDown
+                size={20}
                 className={`text-gray-500 transition-transform duration-200 ${isDropdownOpen ? 'transform rotate-180' : ''}`}
               />
             </button>
-            
-          
+
             {isDropdownOpen && (
               <>
-               
-                <div 
+                <div
                   className="fixed inset-0 z-10 sm:hidden"
                   onClick={() => setIsDropdownOpen(false)}
                 />
-                
+
                 <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
                   <div className="py-1">
                     {periodOptions.map((option) => (
@@ -262,7 +334,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-    
       {loading && (
         <div className="bg-white p-6 rounded-xl shadow border border-gray-100 text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
@@ -270,8 +341,27 @@ const Dashboard = () => {
         </div>
       )}
 
-     
-      {!loading && (
+      {!loading && (!user || !user.hotelId) && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 text-center">
+          <div className="inline-flex items-center justify-center w-12 h-12 bg-yellow-100 rounded-full mb-4">
+            <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.07 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-yellow-800 mb-2">Authentication Required</h3>
+          <p className="text-yellow-700 mb-4">
+            Please log in to view dashboard data. User or hotel information is missing.
+          </p>
+          <button
+            onClick={() => navigate('/login')}
+            className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
+          >
+            Go to Login
+          </button>
+        </div>
+      )}
+
+      {!loading && user && user.hotelId && (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
             {stats.map((stat, index) => (
@@ -310,6 +400,7 @@ const Dashboard = () => {
               </div>
             ))}
           </div>
+
         </>
       )}
     </div>

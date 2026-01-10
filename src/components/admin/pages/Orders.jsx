@@ -16,8 +16,7 @@ import {
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 
-const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
-// const API_URL = "http://localhost:4000/api";
+import { API_URL } from "../../../helper";
 
 const SPRING_EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
 
@@ -79,11 +78,10 @@ const Sidebar = () => {
                 key={item.path}
                 to={item.path}
                 onClick={() => setIsMobileOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  isActive
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive
                     ? "bg-orange-50 text-orange-600 font-medium"
                     : "text-gray-600 hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 <Icon size={20} />
                 <span>{item.label}</span>
@@ -171,11 +169,10 @@ const CuteOrderCard = ({ order, onPrint, total, animationMode }) => {
           </div>
         </div>
         <span
-          className={`px-3 py-1 rounded-full text-xs font-medium ${
-            order.status === "pending"
+          className={`px-3 py-1 rounded-full text-xs font-medium ${order.status === "pending"
               ? "bg-yellow-100 text-yellow-700"
               : "bg-orange-100 text-orange-700"
-          }`}
+            }`}
         >
           {order.status}
         </span>
@@ -258,7 +255,7 @@ const Orders = () => {
   const [animationMode, setAnimationMode] = useState("soft");
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10); 
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -286,20 +283,20 @@ const Orders = () => {
     };
   }, []);
 
-  
-useEffect(() => {
-  
-  fetchOrders();
 
-  const intervalId = setInterval(() => {
+  useEffect(() => {
+
     fetchOrders();
-  }, 1000); // 10 s
 
-  
-  return () => {
-    clearInterval(intervalId);
-  };
-}, [dateFilter, selectedDate]);
+    const intervalId = setInterval(() => {
+      fetchOrders();
+    }, 1000); // 10 s
+
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [dateFilter, selectedDate]);
 
 
   const fetchOrders = () => {
@@ -444,35 +441,32 @@ useEffect(() => {
             <div style="text-align: left; margin-bottom: 10px;">
               <div>Order ID: ${order.orderId}</div>
               <div>Table: ${order.tableNumber || "N/A"}</div>
-              <div>Date: ${
-                order.timestamp
-                  ? new Date(order.timestamp).toLocaleDateString()
-                  : "N/A"
-              }</div>
-              <div>Time: ${
-                order.timestamp
-                  ? new Date(order.timestamp).toLocaleTimeString()
-                  : "N/A"
-              }</div>
+              <div>Date: ${order.timestamp
+        ? new Date(order.timestamp).toLocaleDateString()
+        : "N/A"
+      }</div>
+              <div>Time: ${order.timestamp
+        ? new Date(order.timestamp).toLocaleTimeString()
+        : "N/A"
+      }</div>
             </div>
             <div class="divider"></div>
             <table class="items-table">
               <tbody>
                 ${(order.cartItems || [])
-                  .map(
-                    (item) => `
+        .map(
+          (item) => `
                   <tr>
                     <td class="item-name">${item.name}</td>
-                    <td class="item-qty">${
-                      item.quantity === 1
-                        ? item.qty
-                        : `${item.qty} x ${item.quantity}`
-                    }</td>
+                    <td class="item-qty">${item.quantity === 1
+              ? item.qty
+              : `${item.qty} x ${item.quantity}`
+            }</td>
                     <td class="item-price">₹${item.price * item.qty}</td>
                   </tr>
                 `
-                  )
-                  .join("")}
+        )
+        .join("")}
               </tbody>
             </table>
             <div class="divider"></div>
@@ -553,7 +547,7 @@ useEffect(() => {
 
   const handleItemsPerPageChange = (e) => {
     setItemsPerPage(parseInt(e.target.value));
-    setCurrentPage(1); 
+    setCurrentPage(1);
   };
 
   const renderTable = (list, isPending) => {
@@ -563,9 +557,8 @@ useEffect(() => {
     return (
       <>
         <div
-          className={`overflow-x-auto mt-4 transition-all duration-500 ${
-            mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
-          }`}
+          className={`overflow-x-auto mt-4 transition-all duration-500 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+            }`}
         >
           <table className="table-auto w-full border border-orange-200 rounded-2xl overflow-hidden bg-white">
             <thead>
@@ -627,11 +620,10 @@ useEffect(() => {
                   </td>
                   <td className="px-4 py-3 border border-orange-100">
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        order.status === "pending"
+                      className={`px-3 py-1 rounded-full text-xs font-semibold ${order.status === "pending"
                           ? "bg-yellow-100 text-yellow-800"
                           : "bg-orange-100 text-orange-700"
-                      }`}
+                        }`}
                     >
                       {order.status}
                     </span>
@@ -682,11 +674,10 @@ useEffect(() => {
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className={`p-2 rounded-lg border ${
-                  currentPage === 1
+                className={`p-2 rounded-lg border ${currentPage === 1
                     ? "border-gray-200 text-gray-400 cursor-not-allowed"
                     : "border-orange-200 text-orange-600 hover:bg-orange-50"
-                }`}
+                  }`}
               >
                 <ChevronLeft size={18} />
               </button>
@@ -709,11 +700,10 @@ useEffect(() => {
                       <button
                         key={pageNum}
                         onClick={() => handlePageChange(pageNum)}
-                        className={`px-3 py-1 rounded-lg text-sm ${
-                          currentPage === pageNum
+                        className={`px-3 py-1 rounded-lg text-sm ${currentPage === pageNum
                             ? "bg-orange-500 text-white font-medium"
                             : "text-gray-600 hover:bg-orange-50"
-                        }`}
+                          }`}
                       >
                         {pageNum}
                       </button>
@@ -726,11 +716,10 @@ useEffect(() => {
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPageCount}
-                className={`p-2 rounded-lg border ${
-                  currentPage === totalPageCount
+                className={`p-2 rounded-lg border ${currentPage === totalPageCount
                     ? "border-gray-200 text-gray-400 cursor-not-allowed"
                     : "border-orange-200 text-orange-600 hover:bg-orange-50"
-                }`}
+                  }`}
               >
                 <ChevronRight size={18} />
               </button>
@@ -748,9 +737,8 @@ useEffect(() => {
     return (
       <>
         <div
-          className={`grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 mt-4 transition-all duration-500 ${
-            mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
-          }`}
+          className={`grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 mt-4 transition-all duration-500 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+            }`}
         >
           {currentPageOrders.map((order) => (
             <CuteOrderCard
@@ -796,11 +784,10 @@ useEffect(() => {
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className={`p-2 rounded-lg border ${
-                  currentPage === 1
+                className={`p-2 rounded-lg border ${currentPage === 1
                     ? "border-gray-200 text-gray-400 cursor-not-allowed"
                     : "border-orange-200 text-orange-600 hover:bg-orange-50"
-                }`}
+                  }`}
               >
                 <ChevronLeft size={18} />
               </button>
@@ -823,11 +810,10 @@ useEffect(() => {
                       <button
                         key={pageNum}
                         onClick={() => handlePageChange(pageNum)}
-                        className={`px-3 py-1 rounded-lg text-sm ${
-                          currentPage === pageNum
+                        className={`px-3 py-1 rounded-lg text-sm ${currentPage === pageNum
                             ? "bg-orange-500 text-white font-medium"
                             : "text-gray-600 hover:bg-orange-50"
-                        }`}
+                          }`}
                       >
                         {pageNum}
                       </button>
@@ -840,11 +826,10 @@ useEffect(() => {
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPageCount}
-                className={`p-2 rounded-lg border ${
-                  currentPage === totalPageCount
+                className={`p-2 rounded-lg border ${currentPage === totalPageCount
                     ? "border-gray-200 text-gray-400 cursor-not-allowed"
                     : "border-orange-200 text-orange-600 hover:bg-orange-50"
-                }`}
+                  }`}
               >
                 <ChevronRight size={18} />
               </button>
@@ -872,11 +857,10 @@ useEffect(() => {
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(254,242,242,0.6),transparent_50%),radial-gradient(ellipse_at_bottom_right,rgba(254,215,170,0.6),transparent_45%)]" />
           <div className="relative p-5 mt-16 lg:mt-0">
             <div
-              className={`transition-all duration-700 ${
-                mounted
+              className={`transition-all duration-700 ${mounted
                   ? "opacity-100 translate-y-0"
                   : "opacity-0 translate-y-2"
-              }`}
+                }`}
             >
               <h1 className="text-3xl font-extrabold tracking-tight text-black drop-shadow-sm">
                 Orders — Dashboard
@@ -892,21 +876,19 @@ useEffect(() => {
                 <div className="rounded-full bg-white/80 backdrop-blur border border-orange-200 p-1 shadow-sm flex">
                   <button
                     onClick={() => setViewMode("cards")}
-                    className={`px-4 py-2 rounded-full text-sm transition-all ${
-                      viewMode === "cards"
+                    className={`px-4 py-2 rounded-full text-sm transition-all ${viewMode === "cards"
                         ? "bg-orange-500 text-white shadow"
                         : "text-orange-600 hover:bg-orange-50"
-                    }`}
+                      }`}
                   >
                     Cards
                   </button>
                   <button
                     onClick={() => setViewMode("table")}
-                    className={`px-4 py-2 rounded-full text-sm transition-all ${
-                      viewMode === "table"
+                    className={`px-4 py-2 rounded-full text-sm transition-all ${viewMode === "table"
                         ? "bg-orange-500 text-white shadow"
                         : "text-orange-600 hover:bg-orange-50"
-                    }`}
+                      }`}
                   >
                     📋 Table
                   </button>
@@ -932,9 +914,8 @@ useEffect(() => {
                         {dateFilter === "custom" && "Custom Date"}
                       </span>
                       <ChevronDown
-                        className={`text-orange-500 w-4 h-4 transition-transform duration-200 ${
-                          isDropdownOpen ? "rotate-180" : ""
-                        }`}
+                        className={`text-orange-500 w-4 h-4 transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""
+                          }`}
                       />
                     </button>
 
@@ -944,21 +925,19 @@ useEffect(() => {
                           <div className="py-1">
                             <button
                               onClick={() => handleDateFilterChange("all")}
-                              className={`w-full text-left px-4 py-2 hover:bg-orange-50 cursor-pointer transition-colors ${
-                                dateFilter === "all"
+                              className={`w-full text-left px-4 py-2 hover:bg-orange-50 cursor-pointer transition-colors ${dateFilter === "all"
                                   ? "bg-orange-50 text-orange-600 font-medium"
                                   : "text-black"
-                              }`}
+                                }`}
                             >
                               All Dates
                             </button>
                             <button
                               onClick={() => handleDateFilterChange("today")}
-                              className={`w-full text-left px-4 py-2 hover:bg-orange-50 cursor-pointer transition-colors ${
-                                dateFilter === "today"
+                              className={`w-full text-left px-4 py-2 hover:bg-orange-50 cursor-pointer transition-colors ${dateFilter === "today"
                                   ? "bg-orange-50 text-orange-600 font-medium"
                                   : "text-black"
-                              }`}
+                                }`}
                             >
                               Today
                             </button>
@@ -966,31 +945,28 @@ useEffect(() => {
                               onClick={() =>
                                 handleDateFilterChange("yesterday")
                               }
-                              className={`w-full text-left px-4 py-2 hover:bg-orange-50 cursor-pointer transition-colors ${
-                                dateFilter === "yesterday"
+                              className={`w-full text-left px-4 py-2 hover:bg-orange-50 cursor-pointer transition-colors ${dateFilter === "yesterday"
                                   ? "bg-orange-50 text-orange-600 font-medium"
                                   : "text-black"
-                              }`}
+                                }`}
                             >
                               Yesterday
                             </button>
                             <button
                               onClick={() => handleDateFilterChange("month")}
-                              className={`w-full text-left px-4 py-2 hover:bg-orange-50 cursor-pointer transition-colors ${
-                                dateFilter === "month"
+                              className={`w-full text-left px-4 py-2 hover:bg-orange-50 cursor-pointer transition-colors ${dateFilter === "month"
                                   ? "bg-orange-50 text-orange-600 font-medium"
                                   : "text-black"
-                              }`}
+                                }`}
                             >
                               This Month
                             </button>
                             <button
                               onClick={() => handleDateFilterChange("custom")}
-                              className={`w-full text-left px-4 py-2 hover:bg-orange-50 cursor-pointer transition-colors ${
-                                dateFilter === "custom"
+                              className={`w-full text-left px-4 py-2 hover:bg-orange-50 cursor-pointer transition-colors ${dateFilter === "custom"
                                   ? "bg-orange-50 text-orange-600 font-medium"
                                   : "text-black"
-                              }`}
+                                }`}
                             >
                               Custom Date
                             </button>
@@ -1015,37 +991,33 @@ useEffect(() => {
                   )}
                 </div>
                 <div
-                  className={`mt-4 transition-all duration-300 -z-1 ${
-                    isDropdownOpen ? "" : ""
-                  }`}
+                  className={`mt-4 transition-all duration-300 -z-1 ${isDropdownOpen ? "" : ""
+                    }`}
                 >
                   <div className="inline-flex p-1 rounded-full bg-white/80 backdrop-blur border border-orange-200 shadow-sm">
                     <button
                       onClick={() => setActiveTab("pending")}
-                      className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
-                        activeTab === "pending"
+                      className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${activeTab === "pending"
                           ? "bg-orange-500 text-white shadow"
                           : "text-orange-600 hover:bg-orange-50"
-                      }`}
+                        }`}
                     >
                       🍥 Pending ({pendingOrders.length})
                     </button>
                     <button
                       onClick={() => setActiveTab("completed")}
-                      className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
-                        activeTab === "completed"
+                      className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${activeTab === "completed"
                           ? "bg-orange-500 text-white shadow"
                           : "text-orange-600 hover:bg-orange-50"
-                      }`}
+                        }`}
                     >
                       🍡 Completed ({completedOrders.length})
                     </button>
                   </div>
                 </div>
                 <div
-                  className={`transition-all duration-300 ${
-                    isDropdownOpen ? "mt-8" : "mt-4"
-                  }`}
+                  className={`transition-all duration-300 ${isDropdownOpen ? "mt-8" : "mt-4"
+                    }`}
                 >
                   {viewMode === "cards" ? (
                     activeTab === "pending" ? (

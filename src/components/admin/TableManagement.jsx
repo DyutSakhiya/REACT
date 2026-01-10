@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import { PlusCircle, Trash2, CheckCircle, XCircle, RefreshCw } from "lucide-react";
 import Sidebar from "../admin/Sidebar";
 
-const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
-// const API_URL = "http://localhost:4000/api";
+import { API_URL } from "../../helper";
 
 function TableManagement() {
   const [tables, setTables] = useState([]);
@@ -15,7 +14,7 @@ function TableManagement() {
       setLoading(true);
       const userData = localStorage.getItem("user");
       const user = userData ? JSON.parse(userData) : null;
-      
+
       if (!user || !user.hotelId) {
         console.error("User data or hotelId not found");
         return;
@@ -39,9 +38,9 @@ function TableManagement() {
 
   useEffect(() => {
     fetchTables();
-    
+
     const interval = setInterval(fetchTables, 10000);
-    
+
     return () => clearInterval(interval);
   }, []);
 
@@ -70,7 +69,7 @@ function TableManagement() {
   const addTable = async () => {
     const userData = localStorage.getItem("user");
     const user = userData ? JSON.parse(userData) : null;
-    
+
     if (!user || !user.hotelId) {
       console.error("User data or hotelId not found");
       return;
@@ -122,7 +121,7 @@ function TableManagement() {
     }
   };
 
-      
+
   return (
     <>
       <div className="lg:hidden">
@@ -146,7 +145,7 @@ function TableManagement() {
           >
             <Trash2 className="w-5 h-5" /> Delete Last
           </button>
-          
+
         </div>
 
         {loading ? (
@@ -158,10 +157,9 @@ function TableManagement() {
                 key={table._id}
                 onClick={() => toggleStatus(table._id, table.status)}
                 className={`cursor-pointer flex flex-col items-center justify-center rounded-xl p-6 shadow-md transition-transform hover:-translate-y-1 duration-200 text-center border
-                  ${
-                    table.status === "occupied"
-                      ? "bg-red-100 text-red-700 border-red-200"
-                      : "bg-green-50 text-green-700 border-green-200"
+                  ${table.status === "occupied"
+                    ? "bg-red-100 text-red-700 border-red-200"
+                    : "bg-green-50 text-green-700 border-green-200"
                   }`}
               >
                 <div className="text-lg font-bold mb-2">

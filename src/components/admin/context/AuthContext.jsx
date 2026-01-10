@@ -3,13 +3,12 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 const AuthContext = createContext();
 
 
-const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
-// const API_URL  = "http://localhost:4000/api"
+import { API_URL } from "../../../helper";
 
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);    
-  const [loading, setLoading] = useState(true); 
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -27,7 +26,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  
+
   const register = async (name, mobile, password) => {
     try {
       const response = await fetch(`${API_URL}/admin/register`, {

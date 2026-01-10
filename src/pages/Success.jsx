@@ -4,8 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
 import { clearCart } from "../redux/slices/CartSlice";
 
-const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
-// const API_URL  = "http://localhost:4000/api"
+import { API_URL } from "../helper";
 
 const Success = () => {
   const [loading, setLoading] = useState(true);
@@ -75,7 +74,7 @@ const Success = () => {
               </span>
             </div>
             <p className="text-sm text-blue-600">
-              {merged 
+              {merged
                 ? "Next orders from this table will be merged"
                 : "Remember this table number for future orders"
               }
@@ -112,7 +111,7 @@ const Success = () => {
             onClick={handleBackToMenu}
             className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 w-full"
           >
-            {tableNumber !== "N/A" 
+            {tableNumber !== "N/A"
               ? `Continue Ordering for Table ${tableNumber}`
               : "Back to Menu"
             }
