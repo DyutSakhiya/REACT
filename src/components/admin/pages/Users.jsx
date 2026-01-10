@@ -4,8 +4,7 @@ import { toast } from "react-hot-toast";
 import { UserPlus, Users as UsersIcon, Home, ShoppingCart, Package, Table, Menu, X as CloseIcon } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 
-const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
-// const API_URL  = "http://localhost:4000/api"
+import { API_URL } from "../../../helper";
 
 // Integrated Sidebar Component
 const Sidebar = () => {
@@ -48,7 +47,7 @@ const Sidebar = () => {
         <h2 className="text-2xl font-bold text-orange-600 mb-8 px-4 hidden lg:block">
           Flavaro Admin
         </h2>
-        
+
         {/* Close button for mobile */}
         <div className="lg:hidden flex justify-end mb-4">
           <button
@@ -68,11 +67,10 @@ const Sidebar = () => {
                 key={item.path}
                 to={item.path}
                 onClick={() => setIsMobileOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  isActive
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive
                     ? "bg-orange-50 text-orange-600 font-medium"
                     : "text-gray-600 hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 <Icon size={20} />
                 <span>{item.label}</span>
@@ -84,7 +82,7 @@ const Sidebar = () => {
 
       {/* Mobile Overlay */}
       {isMobileOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
           onClick={() => setIsMobileOpen(false)}
         />
@@ -346,13 +344,12 @@ const Users = () => {
                         </td>
                         <td className="p-3">
                           <span
-                            className={`px-3 py-1 text-xs rounded-full font-medium ${
-                              u.role === "manager"
+                            className={`px-3 py-1 text-xs rounded-full font-medium ${u.role === "manager"
                                 ? "bg-green-100 text-green-700"
                                 : u.role === "admin"
-                                ? "bg-purple-100 text-purple-700"
-                                : "bg-blue-100 text-blue-700"
-                            }`}
+                                  ? "bg-purple-100 text-purple-700"
+                                  : "bg-blue-100 text-blue-700"
+                              }`}
                           >
                             {u.role || "staff"}
                           </span>

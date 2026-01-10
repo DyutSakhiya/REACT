@@ -5,24 +5,23 @@ import { useSelector } from "react-redux";
 import Axios from "axios";
 import { useSearchParams } from "react-router-dom";
 
-const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
-// const API_URL = "http://localhost:4000/api";
+import { API_URL } from "../helper";
 
 const FoodCardSkeleton = () => {
   return (
     <div className="w-full flex justify-center animate-pulse">
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden w-full h-full">
         <div className="w-full h-48 bg-gray-300 rounded-t-2xl"></div>
-        
+
         <div className="p-4">
           <div className="h-5 bg-gray-300 rounded mb-3"></div>
           <div className="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
-          
+
           <div className="space-y-2 mb-4">
             <div className="h-3 bg-gray-200 rounded"></div>
             <div className="h-3 bg-gray-200 rounded w-5/6"></div>
           </div>
-          
+
           <div className="flex justify-between items-center">
             <div className="h-6 bg-gray-300 rounded w-16"></div>
             <div className="h-10 bg-gray-300 rounded w-20"></div>
@@ -37,7 +36,7 @@ const CategorySkeleton = () => {
   return (
     <div className="mb-10 animate-pulse">
       <div className="h-8 bg-gray-300 rounded w-48 mb-5"></div>
-      
+
       <div className="grid grid-cols-2 gap-4 md:gap-6 lg:gap-8">
         {Array.from({ length: 4 }).map((_, index) => (
           <div key={index} className="w-full">
@@ -88,7 +87,7 @@ const FoodItems = () => {
   const fetchFoodItems = useCallback(async (pageNum = 1, append = false) => {
     try {
       const cacheKey = getCacheKey(category, search, currentHotel, pageNum);
-      
+
       if (cache[cacheKey] && pageNum === 1) {
         setList(cache[cacheKey]);
         setInitialLoad(false);
@@ -106,17 +105,17 @@ const FoodItems = () => {
       const response = await Axios.get(
         `${API_URL}/get_food_items?category=${category}&search=${search}&hotel_id=${currentHotel}&page=${pageNum}`,
         {
-          timeout: 10000, 
+          timeout: 10000,
           headers: {
-            'Cache-Control': 'max-age=300' 
+            'Cache-Control': 'max-age=300'
           }
         }
       );
 
       const newData = response.data;
-      
+
       preloadImages(newData);
-      
+
       if (append) {
         setList(prev => {
           const combined = [...prev, ...newData];
@@ -139,7 +138,7 @@ const FoodItems = () => {
       }
 
       setHasMore(newData.length >= 20);
-      
+
       if (pageNum === 1) {
         setInitialLoad(false);
       }
@@ -160,9 +159,9 @@ const FoodItems = () => {
     const timer = setTimeout(() => {
       setPage(1);
       setInitialLoad(true);
-      setList([]); 
+      setList([]);
       fetchFoodItems(1, false);
-    }, 300); 
+    }, 300);
 
     return () => clearTimeout(timer);
   }, [category, search, currentHotel]);
@@ -170,7 +169,7 @@ const FoodItems = () => {
   const lastFoodElementRef = useCallback(node => {
     if (loading || isFetchingMore) return;
     if (observer.current) observer.current.disconnect();
-    
+
     observer.current = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting && hasMore && !isFetchingMore) {
         const nextPage = page + 1;
@@ -178,10 +177,10 @@ const FoodItems = () => {
         fetchFoodItems(nextPage, true);
       }
     }, {
-      threshold: 0.1, 
-      rootMargin: '200px' 
+      threshold: 0.1,
+      rootMargin: '200px'
     });
-    
+
     if (node) observer.current.observe(node);
   }, [loading, hasMore, page, fetchFoodItems, isFetchingMore]);
 
@@ -197,7 +196,7 @@ const FoodItems = () => {
   const renderFoodItems = (items, isLastCategory) => {
     return items.map((food, index) => {
       const isLastItem = isLastCategory && index === items.length - 1;
-      
+
       return (
         <div
           ref={isLastItem ? lastFoodElementRef : null}
@@ -237,7 +236,7 @@ const FoodItems = () => {
         {!initialLoad && categories.map(([categoryName, items], categoryIndex) => (
           <div key={categoryName} className="mb-10">
             <h2 className="text-lg sm:text-2xl font-bold mb-5 capitalize sm:text-left">
-              {categoryName} 
+              {categoryName}
             </h2>
 
             {/* Fixed grid with consistent spacing */}

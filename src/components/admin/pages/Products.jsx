@@ -4,8 +4,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
 
-const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
-// const API_URL  = "http://localhost:4000/api"
+import { API_URL } from "../../../helper";
 
 // Integrated Sidebar Component
 const Sidebar = () => {
@@ -48,7 +47,7 @@ const Sidebar = () => {
         <h2 className="text-2xl font-bold text-orange-600 mb-8 px-4 hidden lg:block">
           Flavaro Admin
         </h2>
-        
+
         {/* Close button for mobile */}
         <div className="lg:hidden flex justify-end mb-4">
           <button
@@ -68,11 +67,10 @@ const Sidebar = () => {
                 key={item.path}
                 to={item.path}
                 onClick={() => setIsMobileOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  isActive
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive
                     ? "bg-orange-50 text-orange-600 font-medium"
                     : "text-gray-600 hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 <Icon size={20} />
                 <span>{item.label}</span>
@@ -84,7 +82,7 @@ const Sidebar = () => {
 
       {/* Mobile Overlay */}
       {isMobileOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
           onClick={() => setIsMobileOpen(false)}
         />
@@ -156,7 +154,7 @@ const FormSkeleton = () => {
           <div className="h-10 bg-gray-300 rounded"></div>
           <div className="h-10 bg-gray-300 rounded"></div>
         </div>
-        
+
         <div className="border rounded-lg p-4 bg-gray-50">
           <div className="h-6 bg-gray-300 rounded w-48 mb-3"></div>
           <div className="space-y-2">
@@ -164,12 +162,12 @@ const FormSkeleton = () => {
             <div className="h-10 bg-gray-300 rounded"></div>
           </div>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="h-10 bg-gray-300 rounded"></div>
           <div className="h-24 bg-gray-300 rounded"></div>
         </div>
-        
+
         <div className="h-10 bg-gray-300 rounded w-32"></div>
       </div>
     </div>
@@ -198,7 +196,7 @@ const Products = () => {
   const [hasMore, setHasMore] = useState(true);
   const [initialLoad, setInitialLoad] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  
+
   const [quantityPrices, setQuantityPrices] = useState([
     { quantity: "", price: "" }
   ]);
@@ -229,9 +227,9 @@ const Products = () => {
       );
 
       if (!response.ok) throw new Error("Failed to fetch products");
-      
+
       const data = await response.json();
-      
+
       if (append) {
         setProducts(prev => [...prev, ...data]);
       } else {
@@ -239,7 +237,7 @@ const Products = () => {
       }
 
       setHasMore(data.length >= 15);
-      
+
       if (pageNum === 1) {
         setInitialLoad(false);
       }
@@ -275,7 +273,7 @@ const Products = () => {
   const lastProductElementRef = useCallback(node => {
     if (loadingMore || !hasMore) return;
     if (observer.current) observer.current.disconnect();
-    
+
     observer.current = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting && hasMore) {
         const nextPage = page + 1;
@@ -283,7 +281,7 @@ const Products = () => {
         fetchProducts(nextPage, true);
       }
     });
-    
+
     if (node) observer.current.observe(node);
   }, [loadingMore, hasMore, page, fetchProducts]);
 
@@ -365,16 +363,16 @@ const Products = () => {
     formDataToSend.append("price", price);
     formDataToSend.append("category", category);
     formDataToSend.append("adminUsername", user.name);
-    
+
     if (validQuantityPrices.length > 0) {
-     
+
       const processedQuantityPrices = validQuantityPrices.map(qp => ({
         quantity: qp.quantity,
         price: Number(qp.price)
       }));
       formDataToSend.append("quantityPrices", JSON.stringify(processedQuantityPrices));
     }
-    
+
     if (selectedImage) formDataToSend.append("image", selectedImage);
     const token = localStorage.getItem("token");
 
@@ -387,7 +385,7 @@ const Products = () => {
 
         response = await fetch(`${API_URL}/products/${formData.id}`, {
           method: "PUT",
-          headers: { 
+          headers: {
             Authorization: `Bearer ${token}`,
           },
           body: formDataToSend,
@@ -395,7 +393,7 @@ const Products = () => {
       } else {
         response = await fetch(`${API_URL}/products`, {
           method: "POST",
-          headers: { 
+          headers: {
             Authorization: `Bearer ${token}`,
           },
           body: formDataToSend,
@@ -410,7 +408,7 @@ const Products = () => {
 
       if (result.success) {
         toast.success(isEditing ? "Product updated!" : "Product added!");
-       
+
         setPage(1);
         fetchProducts(1, false);
         fetchCategories();
@@ -435,7 +433,7 @@ const Products = () => {
       imageUrl: product.imageUrl || "",
       imagePublicId: product.imagePublicId || "",
     });
-    
+
     if (product.quantityPrices && Array.isArray(product.quantityPrices)) {
       const formattedQuantityPrices = product.quantityPrices.map(qp => ({
         quantity: String(qp.quantity),
@@ -445,16 +443,16 @@ const Products = () => {
     } else {
       setQuantityPrices([{ quantity: "", price: "" }]);
     }
-    
+
     setIsEditing(true);
     setImagePreview(product.imageUrl || "");
     setShowNewCategoryInput(false);
     setSelectedImage(null);
-    
+
     // Scroll to the form at the top of the page
     setTimeout(() => {
       if (formRef.current) {
-        formRef.current.scrollIntoView({ 
+        formRef.current.scrollIntoView({
           behavior: 'smooth',
           block: 'start'
         });
@@ -493,9 +491,9 @@ const Products = () => {
 
   const handleDeleteQuantityPrice = async (productId, quantityToDelete) => {
     if (!window.confirm(`Delete the quantity option "${quantityToDelete}"?`)) return;
-    
+
     const token = localStorage.getItem("token");
-    
+
     try {
       const response = await fetch(`${API_URL}/products/${productId}/quantity-price`, {
         method: "DELETE",
@@ -514,7 +512,7 @@ const Products = () => {
 
       if (result.success) {
         toast.success("Quantity option deleted!");
-        fetchProducts(page, false); 
+        fetchProducts(page, false);
       } else {
         throw new Error(result.message || "Delete failed");
       }
@@ -581,7 +579,7 @@ const Products = () => {
 
         <div className="flex-1 max-w-6xl mx-auto p-4 mt-16 lg:mt-0">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">
-            Product Management 
+            Product Management
           </h2>
 
           {initialLoad ? (
@@ -630,7 +628,7 @@ const Products = () => {
                       Add Option
                     </button>
                   </div>
-                  
+
                   {quantityPrices.map((qp, index) => (
                     <div key={index} className="flex gap-2 mb-2 items-center">
                       <input
@@ -762,8 +760,8 @@ const Products = () => {
                         ? "Updating..."
                         : "Adding..."
                       : isEditing
-                      ? "Update Product"
-                      : "Add Product"}
+                        ? "Update Product"
+                        : "Add Product"}
                   </button>
                   {isEditing && (
                     <button
@@ -781,7 +779,7 @@ const Products = () => {
 
           <div className="bg-white p-4 rounded-lg shadow">
             <h3 className="text-lg font-semibold mb-3">Product List</h3>
-            
+
             {initialLoad ? (
               <TableSkeleton />
             ) : products.length === 0 ? (
@@ -804,9 +802,9 @@ const Products = () => {
                       {products.map((product, index) => {
                         if (index === products.length - 1) {
                           return (
-                            <tr 
+                            <tr
                               ref={lastProductElementRef}
-                              key={product._id} 
+                              key={product._id}
                               className="border-b hover:bg-gray-50"
                             >
                               <td className="p-3">
@@ -870,7 +868,7 @@ const Products = () => {
                             </tr>
                           );
                         }
-                        
+
                         return (
                           <tr key={product._id} className="border-b hover:bg-gray-50">
                             <td className="p-3">
@@ -896,13 +894,7 @@ const Products = () => {
                                       <span className="text-xs text-gray-600">
                                         {qp.quantity}: ₹{qp.price}
                                       </span>
-                                      <button
-                                        onClick={() => handleDeleteQuantityPrice(product._id, qp.quantity)}
-                                        className="p-1 text-red-500 hover:bg-red-50 rounded text-xs transition-colors"
-                                        title="Delete this quantity option"
-                                      >
-                                        <Trash2 size={12} />
-                                      </button>
+                                   
                                     </div>
                                   ))}
                                 </div>

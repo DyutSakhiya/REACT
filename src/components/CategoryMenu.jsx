@@ -4,8 +4,7 @@ import { setCategory } from "../redux/slices/CategorySlice";
 import Axios from "axios";
 import { useSearchParams } from "react-router-dom";
 
-const API_URL = "https://backend-inky-gamma-67.vercel.app/api ";
-// const API_URL = "http://localhost:4000/api";
+import { API_URL } from "../helper";
 
 const CategoryMenu = () => {
   const [categories, setCategories] = useState([]);
@@ -106,9 +105,8 @@ const CategoryMenu = () => {
                   onClick={() => handleCategoryClick(category)}
                   key={index}
                   disabled={isLoading}
-                  className={`px-3 py-2 text-sm sm:text-base bg-gray-200 font-bold rounded-lg hover:bg-green-500 hover:text-white whitespace-nowrap transition-all duration-200 ${
-                    isActive && "bg-green-500 text-white"
-                  } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                  className={`px-3 py-2 text-sm sm:text-base bg-gray-200 font-bold rounded-lg hover:bg-green-500 hover:text-white whitespace-nowrap transition-all duration-200 ${isActive && "bg-green-500 text-white"
+                    } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
                 >
                   {category}
                 </button>
@@ -121,20 +119,18 @@ const CategoryMenu = () => {
               <button
                 onClick={() => handleSubcategoryClick("Punjabi Paneer")}
                 disabled={isLoading}
-                className={`px-3 py-2 text-sm sm:text-base bg-gray-200 font-bold rounded-lg hover:bg-green-400 hover:text-white whitespace-nowrap transition-all duration-200 ${
-                  selectedCategory === "Punjabi Paneer" &&
+                className={`px-3 py-2 text-sm sm:text-base bg-gray-200 font-bold rounded-lg hover:bg-green-400 hover:text-white whitespace-nowrap transition-all duration-200 ${selectedCategory === "Punjabi Paneer" &&
                   "bg-green-400 text-white"
-                } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                  } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 Paneer Dishes
               </button>
               <button
                 onClick={() => handleSubcategoryClick("Punjabi Veg")}
                 disabled={isLoading}
-                className={`px-3 py-2 text-sm sm:text-base bg-gray-200 font-bold rounded-lg hover:bg-green-400 hover:text-white whitespace-nowrap transition-all duration-200 ${
-                  selectedCategory === "Punjabi Veg" &&
+                className={`px-3 py-2 text-sm sm:text-base bg-gray-200 font-bold rounded-lg hover:bg-green-400 hover:text-white whitespace-nowrap transition-all duration-200 ${selectedCategory === "Punjabi Veg" &&
                   "bg-green-500 text-white"
-                } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                  } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 Veg Dishes
               </button>
