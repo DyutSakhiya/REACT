@@ -4,9 +4,8 @@ import { setCategory } from "../redux/slices/CategorySlice";
 import Axios from "axios";
 import { useSearchParams } from "react-router-dom";
 
-const API_URL = "https://backend-inky-gamma-67.vercel.app/api";
-// const API_URL  = "http://localhost:4000/api"
-
+const API_URL = "https://backend-inky-gamma-67.vercel.app/api ";
+// const API_URL = "http://localhost:4000/api";
 
 const CategoryMenu = () => {
   const [categories, setCategories] = useState([]);
@@ -19,9 +18,7 @@ const CategoryMenu = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await Axios.get(
-        `${API_URL}/categories/${hotel_id}`
-      );
+      const response = await Axios.get(`${API_URL}/categories/${hotel_id}`);
       if (response.data.success) {
         const processedCategories = processCategories(response.data.categories);
         setCategories(processedCategories);
@@ -58,9 +55,9 @@ const CategoryMenu = () => {
 
   const handleCategoryClick = async (category) => {
     setIsLoading(true);
-    
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
+
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     if (category === "Punjabi") {
       dispatch(setCategory("Punjabi Paneer"));
       setShowPunjabiSubmenu(true);
@@ -68,15 +65,15 @@ const CategoryMenu = () => {
       dispatch(setCategory(category));
       setShowPunjabiSubmenu(false);
     }
-    
+
     setIsLoading(false);
   };
 
   const handleSubcategoryClick = async (subcategory) => {
     setIsLoading(true);
-    
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
+
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     dispatch(setCategory(subcategory));
     setIsLoading(false);
   };
@@ -86,58 +83,68 @@ const CategoryMenu = () => {
   const isPunjabiMainSelected = selectedCategory === "Punjabi";
 
   return (
-    <div className="ml-5">
-      {isLoading && (
-        <div className="fixed top-0 left-0 w-full h-1 bg-green-500 z-50">
-          <div className="h-full bg-green-600 animate-pulse"></div>
-        </div>
-      )}
-      
-      <h3 className="text-xl my-5 font-semibold">Find the best food</h3>
-      <div className="my-5 flex gap-3 overflow-x-auto scroll-smooth no-scrollbar">
-        {categories.map((category, index) => {
-          const isActive =
-            selectedCategory === category ||
-            (category === "Punjabi" && isPunjabiSubcategory);
+    <>
+      <div className="fixed top-21 left-0 right-0 bg-white z-40 pt-4 pb-2 shadow-md ">
+        {isLoading && (
+          <div className="fixed top-0 left-0 w-full h-1 bg-green-500 z-50">
+            <div className="h-full bg-green-600 animate-pulse"></div>
+          </div>
+        )}
 
-          return (
-            <button
-              onClick={() => handleCategoryClick(category)}
-              key={index}
-              disabled={isLoading}
-              className={`px-3 py-2 bg-gray-200 font-bold rounded-lg hover:bg-green-500 hover:text-white whitespace-nowrap transition-all duration-200 ${
-                isActive && "bg-green-500 text-white"
-              } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-            >
-              {category}
-            </button>
-          );
-        })}
+        <div className="px-4  sm:px-6   lg:px-8">
+          <h3 className="text-lg sm:text-xl my-5      sm:my-3 font-semibold">
+            Find the best food
+          </h3>
+          <div className="my-2  sm:my-3 flex gap-2 sm:gap-3 overflow-x-auto scroll-smooth no-scrollbar pt-2 ">
+            {categories.map((category, index) => {
+              const isActive =
+                selectedCategory === category ||
+                (category === "Punjabi" && isPunjabiSubcategory);
+
+              return (
+                <button
+                  onClick={() => handleCategoryClick(category)}
+                  key={index}
+                  disabled={isLoading}
+                  className={`px-3 py-2 text-sm sm:text-base bg-gray-200 font-bold rounded-lg hover:bg-green-500 hover:text-white whitespace-nowrap transition-all duration-200 ${
+                    isActive && "bg-green-500 text-white"
+                  } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                >
+                  {category}
+                </button>
+              );
+            })}
+          </div>
+
+          {(showPunjabiSubmenu || isPunjabiMainSelected) && (
+            <div className="my-2 sm:my-3 flex gap-2 sm:gap-3 overflow-x-auto scroll-smooth no-scrollbar">
+              <button
+                onClick={() => handleSubcategoryClick("Punjabi Paneer")}
+                disabled={isLoading}
+                className={`px-3 py-2 text-sm sm:text-base bg-gray-200 font-bold rounded-lg hover:bg-green-400 hover:text-white whitespace-nowrap transition-all duration-200 ${
+                  selectedCategory === "Punjabi Paneer" &&
+                  "bg-green-400 text-white"
+                } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+              >
+                Paneer Dishes
+              </button>
+              <button
+                onClick={() => handleSubcategoryClick("Punjabi Veg")}
+                disabled={isLoading}
+                className={`px-3 py-2 text-sm sm:text-base bg-gray-200 font-bold rounded-lg hover:bg-green-400 hover:text-white whitespace-nowrap transition-all duration-200 ${
+                  selectedCategory === "Punjabi Veg" &&
+                  "bg-green-500 text-white"
+                } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+              >
+                Veg Dishes
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
-      {(showPunjabiSubmenu || isPunjabiMainSelected) && (
-        <div className="my-7 flex gap-3 overflow-x-auto scroll-smooth no-scrollbar">
-          <button
-            onClick={() => handleSubcategoryClick("Punjabi Paneer")}
-            disabled={isLoading}
-            className={`px-3 py-2 bg-gray-200 font-bold rounded-lg hover:bg-green-400 hover:text-white whitespace-nowrap transition-all duration-200 ${
-              selectedCategory === "Punjabi Paneer" && "bg-green-400 text-white"
-            } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-          >
-            Paneer Dishes
-          </button>
-          <button
-            onClick={() => handleSubcategoryClick("Punjabi Veg")}
-            disabled={isLoading}
-            className={`px-3 py-2 bg-gray-200 font-bold rounded-lg hover:bg-green-400 hover:text-white whitespace-nowrap transition-all duration-200 ${
-              selectedCategory === "Punjabi Veg" && "bg-green-500 text-white"
-            } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-          >
-            Veg Dishes
-          </button>
-        </div>
-      )}
-    </div>
+      <div className="h-36 sm:h-36 lg:h-30"></div>
+    </>
   );
 };
 
