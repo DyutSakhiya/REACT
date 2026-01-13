@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
@@ -10,8 +10,14 @@ export default function Register() {
     confirmPassword: ""
   });
   const [isLoading, setIsLoading] = useState(false);
-  const { register } = useAuth();
+  const { register, user } = useAuth(); 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+    
+    }
+  }, [user]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -36,6 +42,23 @@ export default function Register() {
       navigate("/login");
     }
   };
+
+  if (user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="bg-white p-8 rounded-lg shadow-md text-center">
+          <h2 className="text-xl font-bold text-red-600">Access Denied</h2>
+          <p className="mt-2 text-gray-700">You are already logged in. You cannot register again.</p>
+          <button
+            onClick={() => navigate("/")}
+            className="mt-4 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
+          >
+            Go to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[url('/bg.jpg')] bg-cover bg-center bg-no-repeat">
