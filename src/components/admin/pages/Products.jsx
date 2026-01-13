@@ -653,7 +653,7 @@ const Products = () => {
                           onClick={() => removeQuantityPriceField(index)}
                           className="p-2 text-red-500 hover:bg-red-50 rounded transition-colors"
                         >
-                          <Minus size={16} />
+                          <Trash2 size={16} />
                         </button>
                       )}
                     </div>
