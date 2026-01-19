@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setCategory } from "../redux/slices/CategorySlice";
+import { setCategory } from "../redux/slices/categorySlice";
 import Axios from "axios";
 import { useSearchParams } from "react-router-dom";
 

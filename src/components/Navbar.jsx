@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FiSearch, FiShoppingCart, FiMenu, FiX } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
-import { setSearch } from "../redux/slices/SearchSlice";
+import { setSearch } from "../redux/slices/searchSlice";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../redux/slices/authSlice";
 
@@ -17,8 +17,8 @@ const Navbar = () => {
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-1">
         <div className="flex justify-between items-center py-4">
-          <div 
-            className="flex items-center cursor-pointer" 
+          <div
+            className="flex items-center cursor-pointer"
             onClick={() => navigate("/")}
           >
             <span className="text-2xl font-bold text-green-600">Flavoro</span>
@@ -38,7 +38,6 @@ const Navbar = () => {
           </div>
 
           <div className="hidden md:flex items-center space-x-6">
-           
             {isAuthenticated ? (
               <div className="flex items-center space-x-4">
                 <span className="text-gray-700">Hi, {user?.name}</span>
@@ -55,7 +54,11 @@ const Navbar = () => {
             ) : (
               <div className="flex space-x-4">
                 <button
-                  onClick={() => localStorage.getItem("token") ? navigate("/admin") : navigate("/login")}
+                  onClick={() =>
+                    localStorage.getItem("token")
+                      ? navigate("/admin")
+                      : navigate("/login")
+                  }
                   className="px-4 py-2 text-sm font-medium text-green-600 border border-green-600 rounded-md hover:bg-green-50"
                 >
                   Login
@@ -69,8 +72,6 @@ const Navbar = () => {
               </div>
             )}
           </div>
-
-         
         </div>
 
         <div className="md:hidden mb-3">
@@ -88,12 +89,11 @@ const Navbar = () => {
         {mobileMenuOpen && (
           <div className="md:hidden bg-white py-4 border-t">
             <div className="flex flex-col space-y-4">
-              
-              
-              
               {isAuthenticated ? (
                 <>
-                  <span className="px-4 py-2 text-gray-700 ">Hi, {user?.name}</span>
+                  <span className="px-4 py-2 text-gray-700 ">
+                    Hi, {user?.name}
+                  </span>
                   <button
                     onClick={() => {
                       dispatch(logout());
@@ -135,4 +135,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;  
+export default Navbar;
