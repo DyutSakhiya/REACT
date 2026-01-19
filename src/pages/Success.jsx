@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { PropagateLoader } from "react-spinners";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
-import { clearCart } from "../redux/slices/CartSlice";
+import { clearCart } from "../redux/slices/cartSlice";
 
 import { API_URL } from "../helper";
 
