@@ -1,11 +1,15 @@
 import { configureStore } from '@reduxjs/toolkit';
-import movieReducer from './movieSlice';
-import cartReducer from './cartSlice'; 
+import authSlice from './slices/authSlice';
+import cartSlice from './slices/cartSlice';
+import searchSlice from './slices/SearchSlice';
+import hotelSlice from './slices/hotelSlice';
 
 const store = configureStore({
   reducer: {
-    movies: movieReducer,
-    cart: cartReducer, 
+    auth: authSlice,
+    cart: cartSlice,
+    search: searchSlice,
+    hotel: hotelSlice, // This now manages isolated hotel data
   },
 });
 
