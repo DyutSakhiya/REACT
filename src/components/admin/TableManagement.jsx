@@ -614,7 +614,7 @@ function TableManagement() {
                   <div className="mt-2 flex items-center gap-2">
                     <div className={`w-2 h-2 rounded-full ${pendingOrders.length > 0 ? 'animate-pulse bg-green-500' : 'bg-gray-300'}`}></div>
                     <span className="text-xs text-gray-500">
-                      Auto-refreshing every 3 seconds • {pendingOrders.length} pending order{pendingOrders.length !== 1 ? 's' : ''}
+                       {pendingOrders.length} pending order{pendingOrders.length !== 1 ? 's' : ''}
                     </span>
                   </div>
                 </div>
@@ -712,14 +712,7 @@ function TableManagement() {
 
               <div className="border-t p-4 bg-gray-50">
                 <div className="flex justify-between items-center">
-                  <div>
-                    <p className="text-sm text-gray-600">
-                      {pendingOrders.length} pending order{pendingOrders.length !== 1 ? 's' : ''} for Table {selectedTable.tableNumber}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Last refresh: {new Date().toLocaleTimeString()}
-                    </p>
-                  </div>
+                  
                   <div className="flex gap-3">
                    
                   </div>
