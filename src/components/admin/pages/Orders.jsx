@@ -1,4 +1,3 @@
-
 import React, { useEffect, useMemo, useState } from "react";
 import Axios from "axios";
 import jsPDF from "jspdf";
@@ -454,6 +453,13 @@ const Orders = () => {
     const gst = subtotal * 0.05;
     const total = subtotal + gst;
 
+    // Get hotel name from localStorage user data
+    const userData = localStorage.getItem("user");
+    const user = userData ? JSON.parse(userData) : null;
+    const hotelName = user?.hotelname || user?.hotelName || "FLAVOROFOODS";
+    const hotelAddress = user?.hotelAddress || "Rajkot - 360004";
+    const hotelPhone = user?.mobile || "N/A";
+
     const printWindow = window.open("", "_blank");
     printWindow.document.write(`
       <html>
@@ -494,9 +500,9 @@ const Orders = () => {
         <body onload="setTimeout(() => { window.print(); window.close(); }, 500);">
           <div class="bill-container">
             <div class="header">
-              <div class="restaurant-name">FLAVOROFOODS</div>
-              <div>Rajkot - 360004</div>
-              <div>Phone: ${JSON.parse(localStorage.getItem("user"))?.mobile || "N/A"}</div>
+              <div class="restaurant-name">${hotelName}</div>
+              <div>${hotelAddress}</div>
+              <div>Phone: ${hotelPhone}</div>
             </div>
             <div class="divider"></div>
             <div style="text-align: left; margin-bottom: 10px;">
