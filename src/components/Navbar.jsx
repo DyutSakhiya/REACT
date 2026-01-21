@@ -147,7 +147,12 @@ const Navbar = () => {
           </div>
 
           {/* Mobile Menu Button */}
-        
+          <button
+            className="md:hidden text-2xl text-gray-700"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <FiX /> : <FiMenu />}
+          </button>
         </div>
 
         {/* Mobile Search */}
