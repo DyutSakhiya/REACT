@@ -31,6 +31,10 @@ const Navbar = () => {
       hotelName = hotelData.hotelname || "Flavoro Foods";
       if (hotelData.hotelLogo && hotelData.hotelLogo.url) {
         hotelLogo = hotelData.hotelLogo.url;
+      } else if (hotelData.hotelLogo && hotelData.hotelLogo.data) {
+        // Handle base64 logo from backend
+        const contentType = hotelData.hotelLogo.contentType || 'image/jpeg';
+        hotelLogo = `data:${contentType};base64,${hotelData.hotelLogo.data}`;
       }
     }
     // Priority 2: Use user data (if logged in)
@@ -66,34 +70,42 @@ const Navbar = () => {
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-1">
         <div className="flex justify-between items-center py-4">
-          {/* Hotel Logo and Name Section - REMOVED cursor-pointer */}
+          {/* Hotel Logo and Name Section */}
           <div className="flex items-center">
             {logoUrl ? (
-              <img 
-                src={logoUrl} 
-                alt={hotelInfo.name} 
-                className="h-10 w-10 mr-3 rounded-full object-cover border-2 border-green-600"
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                  // Show text fallback
-                  const fallback = document.createElement('span');
-                  fallback.className = 'text-2xl font-bold text-green-600 mr-3';
-                  fallback.textContent = hotelInfo.name.charAt(0);
-                  e.target.parentNode.insertBefore(fallback, e.target.nextSibling);
-                }}
-              />
+              <div className="flex items-center mr-3">
+                <img 
+                  src={logoUrl} 
+                  alt={hotelInfo.name} 
+                  className="h-12 w-12 rounded-full object-cover border-2 border-green-600"
+                  onError={(e) => {
+                    console.error("Failed to load hotel logo");
+                    e.target.style.display = 'none';
+                    // Show text fallback
+                    const existingFallback = e.target.parentNode.querySelector('.logo-fallback');
+                    if (!existingFallback) {
+                      const fallback = document.createElement('span');
+                      fallback.className = 'logo-fallback text-2xl font-bold text-green-600';
+                      fallback.textContent = hotelInfo.name.charAt(0);
+                      e.target.parentNode.appendChild(fallback);
+                    }
+                  }}
+                />
+              </div>
             ) : (
-              <span className="text-2xl font-bold text-green-600 mr-3">
-                {hotelInfo.name.charAt(0)}
-              </span>
+              <div className="h-12 w-12 flex items-center justify-center rounded-full border-2 border-green-600 bg-green-50 mr-3">
+                <span className="text-2xl font-bold text-green-600">
+                  {hotelInfo.name.charAt(0)}
+                </span>
+              </div>
             )}
             
             <div className="flex flex-col">
-              <span className="text-2xl font-bold text-gray-800">
+              <span className="text-xl md:text-2xl font-bold text-gray-800">
                 {hotelInfo.name}
               </span>
               {!logoUrl && !hotelInfo.name.includes("Flavoro") && (
-                <span className="text-sm text-gray-500">
+                <span className="text-xs md:text-sm text-gray-500">
                   Digital Menu
                 </span>
               )}
@@ -144,9 +156,44 @@ const Navbar = () => {
                 </button>
               </div>
             )}
+            
+            {/* Cart Icon - Desktop */}
+            <div 
+              className="relative cursor-pointer"
+              onClick={() => navigate("/cart")}
+            >
+              <FiShoppingCart className="text-2xl text-gray-700 hover:text-green-600" />
+              {totalQty > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {totalQty}
+                </span>
+              )}
+            </div>
           </div>
 
-          
+          {/* Mobile Menu Button and Cart */}
+          <div className="flex md:hidden items-center space-x-4">
+            {/* Cart Icon - Mobile */}
+            <div 
+              className="relative cursor-pointer"
+              onClick={() => navigate("/cart")}
+            >
+              <FiShoppingCart className="text-2xl text-gray-700 hover:text-green-600" />
+              {totalQty > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {totalQty}
+                </span>
+              )}
+            </div>
+            
+            {/* Mobile Menu Toggle */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="text-2xl text-gray-700 focus:outline-none"
+            >
+              {mobileMenuOpen ? <FiX /> : <FiMenu />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Search */}
