@@ -147,7 +147,14 @@ const Navbar = () => {
           </div>
 
           {/* Mobile Menu Button */}
-        
+          {/* <div className="md:hidden flex items-center space-x-4">
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 text-gray-700 hover:text-green-600 focus:outline-none"
+            >
+              {mobileMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+            </button>
+          </div> */}
         </div>
 
         {/* Mobile Search */}
@@ -167,17 +174,48 @@ const Navbar = () => {
         {mobileMenuOpen && (
           <div className="md:hidden bg-white py-4 border-t">
             <div className="flex flex-col space-y-4">
-              {/* Hotel Info in Mobile */}
-              <div className="px-4 py-2 border-b">
-                <div className="font-medium text-gray-800">{hotelInfo.name}</div>
-                {hotelData?.hotelId && (
-                  <div className="text-sm text-gray-500">Hotel ID: {hotelData.hotelId}</div>
+              {/* Hotel Info in Mobile - Same as desktop */}
+              <div className="flex items-center px-4 py-3 border-b">
+                {logoUrl ? (
+                  <img 
+                    src={logoUrl} 
+                    alt={hotelInfo.name} 
+                    className="h-10 w-10 mr-3 rounded-full object-cover border-2 border-green-600"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      // Show text fallback
+                      const fallback = document.createElement('span');
+                      fallback.className = 'text-2xl font-bold text-green-600 mr-3';
+                      fallback.textContent = hotelInfo.name.charAt(0);
+                      e.target.parentNode.insertBefore(fallback, e.target.nextSibling);
+                    }}
+                  />
+                ) : (
+                  <span className="text-2xl font-bold text-green-600 mr-3">
+                    {hotelInfo.name.charAt(0)}
+                  </span>
                 )}
+                
+                <div className="flex flex-col">
+                  <span className="text-lg font-bold text-gray-800">
+                    {hotelInfo.name}
+                  </span>
+                  {!logoUrl && !hotelInfo.name.includes("Flavoro") && (
+                    <span className="text-xs text-gray-500">
+                      Digital Menu
+                    </span>
+                  )}
+                  {hotelData?.hotelId && (
+                    <div className="text-xs text-gray-500 mt-1">Hotel ID: {hotelData.hotelId}</div>
+                  )}
+                </div>
               </div>
               
               {isAuthenticated ? (
                 <>
-                  <span className="px-4 py-2 text-gray-700">Hi, {user?.name}</span>
+                  <div className="px-4 py-2">
+                    <span className="text-gray-700">Hi, {user?.name}</span>
+                  </div>
                   <button
                     onClick={() => {
                       dispatch(logout());
