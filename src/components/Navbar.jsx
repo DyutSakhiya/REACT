@@ -27,6 +27,7 @@ const Navbar = () => {
     let hotelLogo = null;
     
     // Priority 1: Use hotelData from API (from URL parameter)
+    // This automatically updates when URL changes to ?hotel_id=hotel_002
     if (hotelData && hotelData.success) {
       hotelName = hotelData.hotelname || "Flavoro Foods";
       if (hotelData.hotelLogo && hotelData.hotelLogo.url) {
@@ -50,7 +51,7 @@ const Navbar = () => {
       logo: hotelLogo
     });
     
-  }, [hotelData, user]);
+  }, [hotelData, user]); // Re-runs when hotelData changes
 
   // Function to get logo URL
   const getLogoUrl = () => {
@@ -146,7 +147,8 @@ const Navbar = () => {
             )}
           </div>
 
-          
+          {/* Mobile Menu Button */}
+        
         </div>
 
         {/* Mobile Search */}
