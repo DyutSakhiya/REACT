@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FiSearch } from "react-icons/fi";
+import { FiSearch, FiShoppingCart, FiMenu, FiX } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
 // import { setSearch } from "../redux/slices/SearchSlice";
 import { useNavigate } from "react-router-dom";
@@ -9,6 +9,7 @@ import { useAuth } from "../components/admin/context/AuthContext";
 const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, hotelData } = useAuth(); // Get user from AuthContext
   const cartItems = useSelector((state) => state.cart.cart);
   const { isAuthenticated } = useSelector((state) => state.auth);
@@ -17,33 +18,24 @@ const Navbar = () => {
   // Get hotel information based on URL or user data
   const [hotelInfo, setHotelInfo] = useState({
     name: "Flavoro Foods",
-    logo: null,
-    hotelId: null
+    logo: null
   });
 
   // Update hotel info when data changes
   useEffect(() => {
     let hotelName = "Flavoro Foods";
     let hotelLogo = null;
-    let hotelId = null;
     
-    // Priority 1: Use hotelData from API (from URL parameter like ?hotel_id=hotel_001)
-    // This is what customers see when opening the hotel's specific URL
+    // Priority 1: Use hotelData from API (from URL parameter)
     if (hotelData && hotelData.success) {
       hotelName = hotelData.hotelname || "Flavoro Foods";
-      hotelId = hotelData.hotelId || null;
-      
-      // Get logo from hotelData API response
       if (hotelData.hotelLogo && hotelData.hotelLogo.url) {
         hotelLogo = hotelData.hotelLogo.url;
       }
     }
-    // Priority 2: Use user data (if hotel owner is logged in)
-    // This is what hotel owners see when logged in
+    // Priority 2: Use user data (if logged in)
     else if (user && user.hotelname) {
       hotelName = user.hotelname;
-      hotelId = user.hotelId || null;
-      
       if (user.hotelLogo) {
         if (user.hotelLogo.url) {
           hotelLogo = user.hotelLogo.url;
@@ -55,8 +47,7 @@ const Navbar = () => {
     
     setHotelInfo({
       name: hotelName,
-      logo: hotelLogo,
-      hotelId: hotelId
+      logo: hotelLogo
     });
     
   }, [hotelData, user]);
@@ -75,7 +66,7 @@ const Navbar = () => {
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-1">
         <div className="flex justify-between items-center py-4">
-          {/* Hotel Logo and Name - Always visible on both desktop and mobile */}
+          {/* Hotel Logo and Name Section - REMOVED cursor-pointer */}
           <div className="flex items-center">
             {logoUrl ? (
               <img 
@@ -84,7 +75,7 @@ const Navbar = () => {
                 className="h-10 w-10 mr-3 rounded-full object-cover border-2 border-green-600"
                 onError={(e) => {
                   e.target.style.display = 'none';
-                  // Show text fallback if logo fails to load
+                  // Show text fallback
                   const fallback = document.createElement('span');
                   fallback.className = 'text-2xl font-bold text-green-600 mr-3';
                   fallback.textContent = hotelInfo.name.charAt(0);
@@ -98,12 +89,11 @@ const Navbar = () => {
             )}
             
             <div className="flex flex-col">
-              <span className="text-lg md:text-2xl font-bold text-gray-800">
+              <span className="text-2xl font-bold text-gray-800">
                 {hotelInfo.name}
               </span>
-              
               {!logoUrl && !hotelInfo.name.includes("Flavoro") && (
-                <span className="text-xs md:text-sm text-gray-500">
+                <span className="text-sm text-gray-500">
                   Digital Menu
                 </span>
               )}
@@ -123,7 +113,7 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* User Section - Desktop (only for hotel owners) */}
+          {/* User Section - Desktop */}
           <div className="hidden md:flex items-center space-x-6">
             {isAuthenticated ? (
               <div className="flex items-center space-x-4">
@@ -156,33 +146,16 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile - Show login/register only if not viewing a specific hotel */}
-          <div className="md:hidden">
-            {!hotelInfo.hotelId && !isAuthenticated && (
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => navigate("/login")}
-                  className="px-3 py-1 text-xs font-medium text-green-600 border border-green-600 rounded-md"
-                >
-                  Login
-                </button>
-                <button
-                  onClick={() => navigate("/register")}
-                  className="px-3 py-1 text-xs font-medium text-white bg-green-600 rounded-md"
-                >
-                  Register
-                </button>
-              </div>
-            )}
-            {isAuthenticated && (
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-700">{user?.name}</span>
-              </div>
-            )}
-          </div>
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden text-2xl text-gray-700"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <FiX /> : <FiMenu />}
+          </button>
         </div>
 
-        {/* Mobile Search - Always visible on mobile */}
+        {/* Mobile Search */}
         <div className="md:hidden mb-3">
           <div className="relative">
             <input
@@ -194,6 +167,58 @@ const Navbar = () => {
             <FiSearch className="absolute left-3 top-3 text-gray-400" />
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-white py-4 border-t">
+            <div className="flex flex-col space-y-4">
+              {/* Hotel Info in Mobile */}
+              <div className="px-4 py-2 border-b">
+                <div className="font-medium text-gray-800">{hotelInfo.name}</div>
+                {hotelData?.hotelId && (
+                  <div className="text-sm text-gray-500">Hotel ID: {hotelData.hotelId}</div>
+                )}
+              </div>
+              
+              {isAuthenticated ? (
+                <>
+                  <span className="px-4 py-2 text-gray-700">Hi, {user?.name}</span>
+                  <button
+                    onClick={() => {
+                      dispatch(logout());
+                      navigate("/");
+                      setMobileMenuOpen(false);
+                    }}
+                    className="mx-4 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <div className="space-y-3 px-4">
+                  <button
+                    onClick={() => {
+                      navigate("/login");
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full px-4 py-2 text-sm font-medium text-green-600 border border-green-600 rounded-md hover:bg-green-50"
+                  >
+                    Login
+                  </button>
+                  <button
+                    onClick={() => {
+                      navigate("/register");
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700"
+                  >
+                    Register
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );
