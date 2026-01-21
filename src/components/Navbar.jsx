@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FiSearch } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
-// import { setSearch } from "../redux/slices/SearchSlice";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../redux/slices/authSlice";
 import { useAuth } from "../components/admin/context/AuthContext";
@@ -14,37 +13,62 @@ const Navbar = () => {
   const { isAuthenticated } = useSelector((state) => state.auth);
   const totalQty = cartItems.reduce((total, item) => total + item.qty, 0);
 
-  // Hotel information state
   const [hotelInfo, setHotelInfo] = useState({
     name: "Flavoro Foods",
     logo: null
   });
 
-  // Update hotel info when URL changes
+  // DEBUG: Log hotelData to see what API returns
+  useEffect(() => {
+    console.log("DEBUG hotelData:", hotelData);
+    console.log("DEBUG hotelData.hotelLogo:", hotelData?.hotelLogo);
+  }, [hotelData]);
+
   useEffect(() => {
     let hotelName = "Flavoro Foods";
     let hotelLogo = null;
     
-    // Check hotelData from URL parameters first
+    // CHECK 1: First check hotelData from URL parameters
     if (hotelData) {
-      // Get hotel name from API response
+      console.log("Processing hotelData from URL...");
+      
+      // Get hotel name
       if (hotelData.hotelname) {
         hotelName = hotelData.hotelname;
       } else if (hotelData.name) {
         hotelName = hotelData.name;
       }
       
-      // Get hotel logo from API response
-      if (hotelData.hotelLogo && hotelData.hotelLogo.url) {
-        hotelLogo = hotelData.hotelLogo.url;
-      } else if (hotelData.logo) {
-        hotelLogo = hotelData.logo;
-      } else if (hotelData.hotelLogo) {
-        hotelLogo = hotelData.hotelLogo;
+      // Get hotel logo - CHECK ALL POSSIBLE FORMATS
+      if (hotelData.hotelLogo) {
+        // Format 1: hotelLogo.url
+        if (hotelData.hotelLogo.url) {
+          hotelLogo = hotelData.hotelLogo.url;
+          console.log("Found logo in hotelLogo.url:", hotelLogo);
+        }
+        // Format 2: hotelLogo is a direct URL string
+        else if (typeof hotelData.hotelLogo === 'string' && hotelData.hotelLogo.startsWith('http')) {
+          hotelLogo = hotelData.hotelLogo;
+          console.log("Found logo as string URL:", hotelLogo);
+        }
+        // Format 3: Base64 logo
+        else if (hotelData.hotelLogo.data) {
+          hotelLogo = `data:${hotelData.hotelLogo.contentType || 'image/jpeg'};base64,${hotelData.hotelLogo.data}`;
+          console.log("Found base64 logo");
+        }
       }
+      // Check alternative logo field
+      else if (hotelData.logo) {
+        hotelLogo = hotelData.logo;
+        console.log("Found logo in 'logo' field:", hotelLogo);
+      }
+      
+      console.log("Final hotelName:", hotelName);
+      console.log("Final hotelLogo:", hotelLogo);
     } 
-    // Only check user data if no hotelData from URL
+    // CHECK 2: Only check user data if no hotelData
     else if (user && user.hotelname) {
+      console.log("Using user data...");
       hotelName = user.hotelname;
       if (user.hotelLogo) {
         if (user.hotelLogo.url) {
@@ -66,54 +90,54 @@ const Navbar = () => {
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-1">
         <div className="flex justify-between items-center py-4">
-          {/* Hotel Logo and Name - VISIBLE ON BOTH DESKTOP AND MOBILE */}
+          {/* HOTEL LOGO SECTION - VISIBLE ON MOBILE */}
           <div className="flex items-center">
-            {/* Logo Display */}
+            {/* Try to show logo if available */}
             {hotelInfo.logo ? (
-              <img 
-                src={hotelInfo.logo} 
-                alt={hotelInfo.name} 
-                className="h-10 w-10 mr-3 rounded-full object-cover border-2 border-green-600"
-                onError={(e) => {
-                  // If logo fails to load, show text fallback
-                  e.target.style.display = 'none';
-                  const fallbackSpan = e.target.parentNode.querySelector('.logo-fallback');
-                  if (fallbackSpan) {
-                    fallbackSpan.style.display = 'block';
-                  }
-                }}
-              />
-            ) : null}
+              <div className="flex items-center">
+                <img 
+                  src={hotelInfo.logo} 
+                  alt={hotelInfo.name}
+                  className="h-12 w-12 md:h-10 md:w-10 mr-3 rounded-full object-cover border-2 border-green-600"
+                  onError={(e) => {
+                    console.error("Logo failed to load:", hotelInfo.logo);
+                    e.target.style.display = 'none';
+                    e.target.nextElementSibling.style.display = 'block';
+                  }}
+                />
+                <span 
+                  className="text-2xl font-bold text-green-600 mr-3"
+                  style={{ display: 'none' }}
+                >
+                  {hotelInfo.name.charAt(0)}
+                </span>
+              </div>
+            ) : (
+              <span className="text-2xl font-bold text-green-600 mr-3">
+                {hotelInfo.name.charAt(0)}
+              </span>
+            )}
             
-            {/* Text fallback for logo (hidden by default) */}
-            <span 
-              className="text-2xl font-bold text-green-600 mr-3 logo-fallback"
-              style={{ display: hotelInfo.logo ? 'none' : 'block' }}
-            >
-              {hotelInfo.name.charAt(0)}
-            </span>
-            
-            {/* Hotel Name */}
             <div className="flex flex-col">
-              <span className="text-lg md:text-2xl font-bold text-gray-800">
+              <span className="text-xl md:text-2xl font-bold text-gray-800">
                 {hotelInfo.name}
               </span>
+              {/* Show hotel ID if available */}
+              {hotelData?.hotelId && (
+                <span className="text-xs md:text-sm text-gray-500">
+                  Hotel ID: {hotelData.hotelId}
+                </span>
+              )}
               {/* Show table number if available */}
               {hotelData?.table_id && (
                 <span className="text-xs md:text-sm text-gray-500">
                   Table: {hotelData.table_id}
                 </span>
               )}
-              {/* Show "Digital Menu" for custom hotels without logo */}
-              {!hotelInfo.logo && !hotelInfo.name.includes("Flavoro") && (
-                <span className="text-xs md:text-sm text-gray-500">
-                  Digital Menu
-                </span>
-              )}
             </div>
           </div>
 
-          {/* Desktop Search Bar */}
+          {/* Desktop Search */}
           <div className="hidden md:flex flex-1 max-w-md mx-6">
             <div className="relative w-full">
               <input
@@ -126,7 +150,7 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* Desktop Login/Register */}
+          {/* Desktop Login */}
           <div className="hidden md:flex items-center space-x-6">
             {isAuthenticated ? (
               <div className="flex items-center space-x-4">
@@ -159,11 +183,11 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Empty space for mobile alignment */}
-          <div className="md:hidden w-10"></div>
+          {/* Mobile: Empty for spacing */}
+          <div className="md:hidden"></div>
         </div>
 
-        {/* Mobile Search Bar - Always visible */}
+        {/* Mobile Search - Always visible */}
         <div className="md:hidden mb-3">
           <div className="relative">
             <input
