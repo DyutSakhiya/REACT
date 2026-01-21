@@ -168,7 +168,7 @@ const Navbar = () => {
             <div className="flex flex-col space-y-4">
               {/* Hotel Info in Mobile */}
               <div className="px-4 py-2 border-b">
-                <div className="font-medium text-gray-800">{hotelInfo.logo}</div>
+                <div className="font-medium text-gray-800">{hotelInfo.name}</div>
                 {hotelData?.hotelId && (
                   <div className="text-sm text-gray-500">Hotel ID: {hotelData.hotelId}</div>
                 )}
