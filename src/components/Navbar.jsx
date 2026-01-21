@@ -21,20 +21,30 @@ const Navbar = () => {
     logo: null
   });
 
-  // Update hotel info when data changes
+  // Update hotel info when data changes - FIXED LOGIC
   useEffect(() => {
     let hotelName = "Flavoro Foods";
     let hotelLogo = null;
     
-    // Priority 1: Use hotelData from API (from URL parameter)
-    // This automatically updates when URL changes to ?hotel_id=hotel_002
-    if (hotelData && hotelData.success) {
-      hotelName = hotelData.hotelname || "Flavoro Foods";
+    // FIX: Always use hotelData from URL parameters when available
+    // Even if hotelData.success is false or doesn't exist
+    
+    if (hotelData) {
+      // If hotelData exists (from URL parameters), use it
+      if (hotelData.hotelname) {
+        hotelName = hotelData.hotelname;
+      } else if (hotelData.name) {
+        hotelName = hotelData.name;
+      }
+      
+      // Get logo from hotelData
       if (hotelData.hotelLogo && hotelData.hotelLogo.url) {
         hotelLogo = hotelData.hotelLogo.url;
+      } else if (hotelData.logo) {
+        hotelLogo = hotelData.logo;
       }
-    }
-    // Priority 2: Use user data (if logged in)
+    } 
+    // Only use user data if NO hotelData (not viewing specific hotel URL)
     else if (user && user.hotelname) {
       hotelName = user.hotelname;
       if (user.hotelLogo) {
@@ -51,7 +61,7 @@ const Navbar = () => {
       logo: hotelLogo
     });
     
-  }, [hotelData, user]); // Re-runs when hotelData changes
+  }, [hotelData, user]);
 
   // Function to get logo URL
   const getLogoUrl = () => {
@@ -67,7 +77,7 @@ const Navbar = () => {
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-1">
         <div className="flex justify-between items-center py-4">
-          {/* Hotel Logo and Name Section - REMOVED cursor-pointer */}
+          {/* Hotel Logo and Name Section */}
           <div className="flex items-center">
             {logoUrl ? (
               <img 
@@ -93,6 +103,12 @@ const Navbar = () => {
               <span className="text-2xl font-bold text-gray-800">
                 {hotelInfo.name}
               </span>
+              {/* Show hotel ID if available */}
+              {hotelData?.hotelId && (
+                <span className="text-sm text-gray-500">
+                  ID: {hotelData.hotelId}
+                </span>
+              )}
               {!logoUrl && !hotelInfo.name.includes("Flavoro") && (
                 <span className="text-sm text-gray-500">
                   Digital Menu
@@ -148,7 +164,14 @@ const Navbar = () => {
           </div>
 
           {/* Mobile Menu Button */}
-        
+          <div className="md:hidden flex items-center">
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 text-gray-700 hover:text-green-600 focus:outline-none"
+            >
+              {mobileMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Search */}
