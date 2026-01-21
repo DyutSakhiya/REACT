@@ -9,43 +9,41 @@ import { useAuth } from "../components/admin/context/AuthContext";
 const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { user, hotelData } = useAuth(); // Get user from AuthContext
+  const { user, hotelData } = useAuth();
   const cartItems = useSelector((state) => state.cart.cart);
   const { isAuthenticated } = useSelector((state) => state.auth);
   const totalQty = cartItems.reduce((total, item) => total + item.qty, 0);
 
-  // Get hotel information based on URL or user data
+  // Hotel information state
   const [hotelInfo, setHotelInfo] = useState({
     name: "Flavoro Foods",
     logo: null
   });
 
-  // Update hotel info when data changes
+  // Update hotel info when URL changes
   useEffect(() => {
     let hotelName = "Flavoro Foods";
     let hotelLogo = null;
     
-    // ALWAYS use hotelData from URL parameters when available
-    // This is what customers see on mobile
+    // Check hotelData from URL parameters first
     if (hotelData) {
-      // Get hotel name
+      // Get hotel name from API response
       if (hotelData.hotelname) {
         hotelName = hotelData.hotelname;
       } else if (hotelData.name) {
         hotelName = hotelData.name;
       }
       
-      // Get hotel logo
+      // Get hotel logo from API response
       if (hotelData.hotelLogo && hotelData.hotelLogo.url) {
         hotelLogo = hotelData.hotelLogo.url;
       } else if (hotelData.logo) {
         hotelLogo = hotelData.logo;
       } else if (hotelData.hotelLogo) {
-        // Handle different logo formats
         hotelLogo = hotelData.hotelLogo;
       }
     } 
-    // Only use user data if NO hotelData AND user is logged in (hotel owner)
+    // Only check user data if no hotelData from URL
     else if (user && user.hotelname) {
       hotelName = user.hotelname;
       if (user.hotelLogo) {
@@ -64,53 +62,50 @@ const Navbar = () => {
     
   }, [hotelData, user]);
 
-  // Function to get logo URL
-  const getLogoUrl = () => {
-    if (hotelInfo.logo) {
-      return hotelInfo.logo;
-    }
-    return null;
-  };
-
-  const logoUrl = getLogoUrl();
-
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-1">
         <div className="flex justify-between items-center py-4">
-          {/* Hotel Logo and Name - ALWAYS VISIBLE */}
+          {/* Hotel Logo and Name - VISIBLE ON BOTH DESKTOP AND MOBILE */}
           <div className="flex items-center">
-            {logoUrl ? (
+            {/* Logo Display */}
+            {hotelInfo.logo ? (
               <img 
-                src={logoUrl} 
+                src={hotelInfo.logo} 
                 alt={hotelInfo.name} 
                 className="h-10 w-10 mr-3 rounded-full object-cover border-2 border-green-600"
                 onError={(e) => {
+                  // If logo fails to load, show text fallback
                   e.target.style.display = 'none';
-                  // Show text fallback if logo fails to load
-                  const fallback = document.createElement('span');
-                  fallback.className = 'text-2xl font-bold text-green-600 mr-3';
-                  fallback.textContent = hotelInfo.name.charAt(0);
-                  e.target.parentNode.insertBefore(fallback, e.target.nextSibling);
+                  const fallbackSpan = e.target.parentNode.querySelector('.logo-fallback');
+                  if (fallbackSpan) {
+                    fallbackSpan.style.display = 'block';
+                  }
                 }}
               />
-            ) : (
-              <span className="text-2xl font-bold text-green-600 mr-3">
-                {hotelInfo.name.charAt(0)}
-              </span>
-            )}
+            ) : null}
             
+            {/* Text fallback for logo (hidden by default) */}
+            <span 
+              className="text-2xl font-bold text-green-600 mr-3 logo-fallback"
+              style={{ display: hotelInfo.logo ? 'none' : 'block' }}
+            >
+              {hotelInfo.name.charAt(0)}
+            </span>
+            
+            {/* Hotel Name */}
             <div className="flex flex-col">
               <span className="text-lg md:text-2xl font-bold text-gray-800">
                 {hotelInfo.name}
               </span>
-              {/* Show hotel ID if available from URL */}
-              {hotelData?.hotelId && (
+              {/* Show table number if available */}
+              {hotelData?.table_id && (
                 <span className="text-xs md:text-sm text-gray-500">
-                  Table: {hotelData.table_id || "1"}
+                  Table: {hotelData.table_id}
                 </span>
               )}
-              {!logoUrl && !hotelInfo.name.includes("Flavoro") && (
+              {/* Show "Digital Menu" for custom hotels without logo */}
+              {!hotelInfo.logo && !hotelInfo.name.includes("Flavoro") && (
                 <span className="text-xs md:text-sm text-gray-500">
                   Digital Menu
                 </span>
@@ -118,7 +113,7 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* Search Bar - Desktop */}
+          {/* Desktop Search Bar */}
           <div className="hidden md:flex flex-1 max-w-md mx-6">
             <div className="relative w-full">
               <input
@@ -131,7 +126,7 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* Desktop ONLY - Login/Register for hotel owners */}
+          {/* Desktop Login/Register */}
           <div className="hidden md:flex items-center space-x-6">
             {isAuthenticated ? (
               <div className="flex items-center space-x-4">
@@ -164,13 +159,11 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile - EMPTY (no buttons, no login, no register) */}
-          <div className="md:hidden">
-            {/* Intentionally empty - customers don't need login on mobile */}
-          </div>
+          {/* Empty space for mobile alignment */}
+          <div className="md:hidden w-10"></div>
         </div>
 
-        {/* Mobile Search - Always visible on mobile */}
+        {/* Mobile Search Bar - Always visible */}
         <div className="md:hidden mb-3">
           <div className="relative">
             <input
@@ -182,8 +175,6 @@ const Navbar = () => {
             <FiSearch className="absolute left-3 top-3 text-gray-400" />
           </div>
         </div>
-
-        {/* NO MOBILE MENU - Removed completely */}
       </div>
     </nav>
   );
