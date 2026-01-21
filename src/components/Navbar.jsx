@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FiSearch, FiShoppingCart, FiMenu, FiX } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
-import { setSearch } from "../redux/slices/SearchSlice";
+// import { setSearch } from "../redux/slices/SearchSlice";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../redux/slices/authSlice";
 import { useAuth } from "../components/admin/context/AuthContext";
