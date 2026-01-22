@@ -5,7 +5,7 @@ import { setSearch } from "../redux/slices/searchSlice";
 import { useNavigate, useParams } from "react-router-dom";
 import { logout } from "../redux/slices/authSlice";
 import { useAuth } from "../components/admin/context/AuthContext";
-import { API_URL } from "../../../helper";
+import { API_URL } from "../helper";
 
 const Navbar = () => {
   const dispatch = useDispatch();
