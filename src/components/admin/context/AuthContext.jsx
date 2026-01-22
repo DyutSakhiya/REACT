@@ -17,9 +17,7 @@ export const AuthProvider = ({ children }) => {
       try {
         const parsedUser = JSON.parse(userData);
         setUser(parsedUser);
-        if (parsedUser.hotelLogo) {
-          setHotelLogo(parsedUser.hotelLogo);
-        }
+        if (parsedUser.hotelLogo) setHotelLogo(parsedUser.hotelLogo);
       } catch (error) {
         console.error("Error parsing user data:", error);
         localStorage.removeItem("token");
@@ -29,32 +27,19 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  /* ---------- register ---------- */
+  /* ---------- register – JSON + base-64 logo ---------- */
   const register = async (name, mobile, password, hotelname, imageFile = null) => {
     try {
-      let hotelLogoData = null;
+      let hotelLogo = null;
       if (imageFile) {
-        hotelLogoData = await new Promise((resolve, reject) => {
+        hotelLogo = await new Promise((res) => {
           const reader = new FileReader();
-          reader.onload = () => {
-            const base64String = reader.result.split(",")[1];
-            resolve({
-              data: base64String,
-              contentType: imageFile.type
-            });
-          };
-          reader.onerror = reject;
+          reader.onload = () => res(reader.result.split(",")[1]); // strip data:url prefix
           reader.readAsDataURL(imageFile);
         });
       }
 
-      const payload = { 
-        name, 
-        mobile, 
-        password, 
-        hotelname, 
-        hotelLogo: hotelLogoData 
-      };
+      const payload = { name, mobile, password, hotelname, hotelLogo };
 
       const response = await fetch(`${API_URL}/admin/register`, {
         method: "POST",
@@ -62,29 +47,19 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify(payload),
       });
 
-      const data = await response.json();
-      
-      if (data.success) {
-        // Store user data including hotelId
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
-        setUser(data.user);
-        if (data.user.hotelLogo) {
-          setHotelLogo(data.user.hotelLogo);
-        }
-        
-        // Generate shareable link
-        const shareableLink = `${window.location.origin}/?hotelId=${data.user.hotelId}`;
-        alert(`Registration successful! Share this link for your mobile menu:\n\n${shareableLink}`);
-        
-        return true;
-      } else {
-        alert(data.message || "Registration failed");
-        return false;
+      if (!response.ok) {
+        const msg = await response.text();
+        throw new Error(msg || "Registration failed");
       }
+
+      const data = await response.json();
+      if (data.success) return true;
+
+      alert(data.message || "Registration failed");
+      return false;
     } catch (err) {
       console.error("Register error:", err);
-      alert("Network error. Please try again.");
+      alert(err.message || "Network error. Please try again.");
       return false;
     }
   };
@@ -103,16 +78,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
         setUser(data.user);
-        if (data.user.hotelLogo) {
-          setHotelLogo(data.user.hotelLogo);
-        }
-        
-        // Show shareable link if user has hotelId
-        if (data.user.hotelId) {
-          const shareableLink = `${window.location.origin}/?hotelId=${data.user.hotelId}`;
-          console.log(`Mobile menu link: ${shareableLink}`);
-        }
-        
+        if (data.user.hotelLogo) setHotelLogo(data.user.hotelLogo);
         return true;
       }
 
@@ -133,36 +99,17 @@ export const AuthProvider = ({ children }) => {
     setHotelLogo(null);
   };
 
-  /* ---------- update user ---------- */
-  const updateUser = (updatedUser) => {
-    setUser(updatedUser);
-    localStorage.setItem("user", JSON.stringify(updatedUser));
-  };
-
   /* ---------- helper: logo URL ---------- */
   const getLogoUrl = () => {
-    if (hotelLogo) {
-      if (hotelLogo.url) {
-        return hotelLogo.url;
-      } else if (hotelLogo.data && hotelLogo.contentType) {
-        return `data:${hotelLogo.contentType};base64,${hotelLogo.data}`;
-      }
+    if (hotelLogo?.data) {
+      return `data:${hotelLogo.contentType};base64,${hotelLogo.data}`;
     }
     return null;
   };
 
   return (
     <AuthContext.Provider
-      value={{ 
-        user, 
-        login, 
-        register, 
-        logout, 
-        loading, 
-        hotelLogo, 
-        getLogoUrl,
-        updateUser
-      }}
+      value={{ user, login, register, logout, loading, hotelLogo, getLogoUrl }}
     >
       {children}
     </AuthContext.Provider>
