@@ -1,14 +1,16 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { API_URL } from "../../../helper";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [hotelLogo, setHotelLogo] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  /* ---------- restore session on mount ---------- */
+  /* ===============================
+     RESTORE SESSION
+  ================================ */
   useEffect(() => {
     const token = localStorage.getItem("token");
     const userData = localStorage.getItem("user");
@@ -17,99 +19,119 @@ export const AuthProvider = ({ children }) => {
       try {
         const parsedUser = JSON.parse(userData);
         setUser(parsedUser);
-        if (parsedUser.hotelLogo) setHotelLogo(parsedUser.hotelLogo);
-      } catch (error) {
-        console.error("Error parsing user data:", error);
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
+        if (parsedUser.hotelLogo) {
+          setHotelLogo(parsedUser.hotelLogo);
+        }
+      } catch (err) {
+        localStorage.clear();
       }
     }
     setLoading(false);
   }, []);
 
-  /* ---------- register – JSON + base-64 logo ---------- */
+  /* ===============================
+     REGISTER
+  ================================ */
   const register = async (name, mobile, password, hotelname, imageFile = null) => {
     try {
-      let hotelLogo = null;
+      let logoBase64 = null;
+
       if (imageFile) {
-        hotelLogo = await new Promise((res) => {
+        logoBase64 = await new Promise((resolve) => {
           const reader = new FileReader();
-          reader.onload = () => res(reader.result.split(",")[1]); // strip data:url prefix
+          reader.onload = () => resolve(reader.result.split(",")[1]);
           reader.readAsDataURL(imageFile);
         });
       }
 
-      const payload = { name, mobile, password, hotelname, hotelLogo };
-
-      const response = await fetch(`${API_URL}/admin/register`, {
+      const res = await fetch(`${API_URL}/admin/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          name,
+          mobile,
+          password,
+          hotelname,
+          hotelLogo: logoBase64,
+        }),
       });
 
-      if (!response.ok) {
-        const msg = await response.text();
-        throw new Error(msg || "Registration failed");
-      }
-
-      const data = await response.json();
-      if (data.success) return true;
-
-      alert(data.message || "Registration failed");
-      return false;
+      const data = await res.json();
+      return data.success;
     } catch (err) {
-      console.error("Register error:", err);
-      alert(err.message || "Network error. Please try again.");
+      alert("Registration failed");
       return false;
     }
   };
 
-  /* ---------- login ---------- */
+  /* ===============================
+     LOGIN
+  ================================ */
   const login = async (mobile, password) => {
     try {
-      const response = await fetch(`${API_URL}/login`, {
+      const res = await fetch(`${API_URL}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mobile, password }),
       });
 
-      const data = await response.json();
+      const data = await res.json();
+
       if (data.success) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
         setUser(data.user);
-        if (data.user.hotelLogo) setHotelLogo(data.user.hotelLogo);
+        setHotelLogo(data.user.hotelLogo || null);
         return true;
       }
 
       alert(data.message || "Login failed");
       return false;
     } catch (err) {
-      console.error("Login error:", err);
-      alert("Network error. Please try again.");
+      alert("Network error");
       return false;
     }
   };
 
-  /* ---------- logout ---------- */
+  /* ===============================
+     LOGOUT
+  ================================ */
   const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    localStorage.clear();
     setUser(null);
     setHotelLogo(null);
   };
 
-  /* ---------- helper: logo URL ---------- */
+  /* ===============================
+     SINGLE SOURCE OF LOGO
+     (THIS IS THE KEY FIX)
+  ================================ */
   const getLogoUrl = () => {
-    if (hotelLogo?.data) {
+    if (!hotelLogo) return null;
+
+    // base64 string
+    if (typeof hotelLogo === "string") {
+      return `data:image/png;base64,${hotelLogo}`;
+    }
+
+    // object format
+    if (hotelLogo.data && hotelLogo.contentType) {
       return `data:${hotelLogo.contentType};base64,${hotelLogo.data}`;
     }
+
     return null;
   };
 
   return (
     <AuthContext.Provider
-      value={{ user, login, register, logout, loading, hotelLogo, getLogoUrl }}
+      value={{
+        user,
+        loading,
+        login,
+        register,
+        logout,
+        getLogoUrl,
+      }}
     >
       {children}
     </AuthContext.Provider>
