@@ -27,36 +27,19 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  /* ---------- register – with image handling ---------- */
+  /* ---------- register – JSON + base-64 logo ---------- */
   const register = async (name, mobile, password, hotelname, imageFile = null) => {
     try {
-      let hotelLogoData = null;
-
-      // Convert image to base64 if provided
+      let hotelLogo = null;
       if (imageFile) {
-        hotelLogoData = await new Promise((resolve, reject) => {
+        hotelLogo = await new Promise((res) => {
           const reader = new FileReader();
-          reader.onload = () => {
-            // Get only the base64 part (without data:url prefix)
-            const dataUrl = reader.result;
-            const base64Data = dataUrl.split(',')[1]; // Extract only base64 string
-            resolve(base64Data);
-          };
-          reader.onerror = reject;
+          reader.onload = () => res(reader.result.split(",")[1]); // strip data:url prefix
           reader.readAsDataURL(imageFile);
         });
       }
 
-      // Prepare registration payload
-      const payload = { 
-        name, 
-        mobile, 
-        password, 
-        hotelname, 
-        hotelLogo: hotelLogoData // Send only base64 string, not full data URL
-      };
-
-      console.log("Sending registration with logo:", hotelLogoData ? "Yes" : "No");
+      const payload = { name, mobile, password, hotelname, hotelLogo };
 
       const response = await fetch(`${API_URL}/admin/register`, {
         method: "POST",
@@ -70,10 +53,7 @@ export const AuthProvider = ({ children }) => {
       }
 
       const data = await response.json();
-      if (data.success) {
-        alert("Registration successful! Please login.");
-        return true;
-      }
+      if (data.success) return true;
 
       alert(data.message || "Registration failed");
       return false;
@@ -119,52 +99,17 @@ export const AuthProvider = ({ children }) => {
     setHotelLogo(null);
   };
 
-  /* ---------- helper: get logo URL ---------- */
+  /* ---------- helper: logo URL ---------- */
   const getLogoUrl = () => {
-    if (!hotelLogo) return null;
-    
-    // Check if hotelLogo is already a complete data URL
-    if (typeof hotelLogo === 'string' && hotelLogo.startsWith('data:')) {
-      return hotelLogo;
+    if (hotelLogo?.data) {
+      return `data:${hotelLogo.contentType};base64,${hotelLogo.data}`;
     }
-    
-    // Check if hotelLogo is a regular URL (http/https)
-    if (typeof hotelLogo === 'string' && (hotelLogo.startsWith('http://') || hotelLogo.startsWith('https://'))) {
-      return hotelLogo;
-    }
-    
-    // If it's a base64 string, construct data URL
-    if (typeof hotelLogo === 'string') {
-      return `data:image/jpeg;base64,${hotelLogo}`;
-    }
-    
-    // If it's an object with data property (base64)
-    if (hotelLogo && typeof hotelLogo === 'object' && hotelLogo.data) {
-      return `data:${hotelLogo.contentType || 'image/jpeg'};base64,${hotelLogo.data}`;
-    }
-    
     return null;
-  };
-
-  /* ---------- update user ---------- */
-  const updateUser = (userData) => {
-    setUser(userData);
-    if (userData.hotelLogo) setHotelLogo(userData.hotelLogo);
-    localStorage.setItem("user", JSON.stringify(userData));
   };
 
   return (
     <AuthContext.Provider
-      value={{ 
-        user, 
-        login, 
-        register, 
-        logout, 
-        loading, 
-        hotelLogo, 
-        getLogoUrl,
-        updateUser
-      }}
+      value={{ user, login, register, logout, loading, hotelLogo, getLogoUrl }}
     >
       {children}
     </AuthContext.Provider>

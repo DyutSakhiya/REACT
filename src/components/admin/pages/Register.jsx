@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -19,7 +20,6 @@ export default function Register() {
 
   useEffect(() => {
     if (user) {
-      // Already logged in, redirecting is handled in the component return
     }
   }, [user]);
 
@@ -74,13 +74,13 @@ export default function Register() {
 
     setIsLoading(true);
     
-    // The register function should handle image upload and return URL
+    // Send registration data with image
     const success = await register(
       formData.name,
       formData.mobile,
       formData.password,
       formData.hotelname,
-      selectedImage  // Pass the image file
+      selectedImage
     );
     
     setIsLoading(false);
