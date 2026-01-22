@@ -2,59 +2,85 @@ import React, { useState, useEffect } from "react";
 import { FiSearch, FiShoppingCart, FiMenu, FiX } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
 import { setSearch } from "../redux/slices/searchSlice";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { logout } from "../redux/slices/authSlice";
 import { useAuth } from "../components/admin/context/AuthContext";
+import { API_URL } from "../../../helper";
 
 const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { hotelId } = useParams(); // Get hotelId from URL
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user, hotelData } = useAuth(); // Get user from AuthContext
+  const { user } = useAuth(); // Get user from AuthContext
   const cartItems = useSelector((state) => state.cart.cart);
   const { isAuthenticated } = useSelector((state) => state.auth);
   const totalQty = cartItems.reduce((total, item) => total + item.qty, 0);
 
-  // Get hotel information based on URL or user data
+  // Hotel information state
   const [hotelInfo, setHotelInfo] = useState({
     name: "Flavoro Foods",
-    logo: null
+    logo: null,
+    loading: true
   });
 
-  // Update hotel info when data changes
+  // Fetch hotel data based on URL parameter or user data
   useEffect(() => {
-    let hotelName = "Flavoro Foods";
-    let hotelLogo = null;
-    
-    // Priority 1: Use hotelData from API (from URL parameter)
-    if (hotelData && hotelData.success) {
-      hotelName = hotelData.hotelname || "Flavoro Foods";
-      if (hotelData.hotelLogo && hotelData.hotelLogo.url) {
-        hotelLogo = hotelData.hotelLogo.url;
-      }
-    }
-    // Priority 2: Use user data (if logged in)
-    else if (user && user.hotelname) {
-      hotelName = user.hotelname;
-      if (user.hotelLogo) {
-        if (user.hotelLogo.url) {
-          hotelLogo = user.hotelLogo.url;
-        } else if (user.hotelLogo.data && user.hotelLogo.contentType) {
-          hotelLogo = `data:${user.hotelLogo.contentType};base64,${user.hotelLogo.data}`;
+    const fetchHotelData = async () => {
+      let hotelName = "Flavoro Foods";
+      let hotelLogo = null;
+      
+      // Priority 1: Check URL parameter (hotelId)
+      if (hotelId) {
+        try {
+          const response = await fetch(`${API_URL}/hotel/${hotelId}`);
+          const data = await response.json();
+          
+          if (data.success && data.hotelname) {
+            hotelName = data.hotelname;
+            if (data.hotelLogo) {
+              hotelLogo = data.hotelLogo.url || 
+                (data.hotelLogo.data ? 
+                  `data:${data.hotelLogo.contentType};base64,${data.hotelLogo.data}` : 
+                  null);
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching hotel data:", error);
         }
       }
-    }
+      // Priority 2: Use user data (if logged in)
+      else if (user && user.hotelname) {
+        hotelName = user.hotelname;
+        if (user.hotelLogo) {
+          if (user.hotelLogo.url) {
+            hotelLogo = user.hotelLogo.url;
+          } else if (user.hotelLogo.data && user.hotelLogo.contentType) {
+            hotelLogo = `data:${user.hotelLogo.contentType};base64,${user.hotelLogo.data}`;
+          }
+        }
+      }
+      
+      setHotelInfo({
+        name: hotelName,
+        logo: hotelLogo,
+        loading: false
+      });
+    };
     
-    setHotelInfo({
-      name: hotelName,
-      logo: hotelLogo
-    });
-    
-  }, [hotelData, user]);
+    fetchHotelData();
+  }, [hotelId, user]);
 
-  // Function to get logo URL
+  // Function to get logo URL with proper error handling
   const getLogoUrl = () => {
-    if (hotelInfo.logo) {
+    if (!hotelInfo.logo) return null;
+    
+    // Ensure logo URL is properly formatted
+    if (hotelInfo.logo.startsWith('data:image')) {
+      return hotelInfo.logo;
+    } else if (hotelInfo.logo.startsWith('http')) {
+      return hotelInfo.logo;
+    } else if (hotelInfo.logo.includes('base64')) {
       return hotelInfo.logo;
     }
     return null;
@@ -66,22 +92,30 @@ const Navbar = () => {
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-1">
         <div className="flex justify-between items-center py-4">
-          {/* Hotel Logo and Name Section - REMOVED cursor-pointer */}
+          {/* Hotel Logo and Name Section */}
           <div className="flex items-center">
             {logoUrl ? (
-              <img 
-                src={logoUrl} 
-                alt={hotelInfo.name} 
-                className="h-10 w-10 mr-3 rounded-full object-cover border-2 border-green-600"
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                  // Show text fallback
-                  const fallback = document.createElement('span');
-                  fallback.className = 'text-2xl font-bold text-green-600 mr-3';
-                  fallback.textContent = hotelInfo.name.charAt(0);
-                  e.target.parentNode.insertBefore(fallback, e.target.nextSibling);
-                }}
-              />
+              <div className="relative">
+                <img 
+                  src={logoUrl} 
+                  alt={hotelInfo.name} 
+                  className="h-10 w-10 mr-3 rounded-full object-cover border-2 border-green-600"
+                  loading="lazy"
+                  onError={(e) => {
+                    console.error("Logo failed to load:", hotelInfo.logo);
+                    e.target.style.display = 'none';
+                    // Show text fallback
+                    const fallback = e.target.parentNode.querySelector('.logo-fallback');
+                    if (fallback) fallback.style.display = 'block';
+                  }}
+                />
+                <span 
+                  className="logo-fallback text-2xl font-bold text-green-600 mr-3"
+                  style={{ display: 'none' }}
+                >
+                  {hotelInfo.name.charAt(0)}
+                </span>
+              </div>
             ) : (
               <span className="text-2xl font-bold text-green-600 mr-3">
                 {hotelInfo.name.charAt(0)}
@@ -98,6 +132,16 @@ const Navbar = () => {
                 </span>
               )}
             </div>
+          </div>
+
+          {/* Mobile Menu Toggle */}
+          <div className="md:hidden flex items-center space-x-4">
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 text-gray-700 hover:text-green-600"
+            >
+              {mobileMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+            </button>
           </div>
 
           {/* Search Bar - Desktop */}
@@ -145,8 +189,6 @@ const Navbar = () => {
               </div>
             )}
           </div>
-
-          
         </div>
 
         {/* Mobile Search */}
@@ -169,8 +211,8 @@ const Navbar = () => {
               {/* Hotel Info in Mobile */}
               <div className="px-4 py-2 border-b">
                 <div className="font-medium text-gray-800">{hotelInfo.name}</div>
-                {hotelData?.hotelId && (
-                  <div className="text-sm text-gray-500">Hotel ID: {hotelData.hotelId}</div>
+                {hotelId && (
+                  <div className="text-sm text-gray-500">Hotel ID: {hotelId}</div>
                 )}
               </div>
               
