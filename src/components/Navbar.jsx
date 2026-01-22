@@ -32,6 +32,10 @@ const Navbar = () => {
       if (hotelData.hotelLogo && hotelData.hotelLogo.url) {
         hotelLogo = hotelData.hotelLogo.url;
       }
+      // Handle base64 images from backend
+      else if (hotelData.hotelLogo && hotelData.hotelLogo.data && hotelData.hotelLogo.contentType) {
+        hotelLogo = `data:${hotelData.hotelLogo.contentType};base64,${hotelData.hotelLogo.data}`;
+      }
     }
     // Priority 2: Use user data (if logged in)
     else if (user && user.hotelname) {
@@ -69,34 +73,45 @@ const Navbar = () => {
           {/* Hotel Logo and Name Section */}
           <div className="flex items-center">
             {logoUrl ? (
-              <img 
-                src={logoUrl} 
-                alt={hotelInfo.name} 
-                className="h-10 w-10 mr-3 rounded-full object-cover border-2 border-green-600"
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                  const fallback = document.createElement('span');
-                  fallback.className = 'text-2xl font-bold text-green-600 mr-3';
-                  fallback.textContent = hotelInfo.name.charAt(0);
-                  e.target.parentNode.insertBefore(fallback, e.target.nextSibling);
-                }}
-              />
+              <div className="flex items-center">
+                <img 
+                  src={logoUrl} 
+                  alt={hotelInfo.name} 
+                  className="h-10 w-10 mr-3 rounded-full object-cover border-2 border-green-600"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    // Show text fallback if logo fails to load
+                    const fallback = document.createElement('span');
+                    fallback.className = 'text-2xl font-bold text-green-600 mr-3 flex items-center justify-center h-10 w-10 rounded-full border-2 border-green-600';
+                    fallback.textContent = hotelInfo.name.charAt(0);
+                    e.target.parentNode.insertBefore(fallback, e.target.nextSibling);
+                  }}
+                />
+                <div className="flex flex-col">
+                  <span className="text-2xl font-bold text-gray-800">
+                    {hotelInfo.name}
+                  </span>
+                  <span className="text-sm text-gray-500">
+                    Digital Menu
+                  </span>
+                </div>
+              </div>
             ) : (
-              <span className="text-2xl font-bold text-green-600 mr-3">
-                {hotelInfo.name.charAt(0)}
-              </span>
-            )}
-            
-            <div className="flex flex-col">
-              <span className="text-2xl font-bold text-gray-800">
-                {hotelInfo.name}
-              </span>
-              {!logoUrl && !hotelInfo.name.includes("Flavoro") && (
-                <span className="text-sm text-gray-500">
-                  Digital Menu
+              <div className="flex items-center">
+                {/* Show first letter as logo if no logo exists */}
+                <span className="text-2xl font-bold text-green-600 mr-3 flex items-center justify-center h-10 w-10 rounded-full border-2 border-green-600">
+                  {hotelInfo.name.charAt(0)}
                 </span>
-              )}
-            </div>
+                <div className="flex flex-col">
+                  <span className="text-2xl font-bold text-gray-800">
+                    {hotelInfo.name}
+                  </span>
+                  <span className="text-sm text-gray-500">
+                    Digital Menu
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Search Bar - Desktop */}
@@ -227,19 +242,32 @@ const Navbar = () => {
         {mobileMenuOpen && (
           <div className="md:hidden bg-white py-4 border-t">
             <div className="flex flex-col space-y-4">
-              {/* Hotel Info in Mobile - More detailed */}
-              <div className="px-4 py-2 border-b">
-                <div className="font-bold text-lg text-gray-800">{hotelInfo.name}</div>
-                {hotelData?.hotelId && (
-                  <div className="text-sm text-gray-500 mt-1">Hotel ID: {hotelData.hotelId}</div>
+              {/* Hotel Info in Mobile - Display hotel logo and name */}
+              <div className="px-4 py-2 border-b flex items-center">
+                {logoUrl ? (
+                  <img 
+                    src={logoUrl} 
+                    alt={hotelInfo.name} 
+                    className="h-12 w-12 mr-3 rounded-full object-cover border-2 border-green-600"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      const fallback = document.createElement('span');
+                      fallback.className = 'text-xl font-bold text-green-600 mr-3 flex items-center justify-center h-12 w-12 rounded-full border-2 border-green-600';
+                      fallback.textContent = hotelInfo.name.charAt(0);
+                      e.target.parentNode.insertBefore(fallback, e.target.nextSibling);
+                    }}
+                  />
+                ) : (
+                  <span className="text-xl font-bold text-green-600 mr-3 flex items-center justify-center h-12 w-12 rounded-full border-2 border-green-600">
+                    {hotelInfo.name.charAt(0)}
+                  </span>
                 )}
-                {/* Optional: Add more hotel details if available */}
-                {hotelData?.address && (
-                  <div className="text-sm text-gray-500 mt-1">{hotelData.address}</div>
-                )}
-                {hotelData?.contact && (
-                  <div className="text-sm text-gray-500 mt-1">Contact: {hotelData.contact}</div>
-                )}
+                <div>
+                  <div className="font-bold text-lg text-gray-800">{hotelInfo.name}</div>
+                  {hotelData?.hotelId && (
+                    <div className="text-sm text-gray-500">Hotel ID: {hotelData.hotelId}</div>
+                  )}
+                </div>
               </div>
               
               {/* Mobile: Only show user info if already logged in */}
