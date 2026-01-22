@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FiSearch, FiShoppingCart, FiMenu, FiX, FiImage } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
 import { setSearch } from "../redux/slices/searchSlice";
@@ -14,138 +14,237 @@ const Navbar = () => {
   const cartItems = useSelector((state) => state.cart.cart);
   const { isAuthenticated } = useSelector((state) => state.auth);
   const totalQty = cartItems.reduce((total, item) => total + item.qty, 0);
+  
+  // Track mobile state
+  const [isMobile, setIsMobile] = useState(false);
 
-  // Simplified hotel info state
-  const [hotelLogo, setHotelLogo] = useState(null);
-  const [hotelName, setHotelName] = useState("Flavoro Foods");
+  const [hotelInfo, setHotelInfo] = useState({
+    name: "Flavoro Foods",
+    logo: null,
+    loaded: false
+  });
 
-  // Debug logging
+  const logoRef = useRef(null);
+
+  // Detect mobile device
   useEffect(() => {
-    console.log("=== NAVBAR DEBUG INFO ===");
-    console.log("1. hotelData from AuthContext:", hotelData);
-    console.log("2. user from AuthContext:", user);
-    console.log("3. localStorage token:", localStorage.getItem("token"));
-    console.log("=========================");
-  }, [hotelData, user]);
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
-  // Extract hotel info
+  // Update hotel info when data changes - MOBILE OPTIMIZED
   useEffect(() => {
-    let name = "Flavoro Foods";
-    let logo = null;
-
-    // Check hotelData first (from URL parameter)
-    if (hotelData) {
-      console.log("Processing hotelData:", hotelData);
+    const loadHotelInfo = async () => {
+      let hotelName = "Flavoro Foods";
+      let hotelLogo = null;
       
-      // Get hotel name
-      name = hotelData.hotelname || hotelData.name || hotelData.hotelName || "Flavoro Foods";
+      console.log("Loading hotel info, isMobile:", isMobile);
       
-      // Try to get logo from various possible paths
-      let logoSource = null;
-      
-      if (hotelData.hotelLogo) {
-        logoSource = hotelData.hotelLogo;
-      } else if (hotelData.logo) {
-        logoSource = hotelData.logo;
-      } else if (hotelData.image) {
-        logoSource = hotelData.image;
-      }
-      
-      console.log("Found logo source:", logoSource);
-      
-      if (logoSource) {
-        // If it's a string URL
-        if (typeof logoSource === 'string') {
-          if (logoSource.startsWith('http') || logoSource.startsWith('data:image')) {
-            logo = logoSource;
-            console.log("Using string logo:", logo.substring(0, 50));
+      // Priority 1: Use hotelData from API
+      if (hotelData && hotelData.success) {
+        hotelName = hotelData.hotelname || hotelData.name || "Flavoro Foods";
+        
+        const logoObj = hotelData.hotelLogo || hotelData.logo || hotelData.image;
+        
+        if (logoObj) {
+          // For mobile, we need to handle images differently
+          if (isMobile) {
+            console.log("Mobile device detected, optimizing logo loading...");
+            
+            // For mobile, try to use a smaller version or handle base64 better
+            if (logoObj.url) {
+              hotelLogo = logoObj.url;
+              console.log("Using URL for mobile:", hotelLogo);
+            } 
+            else if (logoObj.data) {
+              // For mobile, ensure base64 is properly formatted
+              const contentType = logoObj.contentType || 'image/jpeg';
+              
+              // Create a smaller version for mobile if data is too large
+              const base64Data = logoObj.data;
+              if (base64Data.length > 50000) { // If larger than ~50KB
+                console.log("Large base64 image detected, using fallback for mobile");
+                hotelLogo = null; // Use fallback for mobile
+              } else {
+                hotelLogo = `data:${contentType};base64,${base64Data}`;
+                console.log("Using base64 for mobile");
+              }
+            }
+          } else {
+            // Desktop - use original logic
+            if (logoObj.url) {
+              hotelLogo = logoObj.url;
+            } else if (logoObj.data) {
+              const contentType = logoObj.contentType || 'image/jpeg';
+              hotelLogo = `data:${contentType};base64,${logoObj.data}`;
+            }
           }
         }
-        // If it's an object with url
-        else if (logoSource.url && typeof logoSource.url === 'string') {
-          logo = logoSource.url;
-          console.log("Using object.url logo:", logo);
-        }
-        // If it's an object with base64 data
-        else if (logoSource.data && typeof logoSource.data === 'string') {
-          const contentType = logoSource.contentType || logoSource.type || 'image/jpeg';
-          logo = `data:${contentType};base64,${logoSource.data}`;
-          console.log("Using base64 logo");
+      }
+      // Priority 2: Use user data
+      else if (user && user.hotelname) {
+        hotelName = user.hotelname || user.name || hotelName;
+        
+        const userLogoObj = user.hotelLogo || user.logo;
+        if (userLogoObj) {
+          if (userLogoObj.url) {
+            hotelLogo = userLogoObj.url;
+          } else if (userLogoObj.data) {
+            const contentType = userLogoObj.contentType || 'image/jpeg';
+            
+            // Mobile optimization
+            if (isMobile && userLogoObj.data.length > 50000) {
+              console.log("Large user logo, using fallback on mobile");
+              hotelLogo = null;
+            } else {
+              hotelLogo = `data:${contentType};base64,${userLogoObj.data}`;
+            }
+          }
         }
       }
-    }
-    
-    // If still no logo from hotelData, check user data
-    if (!logo && user) {
-      console.log("Checking user data for logo:", user);
-      name = user.hotelname || user.name || name;
       
-      let userLogoSource = user.hotelLogo || user.logo;
-      if (userLogoSource) {
-        if (typeof userLogoSource === 'string') {
-          logo = userLogoSource;
-        } else if (userLogoSource.url) {
-          logo = userLogoSource.url;
-        } else if (userLogoSource.data) {
-          const contentType = userLogoSource.contentType || 'image/jpeg';
-          logo = `data:${contentType};base64,${userLogoSource.data}`;
-        }
+      // Add cache buster for mobile to prevent cached issues
+      if (hotelLogo && hotelLogo.startsWith('http') && isMobile) {
+        hotelLogo += `?t=${Date.now()}`;
       }
-    }
-
-    console.log("Setting hotel info - Name:", name, "Has Logo:", !!logo);
+      
+      setHotelInfo({
+        name: hotelName,
+        logo: hotelLogo,
+        loaded: true
+      });
+    };
     
-    setHotelName(name);
-    setHotelLogo(logo);
-  }, [hotelData, user]);
+    loadHotelInfo();
+  }, [hotelData, user, isMobile]);
+
+  // Force logo reload on mobile
+  const reloadLogo = () => {
+    if (logoRef.current && isMobile) {
+      const src = logoRef.current.src;
+      logoRef.current.src = '';
+      setTimeout(() => {
+        logoRef.current.src = src;
+      }, 100);
+    }
+  };
+
+  // Handle logo error
+  const handleLogoError = (e) => {
+    console.error("Logo failed to load on", isMobile ? "mobile" : "desktop");
+    
+    // Try to reload once on mobile
+    if (isMobile && !e.target.dataset.retried) {
+      console.log("Retrying logo load on mobile...");
+      e.target.dataset.retried = true;
+      
+      const originalSrc = e.target.src;
+      e.target.src = '';
+      setTimeout(() => {
+        e.target.src = originalSrc;
+      }, 500);
+      return;
+    }
+    
+    // Show fallback
+    e.target.style.display = 'none';
+    const existingFallback = e.target.parentNode.querySelector('.logo-fallback');
+    if (!existingFallback) {
+      const fallback = document.createElement('div');
+      fallback.className = 'logo-fallback h-12 w-12 flex items-center justify-center rounded-full border-2 border-green-600 bg-green-50';
+      const fallbackText = document.createElement('span');
+      fallbackText.className = 'text-xl font-bold text-green-600';
+      fallbackText.textContent = hotelInfo.name.charAt(0);
+      fallback.appendChild(fallbackText);
+      e.target.parentNode.appendChild(fallback);
+    }
+  };
+
+  // Handle logo success
+  const handleLogoLoad = (e) => {
+    console.log("Logo loaded successfully on", isMobile ? "mobile" : "desktop");
+    e.target.style.display = 'block';
+    
+    // Hide any fallback
+    const fallback = e.target.parentNode.querySelector('.logo-fallback');
+    if (fallback) {
+      fallback.style.display = 'none';
+    }
+  };
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-1">
         <div className="flex justify-between items-center py-4">
-          {/* Hotel Logo and Name - SIMPLIFIED */}
+          {/* Hotel Logo and Name Section - MOBILE OPTIMIZED */}
           <div className="flex items-center">
-            {hotelLogo ? (
-              <div className="relative mr-3">
-                <img 
-                  src={hotelLogo} 
-                  alt={hotelName}
-                  className="h-12 w-12 rounded-full object-cover border-2 border-green-600"
-                  onError={(e) => {
-                    console.error("❌ Logo failed to load:", hotelLogo);
-                    e.target.style.display = 'none';
-                    // Show fallback
-                    const parent = e.target.parentNode;
-                    if (!parent.querySelector('.logo-fallback')) {
-                      const fallback = document.createElement('div');
-                      fallback.className = 'logo-fallback h-12 w-12 flex items-center justify-center rounded-full border-2 border-green-600 bg-green-50';
-                      const text = document.createElement('span');
-                      text.className = 'text-2xl font-bold text-green-600';
-                      text.textContent = hotelName.charAt(0);
-                      fallback.appendChild(text);
-                      parent.appendChild(fallback);
-                    }
-                  }}
-                  onLoad={() => console.log("✅ Logo loaded successfully:", hotelLogo)}
-                />
-              </div>
-            ) : (
-              <div className="h-12 w-12 flex items-center justify-center rounded-full border-2 border-green-600 bg-green-50 mr-3">
-                <span className="text-2xl font-bold text-green-600">
-                  {hotelName.charAt(0)}
+            <div className="relative flex items-center mr-3">
+              {hotelInfo.logo ? (
+                <>
+                  <img 
+                    ref={logoRef}
+                    src={hotelInfo.logo} 
+                    alt={`${hotelInfo.name} logo`}
+                    className="h-12 w-12 rounded-full object-cover border-2 border-green-600"
+                    onError={handleLogoError}
+                    onLoad={handleLogoLoad}
+                    loading={isMobile ? "eager" : "lazy"}
+                    crossOrigin="anonymous"
+                    style={{
+                      display: hotelInfo.loaded ? 'block' : 'none'
+                    }}
+                  />
+                  {/* Mobile reload button */}
+                  {isMobile && (
+                    <button
+                      onClick={reloadLogo}
+                      className="absolute -bottom-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center opacity-50 hover:opacity-100"
+                      title="Reload logo"
+                    >
+                      ↻
+                    </button>
+                  )}
+                </>
+              ) : null}
+              
+              {/* Fallback logo - always present but hidden when image loads */}
+              <div 
+                className={`logo-fallback h-12 w-12 flex items-center justify-center rounded-full border-2 border-green-600 bg-green-50 ${
+                  hotelInfo.logo && hotelInfo.loaded ? 'hidden' : ''
+                }`}
+              >
+                <span className="text-xl font-bold text-green-600">
+                  {hotelInfo.name.charAt(0)}
                 </span>
               </div>
-            )}
+            </div>
             
             <div className="flex flex-col">
               <span className="text-xl md:text-2xl font-bold text-gray-800">
-                {hotelName}
+                {hotelInfo.name}
               </span>
-              {!hotelLogo && (
-                <span className="text-xs text-gray-500">
-                  (No logo configured)
-                </span>
-              )}
+              <div className="text-xs md:text-sm text-gray-500 flex items-center">
+                <span>{isMobile ? "📱 Mobile" : "💻 Desktop"}</span>
+                {isMobile && hotelInfo.logo && (
+                  <button
+                    onClick={() => console.log({
+                      hotelData,
+                      user,
+                      hotelInfo,
+                      isMobile
+                    })}
+                    className="ml-2 text-xs text-blue-500"
+                  >
+                    Debug
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
@@ -252,10 +351,16 @@ const Navbar = () => {
             <div className="flex flex-col space-y-4">
               {/* Hotel Info in Mobile */}
               <div className="px-4 py-2 border-b">
-                <div className="font-medium text-gray-800">{hotelName}</div>
+                <div className="font-medium text-gray-800">{hotelInfo.name}</div>
                 <div className="text-sm text-gray-500">
-                  Logo: {hotelLogo ? "Present" : "Not set"}
+                  Device: Mobile | Logo: {hotelInfo.logo ? "Loaded" : "Fallback"}
                 </div>
+                <button
+                  onClick={reloadLogo}
+                  className="mt-2 px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded"
+                >
+                  Reload Logo
+                </button>
               </div>
               
               {isAuthenticated ? (
@@ -295,27 +400,6 @@ const Navbar = () => {
                 </div>
               )}
             </div>
-          </div>
-        )}
-
-        {/* Debug Panel (Development only) */}
-        {process.env.NODE_ENV === 'development' && (
-          <div className="mt-2 p-2 bg-gray-100 rounded text-xs">
-            <div className="font-bold mb-1">Debug Info:</div>
-            <div>Hotel Name: {hotelName}</div>
-            <div>Has Logo: {hotelLogo ? "Yes" : "No"}</div>
-            <div>Logo Preview: {hotelLogo ? hotelLogo.substring(0, 80) + "..." : "N/A"}</div>
-            <button 
-              onClick={() => {
-                console.log("=== MANUAL DEBUG ===");
-                console.log("hotelData:", hotelData);
-                console.log("user:", user);
-                console.log("hotelLogo:", hotelLogo);
-              }}
-              className="mt-1 text-blue-500"
-            >
-              Click to log details
-            </button>
           </div>
         )}
       </div>
