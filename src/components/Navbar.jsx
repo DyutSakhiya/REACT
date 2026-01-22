@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FiSearch, FiMenu, FiX } from "react-icons/fi";
+import { FiSearch } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
 import { setSearch } from "../redux/slices/searchSlice";
 import { useNavigate } from "react-router-dom";
@@ -70,263 +70,131 @@ const Navbar = () => {
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-1">
-        <div className="flex justify-between items-center py-4">
-          {/* Hotel Logo and Name Section - Desktop & Mobile */}
-          <div className="flex items-center">
+        {/* Mobile Header - Always visible on mobile */}
+        <div className="flex justify-between items-center py-3">
+          {/* Hotel Logo and Name - Left side */}
+          <div className="flex items-center flex-shrink-0">
             {hotelInfo.logo ? (
               <div className="flex items-center">
-                {/* Hotel Logo - Shows on both desktop and mobile */}
                 <img 
                   src={hotelInfo.logo} 
                   alt={hotelInfo.name} 
-                  className="h-10 w-10 mr-3 rounded-full object-cover border-2 border-green-600"
+                  className="h-10 w-10 rounded-full object-cover border-2 border-green-600"
                   onError={(e) => {
-                    // If logo fails to load, show first letter
                     e.target.style.display = 'none';
-                    const fallbackSpan = e.target.parentNode.querySelector('.logo-fallback');
-                    if (fallbackSpan) {
-                      fallbackSpan.style.display = 'flex';
-                    }
+                    // Show fallback icon
+                    const fallback = document.createElement('div');
+                    fallback.className = 'h-10 w-10 rounded-full border-2 border-green-600 flex items-center justify-center bg-green-50';
+                    fallback.innerHTML = `<span class="text-lg font-bold text-green-600">${hotelInfo.name.charAt(0)}</span>`;
+                    e.target.parentNode.appendChild(fallback);
                   }}
                 />
-                {/* Hidden fallback that shows if logo fails */}
-                <span 
-                  className="logo-fallback hidden text-2xl font-bold text-green-600 mr-3 h-10 w-10 rounded-full border-2 border-green-600 items-center justify-center"
-                >
-                  {hotelInfo.name.charAt(0)}
-                </span>
-                <div className="flex flex-col">
-                  <span className="text-2xl font-bold text-gray-800">
-                    {hotelInfo.name}
-                  </span>
-                  <span className="text-sm text-gray-500">
-                    Digital Menu
-                  </span>
-                </div>
               </div>
             ) : (
-              <div className="flex items-center">
-                {/* Show first letter if no logo exists */}
-                <span className="text-2xl font-bold text-green-600 mr-3 flex items-center justify-center h-10 w-10 rounded-full border-2 border-green-600">
+              <div className="h-10 w-10 rounded-full border-2 border-green-600 flex items-center justify-center bg-green-50">
+                <span className="text-lg font-bold text-green-600">
                   {hotelInfo.name.charAt(0)}
                 </span>
-                <div className="flex flex-col">
-                  <span className="text-2xl font-bold text-gray-800">
-                    {hotelInfo.name}
-                  </span>
-                  <span className="text-sm text-gray-500">
-                    Digital Menu
-                  </span>
-                </div>
               </div>
             )}
-          </div>
-
-          {/* Search Bar - Desktop */}
-          <div className="hidden md:flex flex-1 max-w-md mx-6">
-            <div className="relative w-full">
-              <input
-                type="search"
-                placeholder="Search foods..."
-                onChange={(e) => dispatch(setSearch(e.target.value))}
-                className="w-full py-2 px-4 pl-10 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              />
-              <FiSearch className="absolute left-3 top-3 text-gray-400" />
+            <div className="ml-3">
+              <h1 className="text-lg font-bold text-gray-800 leading-tight">
+                {hotelInfo.name}
+              </h1>
+              <p className="text-xs text-gray-500">Digital Menu</p>
             </div>
           </div>
 
-          {/* Right Side Section - Desktop */}
-          <div className="hidden md:flex items-center space-x-6">
-            {/* Cart Icon - Desktop */}
-            <button
-              onClick={() => navigate("/cart")}
-              className="relative p-2 text-gray-600 hover:text-green-600"
+          {/* Cart Icon - Right side */}
+          <button
+            onClick={() => navigate("/cart")}
+            className="relative p-2 text-gray-600 hover:text-green-600"
+          >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
             >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                />
-              </svg>
-              {totalQty > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {totalQty}
-                </span>
-              )}
-            </button>
-
-            {/* User Section - Desktop (Only show if authenticated) */}
-            {isAuthenticated ? (
-              <div className="flex items-center space-x-4">
-                <span className="text-gray-700">Hi, {user?.name}</span>
-                <button
-                  onClick={() => {
-                    dispatch(logout());
-                    navigate("/");
-                  }}
-                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
-                >
-                  Logout
-                </button>
-              </div>
-            ) : (
-              // Desktop: Show login/register only on desktop
-              <div className="flex space-x-4">
-                <button
-                  onClick={() => localStorage.getItem("token") ? navigate("/admin") : navigate("/login")}
-                  className="px-4 py-2 text-sm font-medium text-green-600 border border-green-600 rounded-md hover:bg-green-50"
-                >
-                  Login
-                </button>
-                <button
-                  onClick={() => navigate("/register")}
-                  className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700"
-                >
-                  Register
-                </button>
-              </div>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+              />
+            </svg>
+            {totalQty > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                {totalQty}
+              </span>
             )}
-          </div>
-
-          {/* Mobile Menu Button */}
-          <div className="flex md:hidden items-center space-x-4">
-            {/* Cart Icon - Mobile */}
-            <button
-              onClick={() => navigate("/cart")}
-              className="relative p-2 text-gray-600 hover:text-green-600"
-            >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                />
-              </svg>
-              {totalQty > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {totalQty}
-                </span>
-              )}
-            </button>
-            
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 text-gray-600 hover:text-green-600"
-            >
-              {mobileMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
-            </button>
-          </div>
+          </button>
         </div>
 
-        {/* Mobile Search */}
-        <div className="md:hidden mb-3">
+        {/* Mobile Search - Always visible below header */}
+        <div className="mb-4">
           <div className="relative">
             <input
               type="search"
               placeholder="Search foods..."
               onChange={(e) => dispatch(setSearch(e.target.value))}
-              className="w-full py-2 px-4 pl-10 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full py-3 px-4 pl-12 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-50"
             />
-            <FiSearch className="absolute left-3 top-3 text-gray-400" />
+            <FiSearch className="absolute left-4 top-3.5 text-gray-400 text-lg" />
           </div>
         </div>
 
-        {/* Mobile Menu - Shows hotel logo and name */}
-        {mobileMenuOpen && (
-          <div className="md:hidden bg-white py-4 border-t">
-            <div className="flex flex-col space-y-4">
-              {/* Hotel Info in Mobile - Shows same logo as desktop */}
-              <div className="px-4 py-2 border-b flex items-center">
-                {/* Same hotel logo as desktop */}
-                {hotelInfo.logo ? (
-                  <>
-                    <img 
-                      src={hotelInfo.logo} 
-                      alt={hotelInfo.name} 
-                      className="h-12 w-12 mr-3 rounded-full object-cover border-2 border-green-600"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        const fallbackSpan = e.target.parentNode.querySelector('.mobile-logo-fallback');
-                        if (fallbackSpan) {
-                          fallbackSpan.style.display = 'flex';
-                        }
-                      }}
-                    />
-                    <span 
-                      className="mobile-logo-fallback hidden text-xl font-bold text-green-600 mr-3 h-12 w-12 rounded-full border-2 border-green-600 items-center justify-center"
-                    >
-                      {hotelInfo.name.charAt(0)}
-                    </span>
-                  </>
-                ) : (
-                  <span className="text-xl font-bold text-green-600 mr-3 flex items-center justify-center h-12 w-12 rounded-full border-2 border-green-600">
-                    {hotelInfo.name.charAt(0)}
-                  </span>
-                )}
-                <div>
-                  <div className="font-bold text-lg text-gray-800">{hotelInfo.name}</div>
-                  <div className="text-sm text-gray-500">Digital Menu</div>
-                  {hotelData?.hotelId && (
-                    <div className="text-xs text-gray-400 mt-1">ID: {hotelData.hotelId}</div>
-                  )}
-                </div>
+        {/* Desktop Version (Hidden on mobile) */}
+        <div className="hidden md:block">
+          <div className="flex justify-between items-center py-4">
+            {/* Desktop Search */}
+            <div className="flex-1 max-w-md mx-6">
+              <div className="relative w-full">
+                <input
+                  type="search"
+                  placeholder="Search foods..."
+                  onChange={(e) => dispatch(setSearch(e.target.value))}
+                  className="w-full py-2 px-4 pl-10 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                />
+                <FiSearch className="absolute left-3 top-3 text-gray-400" />
               </div>
-              
-              {/* Optional: Add hotel details if available in hotelData */}
-              {(hotelData?.address || hotelData?.contact) && (
-                <div className="px-4 py-2 border-b">
-                  {hotelData.address && (
-                    <div className="text-sm text-gray-600 mb-1">
-                      <span className="font-medium">Address: </span>
-                      {hotelData.address}
-                    </div>
-                  )}
-                  {hotelData.contact && (
-                    <div className="text-sm text-gray-600">
-                      <span className="font-medium">Contact: </span>
-                      {hotelData.contact}
-                    </div>
-                  )}
-                </div>
-              )}
-              
-              {/* Mobile: Only show user info if already logged in */}
-              {isAuthenticated && (
-                <>
-                  <div className="px-4 py-2 border-b">
-                    <span className="text-gray-700 font-medium">Welcome, {user?.name}</span>
-                    <div className="text-sm text-gray-500 mt-1">{user?.email}</div>
-                  </div>
+            </div>
+
+            {/* Desktop User Section */}
+            <div className="flex items-center space-x-6">
+              {isAuthenticated ? (
+                <div className="flex items-center space-x-4">
+                  <span className="text-gray-700">Hi, {user?.name}</span>
                   <button
                     onClick={() => {
                       dispatch(logout());
                       navigate("/");
-                      setMobileMenuOpen(false);
                     }}
-                    className="mx-4 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
+                    className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
                   >
                     Logout
                   </button>
-                </>
+                </div>
+              ) : (
+                <div className="flex space-x-4">
+                  <button
+                    onClick={() => localStorage.getItem("token") ? navigate("/admin") : navigate("/login")}
+                    className="px-4 py-2 text-sm font-medium text-green-600 border border-green-600 rounded-md hover:bg-green-50"
+                  >
+                    Login
+                  </button>
+                  <button
+                    onClick={() => navigate("/register")}
+                    className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700"
+                  >
+                    Register
+                  </button>
+                </div>
               )}
             </div>
           </div>
-        )}
+        </div>
       </div>
     </nav>
   );
