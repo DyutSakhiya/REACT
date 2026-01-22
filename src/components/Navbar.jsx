@@ -10,15 +10,15 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user, hotelData } = useAuth();
+  const { user, hotelData } = useAuth(); // Get user from AuthContext
   const cartItems = useSelector((state) => state.cart.cart);
   const { isAuthenticated } = useSelector((state) => state.auth);
   const totalQty = cartItems.reduce((total, item) => total + item.qty, 0);
 
+  // Get hotel information based on URL or user data
   const [hotelInfo, setHotelInfo] = useState({
     name: "Flavoro Foods",
-    logo: null,
-    logoLoaded: false
+    logo: null
   });
 
   // Update hotel info when data changes
@@ -26,133 +26,74 @@ const Navbar = () => {
     let hotelName = "Flavoro Foods";
     let hotelLogo = null;
     
-    console.log("Processing hotel data for logo...");
-    
-    // Check hotelData from URL parameter
+    // Priority 1: Use hotelData from API (from URL parameter)
     if (hotelData && hotelData.success) {
-      hotelName = hotelData.hotelname || hotelData.name || "Flavoro Foods";
-      
-      // Try to get logo from different possible structures
-      const getLogoFromObject = (logoObj) => {
-        if (!logoObj) return null;
-        
-        // If it's already a string URL
-        if (typeof logoObj === 'string') {
-          // Check if it's a base64 string
-          if (logoObj.startsWith('data:image')) {
-            return logoObj;
-          }
-          // Check if it's a URL
-          if (logoObj.startsWith('http') || logoObj.startsWith('/')) {
-            return logoObj;
-          }
-        }
-        
-        // If it's an object with url property
-        if (logoObj.url) {
-          return logoObj.url;
-        }
-        
-        // If it's an object with data property (base64)
-        if (logoObj.data) {
-          const contentType = logoObj.contentType || 'image/jpeg';
-          return `data:${contentType};base64,${logoObj.data}`;
-        }
-        
-        return null;
-      };
-      
-      // Try different property names
-      hotelLogo = getLogoFromObject(hotelData.hotelLogo) || 
-                  getLogoFromObject(hotelData.logo) || 
-                  getLogoFromObject(hotelData.image);
-      
-      console.log("Hotel Data Logo found:", hotelLogo ? "Yes" : "No");
+      hotelName = hotelData.hotelname || "Flavoro Foods";
+      if (hotelData.hotelLogo && hotelData.hotelLogo.url) {
+        hotelLogo = hotelData.hotelLogo.url;
+      }
     }
-    
-    // If no hotelData logo, check user data
-    if (!hotelLogo && user && user.hotelname) {
-      hotelName = user.hotelname || user.name || hotelName;
-      
-      const userLogoObj = user.hotelLogo || user.logo;
-      if (userLogoObj) {
-        if (userLogoObj.url) {
-          hotelLogo = userLogoObj.url;
-        } else if (userLogoObj.data && userLogoObj.contentType) {
-          hotelLogo = `data:${userLogoObj.contentType};base64,${userLogoObj.data}`;
+    // Priority 2: Use user data (if logged in)
+    else if (user && user.hotelname) {
+      hotelName = user.hotelname;
+      if (user.hotelLogo) {
+        if (user.hotelLogo.url) {
+          hotelLogo = user.hotelLogo.url;
+        } else if (user.hotelLogo.data && user.hotelLogo.contentType) {
+          hotelLogo = `data:${user.hotelLogo.contentType};base64,${user.hotelLogo.data}`;
         }
       }
     }
     
-    console.log("Setting hotel info:", { 
-      name: hotelName, 
-      hasLogo: !!hotelLogo,
-      logo: hotelLogo ? hotelLogo.substring(0, 50) + "..." : "none"
-    });
-    
     setHotelInfo({
       name: hotelName,
-      logo: hotelLogo,
-      logoLoaded: false
+      logo: hotelLogo
     });
     
   }, [hotelData, user]);
 
-  // Handle logo load success
-  const handleLogoLoad = () => {
-    console.log("Hotel logo loaded successfully");
-    setHotelInfo(prev => ({ ...prev, logoLoaded: true }));
+  // Function to get logo URL
+  const getLogoUrl = () => {
+    if (hotelInfo.logo) {
+      return hotelInfo.logo;
+    }
+    return null;
   };
 
-  // Handle logo load error
-  const handleLogoError = (e) => {
-    console.error("Hotel logo failed to load:", e.target.src);
-    setHotelInfo(prev => ({ ...prev, logoLoaded: false }));
-    e.target.style.display = 'none';
-  };
+  const logoUrl = getLogoUrl();
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-1">
         <div className="flex justify-between items-center py-4">
-          {/* Hotel Logo and Name Section */}
-          <div 
-            className="flex items-center"
-            onClick={() => navigate("/")}
-            style={{ cursor: "pointer" }}
-          >
-            {hotelInfo.logo ? (
-              <div className="flex items-center mr-3">
-                <img 
-                  src={hotelInfo.logo} 
-                  alt={`${hotelInfo.name} logo`}
-                  className="h-12 w-12 rounded-full object-cover border-2 border-green-600"
-                  onLoad={handleLogoLoad}
-                  onError={handleLogoError}
-                  crossOrigin="anonymous"
-                  loading="eager"
-                />
-                {/* Loading indicator */}
-                {!hotelInfo.logoLoaded && (
-                  <div className="absolute ml-3">
-                    <div className="h-12 w-12 rounded-full border-2 border-green-600 border-t-transparent animate-spin"></div>
-                  </div>
-                )}
-              </div>
+          {/* Hotel Logo and Name Section - REMOVED cursor-pointer */}
+          <div className="flex items-center">
+            {logoUrl ? (
+              <img 
+                src={logoUrl} 
+                alt={hotelInfo.name} 
+                className="h-10 w-10 mr-3 rounded-full object-cover border-2 border-green-600"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  // Show text fallback
+                  const fallback = document.createElement('span');
+                  fallback.className = 'text-2xl font-bold text-green-600 mr-3';
+                  fallback.textContent = hotelInfo.name.charAt(0);
+                  e.target.parentNode.insertBefore(fallback, e.target.nextSibling);
+                }}
+              />
             ) : (
-              <div className="h-12 w-12 flex items-center justify-center rounded-full border-2 border-green-600 bg-green-50 mr-3">
-                <span className="text-2xl font-bold text-green-600">
-                  {hotelInfo.name.charAt(0)}
-                </span>
-              </div>
+              <span className="text-2xl font-bold text-green-600 mr-3">
+                {hotelInfo.name.charAt(0)}
+              </span>
             )}
             
             <div className="flex flex-col">
-              <span className="text-xl md:text-2xl font-bold text-gray-800">
+              <span className="text-2xl font-bold text-gray-800">
                 {hotelInfo.name}
               </span>
-              {!hotelInfo.logo && (
-                <span className="text-xs md:text-sm text-gray-500">
+              {!logoUrl && !hotelInfo.name.includes("Flavoro") && (
+                <span className="text-sm text-gray-500">
                   Digital Menu
                 </span>
               )}
@@ -203,47 +144,12 @@ const Navbar = () => {
                 </button>
               </div>
             )}
-            
-            {/* Cart Icon - Desktop */}
-            <div 
-              className="relative cursor-pointer"
-              onClick={() => navigate("/cart")}
-            >
-              <FiShoppingCart className="text-2xl text-gray-700 hover:text-green-600" />
-              {totalQty > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {totalQty}
-                </span>
-              )}
-            </div>
           </div>
 
-          {/* Mobile Menu Button and Cart */}
-          <div className="flex md:hidden items-center space-x-4">
-            {/* Cart Icon - Mobile */}
-            <div 
-              className="relative cursor-pointer"
-              onClick={() => navigate("/cart")}
-            >
-              <FiShoppingCart className="text-2xl text-gray-700 hover:text-green-600" />
-              {totalQty > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {totalQty}
-                </span>
-              )}
-            </div>
-            
-            {/* Mobile Menu Toggle */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-2xl text-gray-700 focus:outline-none"
-            >
-              {mobileMenuOpen ? <FiX /> : <FiMenu />}
-            </button>
-          </div>
+          
         </div>
 
-        {/* Mobile Search - ALWAYS SHOW THIS */}
+        {/* Mobile Search */}
         <div className="md:hidden mb-3">
           <div className="relative">
             <input
@@ -260,32 +166,12 @@ const Navbar = () => {
         {mobileMenuOpen && (
           <div className="md:hidden bg-white py-4 border-t">
             <div className="flex flex-col space-y-4">
-              {/* Hotel Info in Mobile - WITH LOGO */}
-              <div className="px-4 py-2 border-b flex items-center">
-                {hotelInfo.logo ? (
-                  <img 
-                    src={hotelInfo.logo} 
-                    alt={`${hotelInfo.name} logo`}
-                    className="h-10 w-10 rounded-full object-cover border-2 border-green-600 mr-3"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      const fallback = document.createElement('div');
-                      fallback.className = 'h-10 w-10 rounded-full border-2 border-green-600 bg-green-50 flex items-center justify-center mr-3';
-                      fallback.innerHTML = `<span class="text-lg font-bold text-green-600">${hotelInfo.name.charAt(0)}</span>`;
-                      e.target.parentNode.insertBefore(fallback, e.target.nextSibling);
-                    }}
-                  />
-                ) : (
-                  <div className="h-10 w-10 rounded-full border-2 border-green-600 bg-green-50 flex items-center justify-center mr-3">
-                    <span className="text-lg font-bold text-green-600">
-                      {hotelInfo.name.charAt(0)}
-                    </span>
-                  </div>
+              {/* Hotel Info in Mobile */}
+              <div className="px-4 py-2 border-b">
+                <div className="font-medium text-gray-800">{hotelInfo.name}</div>
+                {hotelData?.hotelId && (
+                  <div className="text-sm text-gray-500">Hotel ID: {hotelData.hotelId}</div>
                 )}
-                <div>
-                  <div className="font-medium text-gray-800">{hotelInfo.name}</div>
-                  <div className="text-sm text-gray-500">Tap to refresh</div>
-                </div>
               </div>
               
               {isAuthenticated ? (
