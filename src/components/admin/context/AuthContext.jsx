@@ -17,7 +17,9 @@ export const AuthProvider = ({ children }) => {
       try {
         const parsedUser = JSON.parse(userData);
         setUser(parsedUser);
-        if (parsedUser.hotelLogo) setHotelLogo(parsedUser.hotelLogo);
+        if (parsedUser.hotelLogo) {
+          setHotelLogo(parsedUser.hotelLogo);
+        }
       } catch (error) {
         console.error("Error parsing user data:", error);
         localStorage.removeItem("token");
@@ -30,16 +32,29 @@ export const AuthProvider = ({ children }) => {
   /* ---------- register – JSON + base-64 logo ---------- */
   const register = async (name, mobile, password, hotelname, imageFile = null) => {
     try {
-      let hotelLogo = null;
+      let hotelLogoData = null;
       if (imageFile) {
-        hotelLogo = await new Promise((res) => {
+        hotelLogoData = await new Promise((resolve, reject) => {
           const reader = new FileReader();
-          reader.onload = () => res(reader.result.split(",")[1]); // strip data:url prefix
+          reader.onload = () => {
+            const base64String = reader.result.split(",")[1];
+            resolve({
+              data: base64String,
+              contentType: imageFile.type
+            });
+          };
+          reader.onerror = reject;
           reader.readAsDataURL(imageFile);
         });
       }
 
-      const payload = { name, mobile, password, hotelname, hotelLogo };
+      const payload = { 
+        name, 
+        mobile, 
+        password, 
+        hotelname, 
+        hotelLogo: hotelLogoData 
+      };
 
       const response = await fetch(`${API_URL}/admin/register`, {
         method: "POST",
@@ -78,7 +93,9 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
         setUser(data.user);
-        if (data.user.hotelLogo) setHotelLogo(data.user.hotelLogo);
+        if (data.user.hotelLogo) {
+          setHotelLogo(data.user.hotelLogo);
+        }
         return true;
       }
 
@@ -99,17 +116,47 @@ export const AuthProvider = ({ children }) => {
     setHotelLogo(null);
   };
 
+  /* ---------- update user ---------- */
+  const updateUser = (updatedUser) => {
+    setUser(updatedUser);
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+  };
+
+  /* ---------- update hotel logo ---------- */
+  const updateHotelLogo = (newLogo) => {
+    setHotelLogo(newLogo);
+    if (user) {
+      const updatedUser = { ...user, hotelLogo: newLogo };
+      setUser(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+    }
+  };
+
   /* ---------- helper: logo URL ---------- */
   const getLogoUrl = () => {
-    if (hotelLogo?.data) {
-      return `data:${hotelLogo.contentType};base64,${hotelLogo.data}`;
+    if (hotelLogo) {
+      if (hotelLogo.url) {
+        return hotelLogo.url;
+      } else if (hotelLogo.data && hotelLogo.contentType) {
+        return `data:${hotelLogo.contentType};base64,${hotelLogo.data}`;
+      }
     }
     return null;
   };
 
   return (
     <AuthContext.Provider
-      value={{ user, login, register, logout, loading, hotelLogo, getLogoUrl }}
+      value={{ 
+        user, 
+        login, 
+        register, 
+        logout, 
+        loading, 
+        hotelLogo, 
+        getLogoUrl,
+        updateUser,
+        updateHotelLogo
+      }}
     >
       {children}
     </AuthContext.Provider>
