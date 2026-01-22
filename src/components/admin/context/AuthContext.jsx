@@ -27,43 +27,6 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  /* ---------- register – JSON + base-64 logo ---------- */
-  const register = async (name, mobile, password, hotelname, imageFile = null) => {
-    try {
-      let hotelLogo = null;
-      if (imageFile) {
-        hotelLogo = await new Promise((res) => {
-          const reader = new FileReader();
-          reader.onload = () => res(reader.result.split(",")[1]); // strip data:url prefix
-          reader.readAsDataURL(imageFile);
-        });
-      }
-
-      const payload = { name, mobile, password, hotelname, hotelLogo };
-
-      const response = await fetch(`${API_URL}/admin/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const msg = await response.text();
-        throw new Error(msg || "Registration failed");
-      }
-
-      const data = await response.json();
-      if (data.success) return true;
-
-      alert(data.message || "Registration failed");
-      return false;
-    } catch (err) {
-      console.error("Register error:", err);
-      alert(err.message || "Network error. Please try again.");
-      return false;
-    }
-  };
-
   /* ---------- login ---------- */
   const login = async (mobile, password) => {
     try {
@@ -99,17 +62,24 @@ export const AuthProvider = ({ children }) => {
     setHotelLogo(null);
   };
 
-  /* ---------- helper: logo URL ---------- */
+  /* ---------- helper: get logo URL ---------- */
   const getLogoUrl = () => {
-    if (hotelLogo?.data) {
-      return `data:${hotelLogo.contentType};base64,${hotelLogo.data}`;
+    if (user?.hotelLogo?.url) {
+      return user.hotelLogo.url;
     }
     return null;
   };
 
   return (
     <AuthContext.Provider
-      value={{ user, login, register, logout, loading, hotelLogo, getLogoUrl }}
+      value={{ 
+        user, 
+        login, 
+        logout, 
+        loading, 
+        hotelLogo: getLogoUrl(), 
+        getLogoUrl 
+      }}
     >
       {children}
     </AuthContext.Provider>

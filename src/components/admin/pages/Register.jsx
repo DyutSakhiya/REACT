@@ -1,8 +1,8 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { Upload, X } from "lucide-react";
+import { API_URL } from "../../../helper"; // Add this import
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -13,13 +13,14 @@ export default function Register() {
     confirmPassword: "",
   });
   const [isLoading, setIsLoading] = useState(false);
-  const { register, user } = useAuth();
+  const { user } = useAuth(); // Only get user, not register function
   const navigate = useNavigate();
   const [imagePreview, setImagePreview] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
     if (user) {
+      // User is already logged in
     }
   }, [user]);
 
@@ -74,19 +75,38 @@ export default function Register() {
 
     setIsLoading(true);
     
-    // Send registration data with image
-    const success = await register(
-      formData.name,
-      formData.mobile,
-      formData.password,
-      formData.hotelname,
-      selectedImage
-    );
-    
-    setIsLoading(false);
+    try {
+      // Create FormData
+      const formDataObj = new FormData();
+      formDataObj.append('name', formData.name);
+      formDataObj.append('mobile', formData.mobile);
+      formDataObj.append('password', formData.password);
+      formDataObj.append('hotelname', formData.hotelname);
+      
+      if (selectedImage) {
+        formDataObj.append('hotelLogo', selectedImage);
+      }
 
-    if (success) {
-      navigate("/login");
+      // Call API directly
+      const response = await fetch(`${API_URL}/admin/register`, {
+        method: 'POST',
+        body: formDataObj
+        // Don't set Content-Type header for FormData
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        alert("Registration successful! Please login.");
+        navigate("/login");
+      } else {
+        alert(data.message || "Registration failed");
+      }
+    } catch (error) {
+      console.error("Registration error:", error);
+      alert("Network error. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
