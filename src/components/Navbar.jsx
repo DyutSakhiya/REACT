@@ -10,93 +10,67 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user, hotelLogo } = useAuth(); // Use hotelLogo from context
+  const { user, hotelData } = useAuth(); // Get user from AuthContext
   const cartItems = useSelector((state) => state.cart.cart);
   const { isAuthenticated } = useSelector((state) => state.auth);
   const totalQty = cartItems.reduce((total, item) => total + item.qty, 0);
 
-  // Get hotel information
+  // Get hotel information based on URL or user data
   const [hotelInfo, setHotelInfo] = useState({
     name: "Flavoro Foods",
     logo: null
   });
 
-  // Update hotel info when user data changes
+  // Update hotel info when data changes
   useEffect(() => {
     let hotelName = "Flavoro Foods";
-    let logoUrl = null;
+    let hotelLogo = null;
     
-    // If user is logged in, use their hotel info
-    if (user) {
-      hotelName = user.hotelname || "Flavoro Foods";
-      
-      // Get logo from context's getLogoUrl() function
-      const { getLogoUrl } = useAuth();
-      logoUrl = getLogoUrl ? getLogoUrl() : null;
-      
-      // If not available from context, try user data
-      if (!logoUrl && user.hotelLogo) {
+    // Priority 1: Use hotelData from API (from URL parameter)
+    if (hotelData && hotelData.success) {
+      hotelName = hotelData.hotelname || "Flavoro Foods";
+      if (hotelData.hotelLogo && hotelData.hotelLogo.url) {
+        hotelLogo = hotelData.hotelLogo.url;
+      }
+    }
+    // Priority 2: Use user data (if logged in)
+    else if (user && user.hotelname) {
+      hotelName = user.hotelname;
+      if (user.hotelLogo) {
         if (user.hotelLogo.url) {
-          logoUrl = user.hotelLogo.url;
+          hotelLogo = user.hotelLogo.url;
         } else if (user.hotelLogo.data && user.hotelLogo.contentType) {
-          logoUrl = `data:${user.hotelLogo.contentType};base64,${user.hotelLogo.data}`;
+          hotelLogo = `data:${user.hotelLogo.contentType};base64,${user.hotelLogo.data}`;
         }
       }
     }
     
     setHotelInfo({
       name: hotelName,
-      logo: logoUrl
+      logo: hotelLogo
     });
     
-  }, [user, hotelLogo]);
+  }, [hotelData, user]);
 
-  // Function to handle logo click
-  const handleLogoClick = () => {
-    // Add any logo click functionality here if needed
-    console.log("Logo clicked");
+  // Function to get logo URL
+  const getLogoUrl = () => {
+    if (hotelInfo.logo) {
+      return hotelInfo.logo;
+    }
+    return null;
   };
 
-  // Get current URL parameters to check for hotel ID
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const hotelId = urlParams.get('hotelId');
-    
-    if (hotelId && !user) {
-      // If there's a hotelId in URL and user is not logged in,
-      // you might want to fetch hotel data from API
-      fetchHotelData(hotelId);
-    }
-  }, [user]);
-
-  const fetchHotelData = async (hotelId) => {
-    try {
-      const response = await fetch(`${API_URL}/hotel/${hotelId}`);
-      const data = await response.json();
-      
-      if (data.success) {
-        setHotelInfo({
-          name: data.hotelname || "Flavoro Foods",
-          logo: data.hotelLogo?.url || null
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching hotel data:", error);
-    }
-  };
+  const logoUrl = getLogoUrl();
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-1">
         <div className="flex justify-between items-center py-4">
-          {/* Hotel Logo and Name Section */}
-          <div 
-            className="flex items-center"
-            onClick={handleLogoClick}
-          >
-            {hotelInfo.logo ? (
+          {/* Hotel Logo and Name Section - REMOVED cursor-pointer */}
+          <div className="flex items-center">
+            {logoUrl ? (
               <img 
-                src={hotelInfo.logo} 
+                src={logoUrl} 
                 alt={hotelInfo.name} 
                 className="h-10 w-10 mr-3 rounded-full object-cover border-2 border-green-600"
                 onError={(e) => {
@@ -107,8 +81,6 @@ const Navbar = () => {
                   fallback.textContent = hotelInfo.name.charAt(0);
                   e.target.parentNode.insertBefore(fallback, e.target.nextSibling);
                 }}
-                // Add crossOrigin attribute for better mobile compatibility
-                crossOrigin="anonymous"
               />
             ) : (
               <span className="text-2xl font-bold text-green-600 mr-3">
@@ -120,25 +92,13 @@ const Navbar = () => {
               <span className="text-2xl font-bold text-gray-800">
                 {hotelInfo.name}
               </span>
-              {!hotelInfo.logo && !hotelInfo.name.includes("Flavoro") && (
+              {!logoUrl && !hotelInfo.name.includes("Flavoro") && (
                 <span className="text-sm text-gray-500">
                   Digital Menu
                 </span>
               )}
             </div>
           </div>
-
-          {/* Mobile Menu Toggle */}
-          <button
-            className="md:hidden"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? (
-              <FiX className="w-6 h-6 text-gray-600" />
-            ) : (
-              <FiMenu className="w-6 h-6 text-gray-600" />
-            )}
-          </button>
 
           {/* Search Bar - Desktop */}
           <div className="hidden md:flex flex-1 max-w-md mx-6">
@@ -153,21 +113,8 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* Cart Icon - Desktop */}
+          {/* User Section - Desktop */}
           <div className="hidden md:flex items-center space-x-6">
-            <div className="relative">
-              <FiShoppingCart 
-                className="w-6 h-6 text-gray-600 cursor-pointer" 
-                onClick={() => navigate("/cart")}
-              />
-              {totalQty > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {totalQty}
-                </span>
-              )}
-            </div>
-
-            {/* User Section - Desktop */}
             {isAuthenticated ? (
               <div className="flex items-center space-x-4">
                 <span className="text-gray-700">Hi, {user?.name}</span>
@@ -198,6 +145,8 @@ const Navbar = () => {
               </div>
             )}
           </div>
+
+          
         </div>
 
         {/* Mobile Search */}
@@ -220,25 +169,8 @@ const Navbar = () => {
               {/* Hotel Info in Mobile */}
               <div className="px-4 py-2 border-b">
                 <div className="font-medium text-gray-800">{hotelInfo.name}</div>
-                {user?.hotelId && (
-                  <div className="text-sm text-gray-500">Hotel ID: {user.hotelId}</div>
-                )}
-              </div>
-              
-              {/* Cart in Mobile Menu */}
-              <div 
-                className="flex items-center px-4 py-2 space-x-3 cursor-pointer hover:bg-gray-50"
-                onClick={() => {
-                  navigate("/cart");
-                  setMobileMenuOpen(false);
-                }}
-              >
-                <FiShoppingCart className="w-5 h-5 text-gray-600" />
-                <span>Cart</span>
-                {totalQty > 0 && (
-                  <span className="ml-auto bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {totalQty}
-                  </span>
+                {hotelData?.hotelId && (
+                  <div className="text-sm text-gray-500">Hotel ID: {hotelData.hotelId}</div>
                 )}
               </div>
               
