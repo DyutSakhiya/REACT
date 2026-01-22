@@ -1,8 +1,6 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { Upload, X } from "lucide-react";
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -11,51 +9,54 @@ export default function Register() {
     mobile: "",
     password: "",
     confirmPassword: "",
+    logoUrl: ""
   });
   const [isLoading, setIsLoading] = useState(false);
   const { register, user } = useAuth();
   const navigate = useNavigate();
-  const [imagePreview, setImagePreview] = useState("");
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [imageError, setImageError] = useState("");
 
   useEffect(() => {
     if (user) {
+      // User is already logged in
     }
   }, [user]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const removeImage = () => {
-    setSelectedImage(null);
-    setImagePreview("");
-  };
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      // Validate file type
-      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-      if (!validTypes.includes(file.type)) {
-        alert("Only JPEG, PNG, GIF, and WebP images are allowed");
-        return;
-      }
-      
-      // Validate file size (5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        alert("Image size should be less than 5MB");
-        return;
-      }
-      
-      setSelectedImage(file);
-      const reader = new FileReader();
-      reader.onloadend = () => setImagePreview(reader.result);
-      reader.readAsDataURL(file);
+    if (e.target.name === "logoUrl") {
+      setImageError("");
     }
   };
 
+  const validateImageUrl = (url) => {
+    if (!url) return { valid: true }; // Logo is optional
+    
+    // Check if URL is valid
+    try {
+      new URL(url);
+    } catch (error) {
+      return { valid: false, message: "Please enter a valid URL" };
+    }
+
+    // Check for common image extensions
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+    const hasImageExtension = imageExtensions.some(ext => 
+      url.toLowerCase().endsWith(ext)
+    );
+    
+    if (!hasImageExtension) {
+      return { 
+        valid: false, 
+        message: "URL should point to an image (jpg, png, gif, webp, svg)" 
+      };
+    }
+
+    return { valid: true };
+  };
+
   const handleRegister = async () => {
+    // Validate all fields
     if (
       !formData.hotelname ||
       !formData.name ||
@@ -63,7 +64,7 @@ export default function Register() {
       !formData.password ||
       !formData.confirmPassword
     ) {
-      alert("Please fill all fields");
+      alert("Please fill all required fields");
       return;
     }
 
@@ -72,15 +73,24 @@ export default function Register() {
       return;
     }
 
+    // Validate image URL if provided
+    if (formData.logoUrl) {
+      const validation = validateImageUrl(formData.logoUrl);
+      if (!validation.valid) {
+        setImageError(validation.message);
+        return;
+      }
+    }
+
     setIsLoading(true);
     
-    // Send registration data with image
+    // Send registration data with logo URL
     const success = await register(
       formData.name,
       formData.mobile,
       formData.password,
       formData.hotelname,
-      selectedImage
+      formData.logoUrl // Pass URL instead of file
     );
     
     setIsLoading(false);
@@ -123,60 +133,55 @@ export default function Register() {
               Create Your Flavaro Account
             </h2>
           </div>
-          <div className="w-full flex flex-row gap-2">
-            <div className="w-1/2">
-              <input
-                name="hotelname"
-                type="text"
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-orange-400"
-                placeholder="Hotel Name"
-                value={formData.hotelname}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="w-1/2">
-              {imagePreview ? (
-                <div className="relative inline-block">
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="w-24 h-24 object-cover rounded border"
-                  />
-                  <button
-                    type="button"
-                    onClick={removeImage}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                  >
-                    <X size={14} />
-                  </button>
-                </div>
-              ) : (
-                <label
-                  htmlFor="image-upload"
-                  className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center block cursor-pointer hover:border-orange-500 transition-colors w-full h-full"
-                >
-                  <Upload className="w-6 h-6 text-gray-400 mx-auto" />
-                  <span className="text-xs text-gray-500">
-                    Hotel Logo (optional)
-                  </span>
-                  <input
-                    id="image-upload"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                  />
-                </label>
-              )}
-            </div>
-          </div>
+
           <div className="space-y-4">
+            <input
+              name="hotelname"
+              type="text"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-orange-400"
+              placeholder="Hotel Name *"
+              value={formData.hotelname}
+              onChange={handleChange}
+              required
+            />
+            
+            <div className="space-y-2">
+              <input
+                name="logoUrl"
+                type="url"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-orange-400"
+                placeholder="Hotel Logo URL (optional) - e.g., https://example.com/logo.png"
+                value={formData.logoUrl}
+                onChange={handleChange}
+              />
+              {imageError && (
+                <p className="text-red-500 text-sm">{imageError}</p>
+              )}
+              {formData.logoUrl && (
+                <div className="mt-2">
+                  <p className="text-sm text-gray-600 mb-2">Logo Preview:</p>
+                  <img
+                    src={formData.logoUrl}
+                    alt="Logo preview"
+                    className="w-24 h-24 object-cover rounded border mx-auto"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      setImageError("Could not load image from this URL");
+                    }}
+                    onLoad={() => setImageError("")}
+                  />
+                </div>
+              )}
+              <p className="text-xs text-gray-500">
+                Enter a direct image URL (jpg, png, gif, webp, svg). You can upload your logo to services like Imgur, Cloudinary, or any image hosting service.
+              </p>
+            </div>
+
             <input
               name="name"
               type="text"
               className="w-full px-4 py-3 rounded-lg border border-gray-300 text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-orange-400"
-              placeholder="Full Name"
+              placeholder="Full Name *"
               value={formData.name}
               onChange={handleChange}
               required
@@ -185,7 +190,7 @@ export default function Register() {
               name="mobile"
               type="text"
               className="w-full px-4 py-3 rounded-lg border border-gray-300 text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-orange-400"
-              placeholder="Mobile number"
+              placeholder="Mobile number *"
               value={formData.mobile}
               onChange={handleChange}
               required
@@ -194,7 +199,7 @@ export default function Register() {
               name="password"
               type="password"
               className="w-full px-4 py-3 rounded-lg border border-gray-300 text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-orange-400"
-              placeholder="Password"
+              placeholder="Password *"
               value={formData.password}
               onChange={handleChange}
               required
@@ -203,7 +208,7 @@ export default function Register() {
               name="confirmPassword"
               type="password"
               className="w-full px-4 py-3 rounded-lg border border-gray-300 text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-orange-400"
-              placeholder="Confirm Password"
+              placeholder="Confirm Password *"
               value={formData.confirmPassword}
               onChange={handleChange}
               required
