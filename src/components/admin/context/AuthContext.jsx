@@ -30,13 +30,36 @@ export const AuthProvider = ({ children }) => {
   /* ---------- Helper function to upload image ---------- */
   const uploadImage = async (imageFile) => {
     try {
+      // TEMPORARY WORKAROUND: Convert to base64 and send in registration
+      // This avoids the CORS issue by not making a separate upload request
+      console.log("Using base64 workaround due to CORS restrictions");
+      
+      const base64String = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          // Get the base64 string (without data:url prefix)
+          const base64 = reader.result.split(",")[1];
+          resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(imageFile);
+      });
+      
+      // Return a placeholder object that will be handled by register function
+      return {
+        data: base64String,
+        contentType: imageFile.type,
+        isBase64: true
+      };
+      
+      // ORIGINAL CODE (commented out due to CORS):
+      /*
       const formData = new FormData();
       formData.append("image", imageFile);
 
       const response = await fetch(`${API_URL}/upload`, {
         method: "POST",
         body: formData,
-        // Note: Don't set Content-Type header for FormData, browser will set it automatically
       });
 
       if (!response.ok) {
@@ -45,36 +68,103 @@ export const AuthProvider = ({ children }) => {
       }
 
       const data = await response.json();
-      // Expecting response: { success: true, url: "https://example.com/image.jpg" }
       return data.url;
+      */
     } catch (err) {
       console.error("Image upload error:", err);
       throw err;
     }
   };
 
-  /* ---------- register – with separate image upload ---------- */
+  /* ---------- register – with image handling ---------- */
   const register = async (name, mobile, password, hotelname, imageFile = null) => {
     try {
-      let logoUrl = null;
+      let hotelLogo = null;
 
-      // Upload image first if provided
+      // Upload image if provided
       if (imageFile) {
         try {
-          logoUrl = await uploadImage(imageFile);
+          const imageData = await uploadImage(imageFile);
+          
+          // Check if it's base64 data or URL
+          if (imageData.isBase64) {
+            // Store as base64 object (compatible with existing backend)
+            hotelLogo = {
+              data: imageData.data,
+              contentType: imageData.contentType
+            };
+          } else {
+            // Store as URL string
+            hotelLogo = imageData;
+          }
         } catch (uploadErr) {
-          alert("Failed to upload logo. Please try again or skip logo.");
-          return false;
+          console.warn("Logo upload failed, proceeding without logo:", uploadErr);
+          // Continue registration without logo
         }
       }
 
-      // Prepare registration payload with URL (not base64)
+      // Prepare registration payload
       const payload = { 
         name, 
         mobile, 
         password, 
         hotelname, 
-        hotelLogo: logoUrl // Store URL instead of base64
+        hotelLogo
+      };
+
+      console.log("Sending registration payload:", { ...payload, hotelLogo: hotelLogo ? "[LOGO_DATA]" : null });
+
+      const response = await fetch(`${API_URL}/admin/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const msg = await response.text();
+        throw new Error(msg || "Registration failed");
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        alert("Registration successful! Please login.");
+        return true;
+      }
+
+      alert(data.message || "Registration failed");
+      return false;
+    } catch (err) {
+      console.error("Register error:", err);
+      alert(err.message || "Network error. Please try again.");
+      return false;
+    }
+  };
+
+  /* ---------- Alternative register without separate upload (simpler) ---------- */
+  const registerSimple = async (name, mobile, password, hotelname, imageFile = null) => {
+    try {
+      let hotelLogo = null;
+      
+      // Convert image to base64 if provided
+      if (imageFile) {
+        hotelLogo = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            // Get full base64 data URL
+            const dataUrl = reader.result;
+            // Or just the base64 part: dataUrl.split(",")[1]
+            resolve(dataUrl);
+          };
+          reader.readAsDataURL(imageFile);
+        });
+      }
+
+      const payload = { 
+        name, 
+        mobile, 
+        password, 
+        hotelname, 
+        hotelLogo 
       };
 
       const response = await fetch(`${API_URL}/admin/register`, {
@@ -89,7 +179,10 @@ export const AuthProvider = ({ children }) => {
       }
 
       const data = await response.json();
-      if (data.success) return true;
+      if (data.success) {
+        alert("Registration successful! Please login.");
+        return true;
+      }
 
       alert(data.message || "Registration failed");
       return false;
@@ -114,7 +207,6 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
         setUser(data.user);
-        // Assuming data.user.hotelLogo now contains a URL
         if (data.user.hotelLogo) setHotelLogo(data.user.hotelLogo);
         return true;
       }
@@ -138,16 +230,39 @@ export const AuthProvider = ({ children }) => {
 
   /* ---------- helper: logo URL ---------- */
   const getLogoUrl = () => {
-    // Now hotelLogo should be a direct URL string
-    if (hotelLogo) {
-      return hotelLogo; // Direct URL
+    // Handle both URL string and base64 object formats
+    if (!hotelLogo) return null;
+    
+    if (typeof hotelLogo === 'string') {
+      // If it's already a URL or data URL
+      return hotelLogo;
+    } else if (hotelLogo.data) {
+      // If it's a base64 object
+      return `data:${hotelLogo.contentType || 'image/jpeg'};base64,${hotelLogo.data}`;
     }
+    
     return null;
+  };
+
+  /* ---------- update user ---------- */
+  const updateUser = (userData) => {
+    setUser(userData);
+    if (userData.hotelLogo) setHotelLogo(userData.hotelLogo);
+    localStorage.setItem("user", JSON.stringify(userData));
   };
 
   return (
     <AuthContext.Provider
-      value={{ user, login, register, logout, loading, hotelLogo, getLogoUrl }}
+      value={{ 
+        user, 
+        login, 
+        register: registerSimple, // Using simple version to avoid CORS
+        logout, 
+        loading, 
+        hotelLogo, 
+        getLogoUrl,
+        updateUser
+      }}
     >
       {children}
     </AuthContext.Provider>
