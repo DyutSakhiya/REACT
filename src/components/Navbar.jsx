@@ -10,38 +10,38 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  
-  // AuthContext mathi database na data fetch karva
-  const { user, hotelData } = useAuth(); 
+  const { user, hotelData } = useAuth(); // Get user from AuthContext
   const cartItems = useSelector((state) => state.cart.cart);
   const { isAuthenticated } = useSelector((state) => state.auth);
   const totalQty = cartItems.reduce((total, item) => total + item.qty, 0);
 
-  // Default state: Database data mate placeholder
+  // Get hotel information based on URL or user data
   const [hotelInfo, setHotelInfo] = useState({
-    name: "Loading...",
+    name: "Flavoro Foods",
     logo: null
   });
 
+  // Update hotel info when data changes
   useEffect(() => {
     let hotelName = "Flavoro Foods";
     let hotelLogo = null;
     
-    // PRIORITY 1: Database mathi URL parameter (hotelData)
+    // Priority 1: Use hotelData from API (from URL parameter)
     if (hotelData && hotelData.success) {
       hotelName = hotelData.hotelname || "Flavoro Foods";
       if (hotelData.hotelLogo && hotelData.hotelLogo.url) {
         hotelLogo = hotelData.hotelLogo.url;
       }
     }
-    // PRIORITY 2: Database mathi User Login Profile (user)
-    else if (user) {
-      hotelName = user.hotelname || "Flavoro Foods";
-      if (user.hotelLogo && user.hotelLogo.url) {
-        hotelLogo = user.hotelLogo.url;
-      } else if (user.hotelLogo && user.hotelLogo.data) {
-        // Base64 logo mate fallback logic
-        hotelLogo = `data:${user.hotelLogo.contentType};base64,${user.hotelLogo.data}`;
+    // Priority 2: Use user data (if logged in)
+    else if (user && user.hotelname) {
+      hotelName = user.hotelname;
+      if (user.hotelLogo) {
+        if (user.hotelLogo.url) {
+          hotelLogo = user.hotelLogo.url;
+        } else if (user.hotelLogo.data && user.hotelLogo.contentType) {
+          hotelLogo = `data:${user.hotelLogo.contentType};base64,${user.hotelLogo.data}`;
+        }
       }
     }
     
@@ -50,87 +50,211 @@ const Navbar = () => {
       logo: hotelLogo
     });
     
-  }, [hotelData, user]); // Jyare database data change thase tyare update thase
+  }, [hotelData, user]);
+
+  // Function to get logo URL
+  const getLogoUrl = () => {
+    if (hotelInfo.logo) {
+      return hotelInfo.logo;
+    }
+    return null;
+  };
+
+  const logoUrl = getLogoUrl();
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 py-1">
         <div className="flex justify-between items-center py-4">
-          
-          {/* LOGO SECTION - Database mathi dynamic display */}
+          {/* Hotel Logo and Name Section */}
           <div className="flex items-center">
-            {hotelInfo.logo ? (
+            {logoUrl ? (
               <img 
-                src={hotelInfo.logo} 
+                src={logoUrl} 
                 alt={hotelInfo.name} 
                 className="h-10 w-10 mr-3 rounded-full object-cover border-2 border-green-600"
                 onError={(e) => {
-                  e.target.style.display = 'none'; // Logo load na thay to text fallback
+                  e.target.style.display = 'none';
+                  // Show text fallback
+                  const fallback = document.createElement('span');
+                  fallback.className = 'text-2xl font-bold text-green-600 mr-3';
+                  fallback.textContent = hotelInfo.name.charAt(0);
+                  e.target.parentNode.insertBefore(fallback, e.target.nextSibling);
                 }}
               />
             ) : (
-              <div className="h-10 w-10 mr-3 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-xl">
+              <span className="text-2xl font-bold text-green-600 mr-3">
                 {hotelInfo.name.charAt(0)}
-              </div>
+              </span>
             )}
             
             <div className="flex flex-col">
-              <span className="text-xl md:text-2xl font-bold text-gray-800">
+              <span className="text-2xl font-bold text-gray-800">
                 {hotelInfo.name}
               </span>
+              {!logoUrl && !hotelInfo.name.includes("Flavoro") && (
+                <span className="text-sm text-gray-500">
+                  Digital Menu
+                </span>
+              )}
             </div>
           </div>
 
-          {/* Desktop Search */}
+          {/* Mobile Menu Toggle Button - ADDED FIX */}
+          <button
+            className="md:hidden text-gray-700 ml-2"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? (
+              <FiX className="w-6 h-6" />
+            ) : (
+              <FiMenu className="w-6 h-6" />
+            )}
+          </button>
+
+          {/* Search Bar - Desktop */}
           <div className="hidden md:flex flex-1 max-w-md mx-6">
             <div className="relative w-full">
               <input
                 type="search"
                 placeholder="Search foods..."
                 onChange={(e) => dispatch(setSearch(e.target.value))}
-                className="w-full py-2 px-4 pl-10 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full py-2 px-4 pl-10 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
               />
               <FiSearch className="absolute left-3 top-3 text-gray-400" />
             </div>
           </div>
 
-          {/* Desktop Buttons */}
-          <div className="hidden md:flex items-center space-x-4">
-            {isAuthenticated ? (
-              <button onClick={() => dispatch(logout())} className="text-red-600 font-semibold">Logout</button>
-            ) : (
-              <button onClick={() => navigate("/login")} className="text-green-600 font-semibold">Login</button>
-            )}
-          </div>
-
-          {/* Mobile Menu Icon */}
-          <div className="md:hidden flex items-center">
-            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-              {mobileMenuOpen ? <FiX size={28} /> : <FiMenu size={28} />}
+          {/* User Section - Desktop */}
+          <div className="hidden md:flex items-center space-x-6">
+            {/* Cart Icon - ADDED */}
+            <button 
+              onClick={() => navigate("/cart")}
+              className="relative"
+            >
+              <FiShoppingCart className="w-6 h-6 text-gray-700 hover:text-green-600 transition-colors" />
+              {totalQty > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                  {totalQty}
+                </span>
+              )}
             </button>
+            
+            {isAuthenticated ? (
+              <div className="flex items-center space-x-4">
+                <span className="text-gray-700">Hi, {user?.name}</span>
+                <button
+                  onClick={() => {
+                    dispatch(logout());
+                    navigate("/");
+                  }}
+                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div className="flex space-x-4">
+                <button
+                  onClick={() => localStorage.getItem("token") ? navigate("/admin") : navigate("/login")}
+                  className="px-4 py-2 text-sm font-medium text-green-600 border border-green-600 rounded-md hover:bg-green-50 transition-colors"
+                >
+                  Login
+                </button>
+                <button
+                  onClick={() => navigate("/register")}
+                  className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors"
+                >
+                  Register
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Mobile View - Search Bar */}
-        <div className="md:hidden pb-4">
+        {/* Mobile Search */}
+        <div className="md:hidden mb-3">
           <div className="relative">
             <input
               type="search"
-              placeholder="Search..."
+              placeholder="Search foods..."
               onChange={(e) => dispatch(setSearch(e.target.value))}
-              className="w-full py-2 px-4 pl-10 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full py-2 px-4 pl-10 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
             />
             <FiSearch className="absolute left-3 top-3 text-gray-400" />
           </div>
         </div>
 
-        {/* Mobile Sidebar/Menu */}
+        {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-white border-t py-4">
-             <div className="flex flex-col space-y-3 px-4">
-                <p className="font-bold text-gray-700">Hotel: {hotelInfo.name}</p>
-                {/* Mobile login/logout buttons */}
-             </div>
+          <div className="md:hidden bg-white py-4 border-t shadow-lg">
+            <div className="flex flex-col space-y-4">
+              {/* Hotel Info in Mobile */}
+              <div className="px-4 py-2 border-b">
+                <div className="font-medium text-gray-800">{hotelInfo.name}</div>
+                {hotelData?.hotelId && (
+                  <div className="text-sm text-gray-500">Hotel ID: {hotelData.hotelId}</div>
+                )}
+              </div>
+              
+              {/* Mobile Cart Button - ADDED */}
+              <button 
+                onClick={() => {
+                  navigate("/cart");
+                  setMobileMenuOpen(false);
+                }}
+                className="flex items-center justify-between px-4 py-3 mx-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
+              >
+                <div className="flex items-center">
+                  <FiShoppingCart className="w-5 h-5 mr-3 text-gray-700" />
+                  <span className="font-medium">View Cart</span>
+                </div>
+                {totalQty > 0 && (
+                  <span className="bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
+                    {totalQty}
+                  </span>
+                )}
+              </button>
+              
+              {isAuthenticated ? (
+                <>
+                  <div className="px-4 py-3 border-t">
+                    <span className="text-gray-700">Hi, {user?.name}</span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      dispatch(logout());
+                      navigate("/");
+                      setMobileMenuOpen(false);
+                    }}
+                    className="mx-4 px-4 py-3 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <div className="space-y-3 px-4 border-t pt-4">
+                  <button
+                    onClick={() => {
+                      navigate("/login");
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full px-4 py-3 text-sm font-medium text-green-600 border border-green-600 rounded-md hover:bg-green-50 transition-colors"
+                  >
+                    Login
+                  </button>
+                  <button
+                    onClick={() => {
+                      navigate("/register");
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full px-4 py-3 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors"
+                  >
+                    Register
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
