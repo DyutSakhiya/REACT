@@ -66,7 +66,7 @@ const Navbar = () => {
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-1">
         <div className="flex justify-between items-center py-4">
-          {/* Hotel Logo and Name Section */}
+          {/* Hotel Logo and Name Section - REMOVED cursor-pointer */}
           <div className="flex items-center">
             {logoUrl ? (
               <img 
@@ -100,18 +100,6 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* Mobile Menu Toggle Button - ADDED FIX */}
-          <button
-            className="md:hidden text-gray-700 ml-2"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? (
-              <FiX className="w-6 h-6" />
-            ) : (
-              <FiMenu className="w-6 h-6" />
-            )}
-          </button>
-
           {/* Search Bar - Desktop */}
           <div className="hidden md:flex flex-1 max-w-md mx-6">
             <div className="relative w-full">
@@ -127,19 +115,6 @@ const Navbar = () => {
 
           {/* User Section - Desktop */}
           <div className="hidden md:flex items-center space-x-6">
-            {/* Cart Icon - ADDED */}
-            <button 
-              onClick={() => navigate("/cart")}
-              className="relative"
-            >
-              <FiShoppingCart className="w-6 h-6 text-gray-700 hover:text-green-600 transition-colors" />
-              {totalQty > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                  {totalQty}
-                </span>
-              )}
-            </button>
-            
             {isAuthenticated ? (
               <div className="flex items-center space-x-4">
                 <span className="text-gray-700">Hi, {user?.name}</span>
@@ -148,7 +123,7 @@ const Navbar = () => {
                     dispatch(logout());
                     navigate("/");
                   }}
-                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
+                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
                 >
                   Logout
                 </button>
@@ -157,19 +132,21 @@ const Navbar = () => {
               <div className="flex space-x-4">
                 <button
                   onClick={() => localStorage.getItem("token") ? navigate("/admin") : navigate("/login")}
-                  className="px-4 py-2 text-sm font-medium text-green-600 border border-green-600 rounded-md hover:bg-green-50 transition-colors"
+                  className="px-4 py-2 text-sm font-medium text-green-600 border border-green-600 rounded-md hover:bg-green-50"
                 >
                   Login
                 </button>
                 <button
                   onClick={() => navigate("/register")}
-                  className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors"
+                  className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700"
                 >
                   Register
                 </button>
               </div>
             )}
           </div>
+
+          
         </div>
 
         {/* Mobile Search */}
@@ -187,7 +164,7 @@ const Navbar = () => {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-white py-4 border-t shadow-lg">
+          <div className="md:hidden bg-white py-4 border-t">
             <div className="flex flex-col space-y-4">
               {/* Hotel Info in Mobile */}
               <div className="px-4 py-2 border-b">
@@ -197,49 +174,28 @@ const Navbar = () => {
                 )}
               </div>
               
-              {/* Mobile Cart Button - ADDED */}
-              <button 
-                onClick={() => {
-                  navigate("/cart");
-                  setMobileMenuOpen(false);
-                }}
-                className="flex items-center justify-between px-4 py-3 mx-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
-              >
-                <div className="flex items-center">
-                  <FiShoppingCart className="w-5 h-5 mr-3 text-gray-700" />
-                  <span className="font-medium">View Cart</span>
-                </div>
-                {totalQty > 0 && (
-                  <span className="bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
-                    {totalQty}
-                  </span>
-                )}
-              </button>
-              
               {isAuthenticated ? (
                 <>
-                  <div className="px-4 py-3 border-t">
-                    <span className="text-gray-700">Hi, {user?.name}</span>
-                  </div>
+                  <span className="px-4 py-2 text-gray-700">Hi, {user?.name}</span>
                   <button
                     onClick={() => {
                       dispatch(logout());
                       navigate("/");
                       setMobileMenuOpen(false);
                     }}
-                    className="mx-4 px-4 py-3 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
+                    className="mx-4 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
                   >
                     Logout
                   </button>
                 </>
               ) : (
-                <div className="space-y-3 px-4 border-t pt-4">
+                <div className="space-y-3 px-4">
                   <button
                     onClick={() => {
                       navigate("/login");
                       setMobileMenuOpen(false);
                     }}
-                    className="w-full px-4 py-3 text-sm font-medium text-green-600 border border-green-600 rounded-md hover:bg-green-50 transition-colors"
+                    className="w-full px-4 py-2 text-sm font-medium text-green-600 border border-green-600 rounded-md hover:bg-green-50"
                   >
                     Login
                   </button>
@@ -248,7 +204,7 @@ const Navbar = () => {
                       navigate("/register");
                       setMobileMenuOpen(false);
                     }}
-                    className="w-full px-4 py-3 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors"
+                    className="w-full px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700"
                   >
                     Register
                   </button>
