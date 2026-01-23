@@ -121,10 +121,7 @@ const Sidebar = () => {
               <h2 className="text-lg font-bold text-gray-900 truncate">
                 {hotelName}
               </h2>
-              <p className="text-xs text-gray-500">Hotel Admin Panel</p>
-              {hotelData?.hotelId && (
-                <p className="text-xs text-gray-400">ID: {hotelData.hotelId}</p>
-              )}
+             
             </div>
           </div>
         </div>
