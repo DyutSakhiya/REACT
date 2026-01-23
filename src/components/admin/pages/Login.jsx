@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -7,7 +7,17 @@ const AdminLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, setHotelData } = useAuth();
+
+  // Check for hotelId in URL on component mount
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const hotelId = urlParams.get('hotelId');
+    
+    if (hotelId) {
+      document.title = `Hotel ${hotelId} - Login`;
+    }
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -20,14 +30,23 @@ const AdminLogin = () => {
     setError('');
 
     const { mobile, password } = formData;
+    const urlParams = new URLSearchParams(window.location.search);
+    const hotelId = urlParams.get('hotelId');
+    
     const success = await login(mobile, password);
-    setIsLoading(false);
-
+    
     if (success) {
-      navigate('/admin');
+      // If hotelId was in URL, preserve it
+      if (hotelId) {
+        navigate(`/admin?hotelId=${hotelId}`);
+      } else {
+        navigate('/admin');
+      }
     } else {
       setError('Invalid credentials. Please try again.');
     }
+    
+    setIsLoading(false);
   };
 
   return (

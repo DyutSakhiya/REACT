@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -18,10 +17,15 @@ export default function Register() {
   const [imagePreview, setImagePreview] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
 
+  // Check for hotelId in URL
   useEffect(() => {
-    if (user) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const hotelId = urlParams.get('hotelId');
+    
+    if (hotelId) {
+      document.title = `Register for Hotel ${hotelId}`;
     }
-  }, [user]);
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -35,14 +39,12 @@ export default function Register() {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Validate file type
       const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
       if (!validTypes.includes(file.type)) {
         alert("Only JPEG, PNG, GIF, and WebP images are allowed");
         return;
       }
       
-      // Validate file size (5MB)
       if (file.size > 5 * 1024 * 1024) {
         alert("Image size should be less than 5MB");
         return;
@@ -74,7 +76,6 @@ export default function Register() {
 
     setIsLoading(true);
     
-    // Send registration data with image
     const success = await register(
       formData.name,
       formData.mobile,
@@ -86,7 +87,15 @@ export default function Register() {
     setIsLoading(false);
 
     if (success) {
-      navigate("/login");
+      // Check if there's a hotelId in URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const hotelId = urlParams.get('hotelId');
+      
+      if (hotelId) {
+        navigate(`/login?hotelId=${hotelId}`);
+      } else {
+        navigate("/login");
+      }
     }
   };
 
@@ -122,6 +131,9 @@ export default function Register() {
             <h2 className="text-3xl font-bold text-orange-700 mt-4">
               Create Your Flavaro Account
             </h2>
+            <p className="text-sm text-gray-600 mt-2">
+              Register your hotel to get started
+            </p>
           </div>
           <div className="w-full flex flex-row gap-2">
             <div className="w-1/2">

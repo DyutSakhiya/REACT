@@ -26,6 +26,10 @@ const Navbar = () => {
     let hotelName = "Flavoro Foods";
     let hotelLogo = null;
     
+    // Get hotel_id from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const hotelIdFromUrl = urlParams.get('hotel_id') || urlParams.get('hotelId');
+    
     // Priority 1: Use hotelData from API (from URL parameter)
     if (hotelData && hotelData.success) {
       hotelName = hotelData.hotelname || "Flavoro Foods";
@@ -43,6 +47,10 @@ const Navbar = () => {
           hotelLogo = `data:${user.hotelLogo.contentType};base64,${user.hotelLogo.data}`;
         }
       }
+    }
+    // Priority 3: If hotel_id in URL but no data fetched yet
+    else if (hotelIdFromUrl) {
+      hotelName = `Hotel ${hotelIdFromUrl}`;
     }
     
     setHotelInfo({
