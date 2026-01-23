@@ -8,12 +8,24 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [hotelData, setHotelData] = useState(null);
 
+  /* ---------- Get hotelId from URL ---------- */
+  const getHotelIdFromUrl = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('hotel_id') || urlParams.get('hotelId');
+  };
+
   /* ---------- Fetch hotel data by hotelId ---------- */
   const fetchHotelData = async (hotelId) => {
     try {
-      console.log("Fetching hotel data for:", hotelId);
+      console.log("Fetching hotel data for ID:", hotelId);
       const response = await fetch(`${API_URL}/hotel/${hotelId}`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
+      console.log("Hotel API response:", data);
       
       if (data.success) {
         // Store in React state ONLY, NOT in localStorage
@@ -31,16 +43,19 @@ export const AuthProvider = ({ children }) => {
 
   /* ---------- restore session on mount ---------- */
   useEffect(() => {
-    // Clear any existing hotel data from localStorage
-    localStorage.removeItem('hotelData');
-    localStorage.removeItem('hotelInfo');
+    // Clear any existing hotel data from localStorage to prevent quota errors
+    try {
+      localStorage.removeItem('hotelData');
+      localStorage.removeItem('hotelInfo');
+    } catch (e) {
+      console.log("Could not clear localStorage items:", e);
+    }
 
     const token = localStorage.getItem("token");
     const userData = localStorage.getItem("user");
 
     // Get hotelId from URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const hotelId = urlParams.get('hotel_id') || urlParams.get('hotelId');
+    const hotelId = getHotelIdFromUrl();
     
     if (hotelId) {
       // Fetch hotel data from API (not from localStorage)
@@ -70,27 +85,40 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({ mobile, password }),
       });
 
+      if (!response.ok) {
+        throw new Error(`Login failed with status: ${response.status}`);
+      }
+
       const data = await response.json();
+      
       if (data.success) {
         // Store only user token and basic user info
         localStorage.setItem("token", data.token);
         
-        // Store minimal user data without hotelLogo
+        // Store minimal user data including hotelLogo
         const minimalUser = {
           name: data.user.name,
           mobile: data.user.mobile,
           hotelId: data.user.hotelId,
           hotelname: data.user.hotelname,
-          role: data.user.role
+          role: data.user.role,
+          hotelLogo: data.user.hotelLogo || null
         };
-        localStorage.setItem("user", JSON.stringify(minimalUser));
         
+        localStorage.setItem("user", JSON.stringify(minimalUser));
         setUser(minimalUser);
+        
+        // If hotelId is in URL, also fetch fresh hotel data
+        const hotelId = getHotelIdFromUrl();
+        if (hotelId) {
+          fetchHotelData(hotelId);
+        }
+        
         return true;
+      } else {
+        alert(data.message || "Login failed");
+        return false;
       }
-
-      alert(data.message || "Login failed");
-      return false;
     } catch (err) {
       console.error("Login error:", err);
       alert("Network error. Please try again.");
@@ -137,10 +165,28 @@ export const AuthProvider = ({ children }) => {
 
   /* ---------- logout ---------- */
   const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    try {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+    } catch (e) {
+      console.log("Error clearing localStorage:", e);
+    }
     setUser(null);
     setHotelData(null);
+  };
+
+  /* ---------- Clear hotel data ---------- */
+  const clearHotelData = () => {
+    setHotelData(null);
+  };
+
+  /* ---------- Refresh hotel data ---------- */
+  const refreshHotelData = async () => {
+    const hotelId = getHotelIdFromUrl();
+    if (hotelId) {
+      return await fetchHotelData(hotelId);
+    }
+    return null;
   };
 
   return (
@@ -152,7 +198,10 @@ export const AuthProvider = ({ children }) => {
         logout, 
         loading, 
         hotelData,
-        fetchHotelData
+        fetchHotelData,
+        clearHotelData,
+        refreshHotelData,
+        getHotelIdFromUrl
       }}
     >
       {children}
