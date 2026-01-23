@@ -9,12 +9,10 @@ import { useAuth } from "../components/admin/context/AuthContext";
 const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, hotelData } = useAuth();
+
   const cartItems = useSelector((state) => state.cart.cart);
   const { isAuthenticated } = useSelector((state) => state.auth);
-
-  const totalQty = cartItems.reduce((total, item) => total + item.qty, 0);
 
   const [hotelInfo, setHotelInfo] = useState({
     name: "Flavoro Foods",
@@ -30,7 +28,8 @@ const Navbar = () => {
       if (hotelData.hotelLogo && hotelData.hotelLogo.url) {
         hotelLogo = hotelData.hotelLogo.url;
       }
-    } else if (user && user.hotelname) {
+    } 
+    else if (user && user.hotelname) {
       hotelName = user.hotelname;
       if (user.hotelLogo) {
         if (user.hotelLogo.url) {
@@ -47,22 +46,21 @@ const Navbar = () => {
     });
   }, [hotelData, user]);
 
-  // ✅ FIXED LOGO URL (Database + Mobile friendly)
+  // ✅ IMPORTANT FIX (Mobile + Database Logo)
   const getLogoUrl = () => {
     if (!hotelInfo.logo) return null;
 
     if (hotelInfo.logo.startsWith("http")) return hotelInfo.logo;
     if (hotelInfo.logo.startsWith("data:")) return hotelInfo.logo;
 
-    // 🔥 Change backend URL here if needed
-    return `http://localhost:5000/${hotelInfo.logo}`;
+    // 🔥 CHANGE THIS IP TO YOUR PC IP ADDRESS
+    return `http://192.168.1.5:5000/${hotelInfo.logo}`;
   };
 
   const logoUrl = getLogoUrl();
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
-      {/* ✅ FIXED CONTAINER (mobile friendly) */}
       <div className="w-full px-4 py-2">
         <div className="flex justify-between items-center">
 
@@ -74,7 +72,7 @@ const Navbar = () => {
                 alt={hotelInfo.name}
                 className="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-contain border-2 border-green-600 bg-white"
                 onError={(e) => {
-                  e.target.src = "/default-logo.png"; // fallback logo
+                  e.target.src = "/default-logo.png";
                 }}
               />
             ) : (
@@ -106,7 +104,7 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* ✅ USER SECTION (Desktop) */}
+          {/* ✅ USER SECTION */}
           <div className="hidden md:flex items-center space-x-4">
             {isAuthenticated ? (
               <>
